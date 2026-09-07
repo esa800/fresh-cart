@@ -26,6 +26,7 @@ import { FaqPage } from './pages/FaqPage';
 import { ContactUsPage } from './pages/ContactUsPage';
 import { PoliciesPage } from './pages/PoliciesPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { StoreService } from './services/store';
 
 function MainApp() {
   // Navigation State
@@ -40,6 +41,11 @@ function MainApp() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView, viewParam]);
+
+  // Record visitor on app load
+  useEffect(() => {
+    StoreService.recordVisitor();
+  }, []);
 
   const handleNavigate = (view: string, param?: string) => {
     setCurrentView(view);
@@ -65,7 +71,7 @@ function MainApp() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+      <main className={isAdminView ? "flex-1 w-full bg-slate-100" : "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6"}>
         {currentView === 'home' && (
           <HomePage 
             onNavigate={handleNavigate} 

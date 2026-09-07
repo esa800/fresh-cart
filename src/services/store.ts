@@ -40,6 +40,9 @@ const STORAGE_KEYS = {
   CART: 'freshcart_cart_v1',
   WISHLIST: 'freshcart_wishlist_v1',
   SELECTED_ZONE: 'freshcart_selected_zone_v1',
+  ADMIN_AUTH: 'freshcart_admin_auth_v1',
+  ADMIN_PASS: 'freshcart_admin_pass_v1',
+  VISITORS: 'freshcart_visitors_v1',
 };
 
 // Simple event subscriber for reactivity across components
@@ -332,6 +335,9 @@ export const StoreService = {
     }
     setItem(STORAGE_KEYS.COUPONS, coupons);
   },
+  saveCoupons(coupons: Coupon[]): void {
+    setItem(STORAGE_KEYS.COUPONS, coupons);
+  },
   deleteCoupon(id: string): void {
     const coupons = this.getCoupons().filter((c) => c.id !== id);
     setItem(STORAGE_KEYS.COUPONS, coupons);
@@ -452,5 +458,103 @@ export const StoreService = {
   },
   updateSettings(settings: StoreSettings): void {
     setItem(STORAGE_KEYS.SETTINGS, settings);
+  },
+  saveSettings(settings: StoreSettings): void {
+    this.updateSettings(settings);
+  },
+
+  // Visitors Counter & Analytics
+  getVisitorStats(): { totalViews: number; uniqueVisitors: number } {
+    return getItem<{ totalViews: number; uniqueVisitors: number }>(STORAGE_KEYS.VISITORS, {
+      totalViews: 1984,
+      uniqueVisitors: 742
+    });
+  },
+  recordVisitor(): void {
+    const current = this.getVisitorStats();
+    let isNewUnique = false;
+    try {
+      if (!sessionStorage.getItem('freshcart_visited')) {
+        sessionStorage.setItem('freshcart_visited', 'true');
+        isNewUnique = true;
+      }
+    } catch {
+      // safe fallback
+    }
+    const updated = {
+      totalViews: current.totalViews + 1,
+      uniqueVisitors: isNewUnique ? current.uniqueVisitors + 1 : current.uniqueVisitors
+    };
+    setItem(STORAGE_KEYS.VISITORS, updated);
+  },
+
+  // Admin Security
+  getAdminPassword(): string {
+    return getItem<string>(STORAGE_KEYS.ADMIN_PASS, 'ESA006##');
+  },
+  setAdminPassword(newPass: string): void {
+    setItem(STORAGE_KEYS.ADMIN_PASS, newPass);
+  },
+  isAdminSessionActive(): boolean {
+    return getItem<boolean>(STORAGE_KEYS.ADMIN_AUTH, false);
+  },
+  setAdminSession(active: boolean): void {
+    setItem(STORAGE_KEYS.ADMIN_AUTH, active);
+  },
+
+  // Order Courier Tracking Update
+  updateOrderCourier(orderId: string, courierService: string, courierTrackingId: string): void {
+    const orders = this.getOrders();
+    const order = orders.find((o) => o.id === orderId);
+    if (order) {
+      order.courierService = courierService;
+      order.courierTrackingId = courierTrackingId;
+      if (order.orderStatus === 'Pending' || order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') {
+        order.orderStatus = 'Shipped';
+        order.deliveryStatus = `Shipped via ${courierService} (${courierTrackingId})`;
+      }
+      setItem(STORAGE_KEYS.ORDERS, orders);
+    }
+  },
+
+  // Cloud Sync Snapshot Export/Import
+  exportStoreSnapshot(): string {
+    const snapshot = {
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      products: this.getProducts(),
+      categories: this.getCategories(),
+      brands: this.getBrands(),
+      orders: this.getOrders(),
+      coupons: this.getCoupons(),
+      banners: this.getBanners(),
+      zones: this.getDeliveryZones(),
+      settings: this.getSettings()
+    };
+    return JSON.stringify(snapshot, null, 2);
+  },
+  importStoreSnapshot(jsonStr: string): boolean {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (data.products && Array.isArray(data.products)) {
+        setItem(STORAGE_KEYS.PRODUCTS, data.products);
+      }
+      if (data.categories && Array.isArray(data.categories)) {
+        setItem(STORAGE_KEYS.CATEGORIES, data.categories);
+      }
+      if (data.orders && Array.isArray(data.orders)) {
+        setItem(STORAGE_KEYS.ORDERS, data.orders);
+      }
+      if (data.coupons && Array.isArray(data.coupons)) {
+        setItem(STORAGE_KEYS.COUPONS, data.coupons);
+      }
+      if (data.settings) {
+        setItem(STORAGE_KEYS.SETTINGS, data.settings);
+      }
+      return true;
+    } catch (err) {
+      console.error('Import store snapshot failed', err);
+      return false;
+    }
   }
 };

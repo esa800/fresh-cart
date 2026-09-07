@@ -30,10 +30,13 @@ export interface Category {
   banglaName: string;
   slug: string;
   image: string;
-  iconName: string;
-  productCount: number;
-  displayOrder: number;
-  isActive: boolean;
+  iconName?: string;
+  icon?: string;
+  description?: string;
+  featured?: boolean;
+  productCount?: number;
+  displayOrder?: number;
+  isActive?: boolean;
   subcategories?: string[];
 }
 
@@ -69,6 +72,10 @@ export interface Product {
   isFeatured: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
+  isDarazMall?: boolean;
+  isFreeDelivery?: boolean;
+  isFlashSale?: boolean;
+  variants?: string[];
   tags: string[];
   rating: number;       // 1.0 - 5.0
   reviewCount: number;
@@ -136,6 +143,8 @@ export interface Order {
   estimatedDelivery: string;
   orderDate: string;
   notes?: string;
+  courierService?: 'Steadfast' | 'Pathao' | 'RedX' | 'Sundarban' | string;
+  courierTrackingId?: string;
   paymentDetails?: {
     transactionId?: string;
     senderNumber?: string;
@@ -150,10 +159,10 @@ export interface Coupon {
   discountType: 'percentage' | 'fixed';
   discountValue: number;
   minOrderAmount: number;
-  maxDiscountAmount: number;
+  maxDiscountAmount?: number;
   expiryDate: string;
-  usageLimit: number;
-  usageCount: number;
+  usageLimit?: number;
+  usageCount?: number;
   isActive: boolean;
   description?: string;
 }
@@ -198,12 +207,16 @@ export interface StoreSettings {
   storeName: string;
   brandTagline: string;
   hotline: string;
+  whatsappNumber?: string;
   supportEmail: string;
   officeAddress: string;
   bkashMerchantNumber: string;
   nagadMerchantNumber: string;
   taxPercentage: number;
   announcementText: string;
+  isAnnouncementActive?: boolean;
   currency: string;
   currencySymbol: string;
+  adminPassword?: string;
+  aboutUsText?: string;
 }

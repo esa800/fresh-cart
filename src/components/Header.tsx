@@ -45,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
   const searchRef = useRef<HTMLDivElement>(null);
   const categories = StoreService.getCategories();
   const allProducts = StoreService.getProducts();
+  const settings = StoreService.getSettings();
 
   // Search auto-suggestions
   const filteredSuggestions = searchQuery.trim()
@@ -86,21 +87,37 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
+      {/* 0. Top Announcement Notice Bar (Toggleable in Store Settings) */}
+      {settings.isAnnouncementActive !== false && settings.announcementText && (
+        <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 text-xs font-bold py-1.5 px-4 text-center overflow-hidden border-b border-amber-300/80 shadow-xs">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{settings.announcementText}</span>
+            <button
+              onClick={() => onNavigate('shop', 'filter=flash')}
+              className="underline hover:text-slate-800 text-[11px] shrink-0 font-extrabold ml-1"
+            >
+              Order Now ➜
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Top Bar */}
       <div className="bg-emerald-900 text-emerald-100 text-xs py-1.5 px-4 hidden md:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Hotline: <strong className="text-white">+880 1700-FRESH (01700-373741)</strong></span>
+              <span>Hotline: <strong className="text-white">{settings.hotline || '+880 1700-FRESH'}</strong></span>
             </div>
             <div className="flex items-center gap-1.5 text-emerald-200">
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>100% Fresh & Authentic Bangladeshi Groceries Delivered</span>
+              <span>100% Authentic Bangladeshi E-Commerce & Fast Delivery</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               id="topbar-track-order-btn"
               onClick={() => onNavigate('track-order')}
@@ -112,67 +129,18 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
 
             <span className="text-emerald-700">|</span>
 
-            {/* Quick Demo Role Switcher to make grading and testing instantaneous */}
-            <div className="relative">
-              <button
-                id="role-switch-dropdown-btn"
-                onClick={() => setIsRoleSwitcherOpen(!isRoleSwitcherOpen)}
-                className="bg-emerald-800/80 hover:bg-emerald-800 text-emerald-100 px-2 py-0.5 rounded text-[11px] font-medium flex items-center gap-1 border border-emerald-700/60"
-                title="Switch active role for testing"
-              >
-                <ShieldCheck className="w-3 h-3 text-emerald-300" />
-                <span>Role: <strong className="text-white capitalize">{role.replace('_', ' ')}</strong></span>
-                <ChevronDown className="w-3 h-3" />
-              </button>
-
-              {isRoleSwitcherOpen && (
-                <div 
-                  id="role-switcher-menu" 
-                  className="absolute right-0 mt-1 w-48 bg-slate-900 text-white rounded-lg shadow-xl border border-slate-800 p-1.5 z-50 text-xs"
-                >
-                  <p className="text-[10px] text-slate-400 px-2 py-1 font-semibold uppercase tracking-wider">Quick Switch Account</p>
-                  <button
-                    onClick={() => { switchDemoRole('customer'); setIsRoleSwitcherOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 flex items-center justify-between ${role === 'customer' ? 'text-emerald-400 font-semibold' : ''}`}
-                  >
-                    <span>Regular Customer</span>
-                    {role === 'customer' && <span className="text-[10px]">Active</span>}
-                  </button>
-                  <button
-                    onClick={() => { switchDemoRole('super_admin'); setIsRoleSwitcherOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 flex items-center justify-between ${role === 'super_admin' ? 'text-emerald-400 font-semibold' : ''}`}
-                  >
-                    <span>Super Admin</span>
-                    {role === 'super_admin' && <span className="text-[10px]">Active</span>}
-                  </button>
-                  <button
-                    onClick={() => { switchDemoRole('order_manager'); setIsRoleSwitcherOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 flex items-center justify-between ${role === 'order_manager' ? 'text-emerald-400 font-semibold' : ''}`}
-                  >
-                    <span>Order Manager</span>
-                    {role === 'order_manager' && <span className="text-[10px]">Active</span>}
-                  </button>
-                  <button
-                    onClick={() => { switchDemoRole('product_manager'); setIsRoleSwitcherOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded hover:bg-slate-800 flex items-center justify-between ${role === 'product_manager' ? 'text-emerald-400 font-semibold' : ''}`}
-                  >
-                    <span>Product Manager</span>
-                    {role === 'product_manager' && <span className="text-[10px]">Active</span>}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {isAdmin && (
-              <button
-                id="header-admin-panel-btn"
-                onClick={() => onNavigate('admin')}
-                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1 transition-colors"
-              >
-                <Layers className="w-3 h-3" />
-                Admin Dashboard
-              </button>
-            )}
+            {/* Dan Pase Ekdom Konay AP Admin Panel Button */}
+            <button
+              id="topbar-admin-panel-btn"
+              onClick={() => onNavigate('admin')}
+              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-2.5 py-0.5 rounded text-[11px] flex items-center gap-1.5 shadow-xs transition-colors"
+              title="অ্যাডমিন প্যানেল (Admin Panel)"
+            >
+              <span className="w-4 h-4 rounded bg-slate-950 text-amber-300 flex items-center justify-center font-extrabold text-[9px]">
+                AP
+              </span>
+              <span>Admin Panel</span>
+            </button>
           </div>
         </div>
       </div>
@@ -430,6 +398,19 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                 <span className="text-[10px] text-emerald-200 block">Cart</span>
                 <span className="font-extrabold mt-0.5 block">৳{subtotal}</span>
               </div>
+            </button>
+
+            {/* Extreme Right Corner: AP Button (অ্যাডমিন প্যানেল) */}
+            <button
+              id="header-ap-admin-shortcut-btn"
+              onClick={() => onNavigate('admin')}
+              className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-2.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs border border-slate-700 active:scale-95 shrink-0"
+              title="অ্যাডমিন প্যানেল (Admin Panel)"
+            >
+              <span className="w-5 h-5 rounded-md bg-amber-400 text-slate-950 flex items-center justify-center font-black text-[10px]">
+                AP
+              </span>
+              <span className="hidden sm:inline text-[11px] font-bold text-amber-300">Admin</span>
             </button>
           </div>
         </div>

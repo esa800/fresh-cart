@@ -151,16 +151,27 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen, onClo
             </div>
           </div>
 
-          {/* Payment Method Details */}
-          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs flex items-center justify-between">
+          {/* Payment Method & Courier Details */}
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="text-slate-500 font-medium">Payment Mode: </span>
               <strong className="text-slate-900 uppercase">{order.paymentMethod}</strong>
               {order.paymentDetails?.transactionId && (
                 <span className="text-slate-600 ml-2">(TrxID: {order.paymentDetails.transactionId})</span>
               )}
+              {order.courierService && (
+                <div className="mt-1 text-slate-700">
+                  <span className="font-semibold text-slate-900">Courier Partner: </span>
+                  <span>{order.courierService}</span>
+                  {order.courierTrackingId && (
+                    <span className="ml-1 text-emerald-800 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      Tracking #{order.courierTrackingId}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1 text-emerald-700 font-bold">
+            <div className="flex items-center gap-1 text-emerald-700 font-bold shrink-0">
               <CheckCircle2 className="w-4 h-4" />
               <span>Status: {order.orderStatus}</span>
             </div>
