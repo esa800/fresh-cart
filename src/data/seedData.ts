@@ -1461,6 +1461,19 @@ export const INITIAL_PRODUCTS: Product[] = [
 
 export const INITIAL_COUPONS: Coupon[] = [
   {
+    id: 'c-khan10',
+    code: 'KHAN10',
+    discountType: 'percentage',
+    discountValue: 10,
+    minOrderAmount: 500,
+    maxDiscountAmount: 300,
+    expiryDate: '2026-12-31',
+    usageLimit: 500,
+    usageCount: 14,
+    isActive: true,
+    description: 'Special 10% instant discount on all gadget & lifestyle orders'
+  },
+  {
     id: 'c-fresh10',
     code: 'FRESH10',
     discountType: 'percentage',
@@ -1906,15 +1919,17 @@ export const INITIAL_REVIEWS: Review[] = [
 ];
 
 export const INITIAL_STORE_SETTINGS: StoreSettings = {
-  storeName: 'FreshCart BD',
-  brandTagline: 'সবচেয়ে তাজা বাজার, সবচেয়ে কম সময়ে আপনার দরজায়',
-  hotline: '+880 1700-FRESH (01700-373741)',
-  supportEmail: 'support@freshcartbd.com',
-  officeAddress: 'Level 4, Plot 18, Road 2, Block A, Bashundhara R/A, Dhaka 1229, Bangladesh',
-  bkashMerchantNumber: '01888-009988 (Merchant Pay)',
-  nagadMerchantNumber: '01888-009977 (Merchant Pay)',
+  storeName: 'KHAN GADGET BD',
+  brandTagline: 'সেরা গ্যাজেট, ফ্যাশন ও ফুড আইটেম, সারাদেশে দ্রুততম ক্যাশ অন ডেলিভারি',
+  hotline: '01854774406',
+  whatsappNumber: '01854774406',
+  supportEmail: 'support@khangadgetbd.com',
+  officeAddress: 'Level 4, Multiplan Center, Elephant Road, Dhaka, Bangladesh',
+  bkashMerchantNumber: '01854-774406 (Personal / Send Money)',
+  nagadMerchantNumber: '01854-774406 (Personal / Send Money)',
   taxPercentage: 0,
-  announcementText: '🔥 রমজান ও বৈশাখ উপলক্ষে নির্বাচিত তাজা মুদিতে ১০% পর্যন্ত ছাড়! ঢাকায় ২ ঘণ্টায় হোম ডেলিভারি!',
+  announcementText: '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি',
+  isAnnouncementActive: true,
   currency: 'BDT',
   currencySymbol: '৳'
 };

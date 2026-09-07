@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Key, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles, Store, ArrowRight } from 'lucide-react';
+import { Lock, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles, Store, ArrowRight } from 'lucide-react';
 import { StoreService } from '../../../services/store';
 
 interface AdminLoginModalProps {
@@ -25,7 +25,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onSuccess, onN
         StoreService.setAdminSession(true);
         onSuccess();
       } else {
-        setError('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড প্রদান করুন (ডিফল্ট: ESA006##)');
+        setError('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড প্রদান করুন।');
         setIsSubmitting(false);
       }
     }, 250);
@@ -89,20 +89,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onSuccess, onN
                   <span>{error}</span>
                 </div>
               )}
-            </div>
-
-            {/* Default Password Prompt & Security Note */}
-            <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <Key className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>ডিফল্ট অ্যাক্সেস ক্রেডেনশিয়াল:</span>
-              </div>
-              <p className="text-slate-700">
-                ডিফল্ট পাসওয়ার্ড: <code className="bg-amber-100 text-amber-950 px-2 py-0.5 rounded font-mono font-bold">ESA006##</code>
-              </p>
-              <p className="text-[11px] text-slate-500">
-                লগইন করার পর <span className="font-semibold text-slate-700">Store Controls</span> ট্যাব থেকে যেকোনো সময় পাসওয়ার্ড পরিবর্তন করতে পারবেন।
-              </p>
             </div>
 
             {/* Submit Button */}

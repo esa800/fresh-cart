@@ -369,7 +369,7 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
               <span>অ্যাডমিন পাসওয়ার্ড পরিবর্তন (Change Admin Password)</span>
             </h3>
             <p className="text-xs text-slate-500">
-              বর্তমান ডিফল্ট পাসওয়ার্ড: <code className="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold font-mono">ESA006##</code>
+              অ্যাডমিন প্যানেলের নিরাপত্তা নিশ্চিত করতে নিয়মিত শক্তিশালী পাসওয়ার্ড ব্যবহার করুন
             </p>
           </div>
           <ShieldCheck className="w-6 h-6 text-emerald-600" />
