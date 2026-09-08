@@ -3,6 +3,7 @@ import { ToastProvider } from './contexts/ToastContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { QuickOrderProvider } from './contexts/QuickOrderContext';
 
 // Core Components
 import { Header } from './components/Header';
@@ -71,8 +72,9 @@ function MainApp() {
   const isAdminView = currentView === 'admin';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
-      {/* Header is hidden or minimized if in full admin screen, but kept accessible */}
+    <QuickOrderProvider onOrderSuccess={handleOrderPlaced}>
+      <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
+        {/* Header is hidden or minimized if in full admin screen, but kept accessible */}
       <Header
         currentView={currentView}
         viewParam={viewParam}
@@ -196,6 +198,7 @@ function MainApp() {
         onClose={() => setIsAreaModalOpen(false)}
       />
     </div>
+  </QuickOrderProvider>
   );
 }
 

@@ -1,8 +1,9 @@
 import React from 'react';
-import { Heart, Plus, Minus, Check, AlertTriangle, Eye } from 'lucide-react';
+import { Heart, Plus, Minus, Check, AlertTriangle, Eye, Zap } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { useQuickOrder } from '../contexts/QuickOrderContext';
 import { useToast } from '../contexts/ToastContext';
 
 interface ProductCardProps {
@@ -13,6 +14,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onNavigate }) => {
   const { items, addToCart, updateQuantity } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { openQuickOrder } = useQuickOrder();
   const { showToast } = useToast();
 
   const cartItem = items.find((i) => i.product.id === product.id);
@@ -158,8 +160,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onNavigate })
             </div>
           </div>
 
-          {/* Action: Add or +/- Counter */}
-          <div>
+          {/* Action: Add or +/- Counter & Quick Buy */}
+          <div className="flex items-center gap-1.5">
             {isOutOfStock ? (
               <button
                 disabled
@@ -189,14 +191,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onNavigate })
                 </button>
               </div>
             ) : (
-              <button
-                id={`add-to-cart-btn-${product.id}`}
-                onClick={handleAddToCart}
-                className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-orange-50 hover:bg-[#f85606] text-[#ea580c] hover:text-white border border-orange-200 hover:border-[#f85606] rounded-xl text-xs font-bold transition-all flex items-center gap-1 active:scale-95 shadow-2xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add</span>
-              </button>
+              <>
+                <button
+                  id={`quick-buy-btn-${product.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openQuickOrder(product);
+                  }}
+                  className="px-2 py-1.5 bg-[#f85606] hover:bg-[#ea580c] text-white rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 shadow-2xs"
+                  title="১-ক্লিক দ্রুত অর্ডার"
+                >
+                  <Zap className="w-3 h-3 fill-white" />
+                  <span>Buy</span>
+                </button>
+                <button
+                  id={`add-to-cart-btn-${product.id}`}
+                  onClick={handleAddToCart}
+                  className="px-2.5 py-1.5 bg-orange-50 hover:bg-[#f85606] text-[#ea580c] hover:text-white border border-orange-200 hover:border-[#f85606] rounded-xl text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 shadow-2xs"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add</span>
+                </button>
+              </>
             )}
           </div>
         </div>

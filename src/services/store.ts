@@ -10,7 +10,8 @@ import {
   Review, 
   StoreSettings, 
   OrderStatus, 
-  PaymentStatus 
+  PaymentStatus,
+  SMSLog 
 } from '../types';
 import { 
   INITIAL_CATEGORIES, 
@@ -43,6 +44,7 @@ const STORAGE_KEYS = {
   ADMIN_AUTH: 'freshcart_admin_auth_v1',
   ADMIN_PASS: 'freshcart_admin_pass_v1',
   VISITORS: 'freshcart_visitors_v1',
+  SMS_LOGS: 'freshcart_sms_logs_v1',
 };
 
 // Ultra-fast Real-Time Multi-Tab / Multi-Window Synchronizer
@@ -253,7 +255,7 @@ export const StoreService = {
   createOrder(orderData: Omit<Order, 'id' | 'orderNumber' | 'orderDate'>): Order {
     const orders = this.getOrders();
     const now = new Date();
-    const orderNumber = `FCB-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderNumber = `KG-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder: Order = {
       ...orderData,
       id: `ord-${Date.now()}`,
@@ -273,9 +275,72 @@ export const StoreService = {
       this.incrementCouponUsage(orderData.couponCode);
     }
 
+    // Auto-generate & dispatch confirmation SMS
+    try {
+      const sms = this.sendOrderConfirmationSMS(newOrder);
+      newOrder.smsSent = true;
+      newOrder.smsSentAt = sms.sentAt;
+      newOrder.smsContent = sms.message;
+    } catch (err) {
+      console.warn('SMS dispatch simulation handled:', err);
+    }
+
     orders.unshift(newOrder);
     setItem(STORAGE_KEYS.ORDERS, orders);
     return newOrder;
+  },
+
+  // SMS Notification Engine
+  getSMSLogs(): SMSLog[] {
+    return getItem<SMSLog[]>(STORAGE_KEYS.SMS_LOGS, []);
+  },
+
+  sendOrderConfirmationSMS(order: Order): SMSLog {
+    const settings = this.getSettings();
+    const hotline = settings.hotline || settings.phone || '01854774406';
+    const storeName = settings.storeName || 'KHAN GADGET BD';
+    
+    // Customized or standard template
+    const template = settings.smsTemplate || `প্রিয় [NAME], ${storeName}-এ আপনার অর্ডার [ORDER_ID] সফল হয়েছে! সর্বমোট: ৳[TOTAL]। দ্রুততম সময়ে ডেলিভারির ব্যবস্থা করা হচ্ছে। হেল্পলাইন: ${hotline}`;
+    
+    const message = template
+      .replace('[NAME]', order.customerName)
+      .replace('[ORDER_ID]', order.orderNumber)
+      .replace('[TOTAL]', order.total.toLocaleString());
+
+    const smsLog: SMSLog = {
+      id: `sms-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      recipientPhone: order.phone,
+      recipientName: order.customerName,
+      message,
+      sentAt: new Date().toISOString(),
+      status: 'Delivered',
+      provider: 'Greenweb / BulkSMS BD Gateway'
+    };
+
+    const logs = this.getSMSLogs();
+    logs.unshift(smsLog);
+    setItem(STORAGE_KEYS.SMS_LOGS, logs);
+
+    // Update order reference if already exists
+    const orders = this.getOrders();
+    const target = orders.find(o => o.id === order.id || o.orderNumber === order.orderNumber);
+    if (target) {
+      target.smsSent = true;
+      target.smsSentAt = smsLog.sentAt;
+      target.smsContent = message;
+      setItem(STORAGE_KEYS.ORDERS, orders);
+    }
+
+    return smsLog;
+  },
+
+  resendOrderSMS(orderId: string): SMSLog | null {
+    const order = this.getOrderById(orderId);
+    if (!order) return null;
+    return this.sendOrderConfirmationSMS(order);
   },
   updateOrderStatus(orderId: string, status: OrderStatus, deliveryNote?: string): void {
     const orders = this.getOrders();
@@ -433,10 +498,15 @@ export const StoreService = {
     }
     return reviews;
   },
+  getAllReviews(): Review[] {
+    return getItem<Review[]>(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
+  },
   addReview(review: Omit<Review, 'id' | 'createdAt'>): Review {
     const reviews = getItem<Review[]>(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
     const newReview: Review = {
       ...review,
+      images: review.images || [],
+      status: review.status || 'approved',
       id: `rev-${Date.now()}`,
       createdAt: new Date().toISOString()
     };
@@ -457,6 +527,18 @@ export const StoreService = {
     }
 
     return newReview;
+  },
+  updateReviewStatus(reviewId: string, status: 'approved' | 'pending' | 'rejected'): void {
+    const reviews = getItem<Review[]>(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
+    const target = reviews.find(r => r.id === reviewId);
+    if (target) {
+      target.status = status;
+      setItem(STORAGE_KEYS.REVIEWS, reviews);
+    }
+  },
+  deleteReview(reviewId: string): void {
+    const reviews = getItem<Review[]>(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS).filter(r => r.id !== reviewId);
+    setItem(STORAGE_KEYS.REVIEWS, reviews);
   },
 
   // Users & Auth

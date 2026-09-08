@@ -1889,31 +1889,55 @@ export const INITIAL_REVIEWS: Review[] = [
     customerId: 'user-cust-01',
     customerName: 'Tanvir Hossain',
     rating: 5,
-    comment: 'একদম অথেন্টিক গ্যাজেট। কোয়ালিটি দারুণ এবং প্রিমিয়াম ফিনিশিং। KHAN GADGET BD-র প্যাকেজিং এবং ডেলিভারি খুব দ্রুত ছিল!',
+    comment: 'একদম ১০০% অথেন্টিক গ্যাজেট! সাউন্ড কোয়ালিটি এবং ব্যাটারি ব্যাকআপ অসাধারণ। KHAN GADGET BD-র প্যাকেজিং এবং ডেলিভারি মাত্র ২৪ ঘণ্টার মধ্যে পেয়েছি। আনবক্সিং ছবি শেয়ার করলাম!',
+    images: [
+      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80'
+    ],
     isVerifiedPurchase: true,
     createdAt: '2026-03-01T14:30:00Z',
     status: 'approved'
   },
   {
     id: 'rev-002',
-    productId: 'prod-003',
+    productId: 'prod-001',
     customerId: 'user-cust-02',
-    customerName: 'Farhana Sultana',
+    customerName: 'Mehedi Hasan',
     rating: 5,
-    comment: 'চমৎকার তাজা পদ্মার ইলিশ! পেটের ডিম ছাড়া একদম মিষ্টি মাছ ছিল। ঢাকায় বসে এমন টাটকা মাছ পাব ভাবিনি। অনেক ধন্যবাদ!',
+    comment: 'সরাসরি ১-ক্লিক বাই নাও দিয়ে অর্ডার করেছিলাম, দ্রুত SMS কনফার্মেশন পেয়েছি এবং পরের দিনই হাতে পেয়েছি। বিল্ড কোয়ালিটি প্রিমিয়াম!',
+    images: [
+      'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=800&auto=format&fit=crop&q=80'
+    ],
     isVerifiedPurchase: true,
-    createdAt: '2026-03-02T10:20:00Z',
+    createdAt: '2026-03-04T11:15:00Z',
     status: 'approved'
   },
   {
     id: 'rev-003',
-    productId: 'prod-001',
-    customerId: 'user-cust-01',
-    customerName: 'Tanvir Hossain',
+    productId: 'prod-003',
+    customerId: 'user-cust-03',
+    customerName: 'Farhana Sultana',
     rating: 5,
-    comment: 'মিনিকেট চালের মান খুব ভালো। পরিষ্কার, পাথর নেই এবং রান্না করলে বেশ লম্বা হয়। রেগুলার অর্ডার করছি।',
+    comment: 'পণ্যটি হাতে পাওয়ার পর চালিয়ে দেখলাম, দুর্দান্ত পারফর্মেন্স। অরিজিনাল গ্যাজেটের জন্য KHAN GADGET BD সেরা!',
+    images: [
+      'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&auto=format&fit=crop&q=80'
+    ],
     isVerifiedPurchase: true,
-    createdAt: '2026-03-03T18:00:00Z',
+    createdAt: '2026-03-05T16:20:00Z',
+    status: 'approved'
+  },
+  {
+    id: 'rev-004',
+    productId: 'prod-004',
+    customerId: 'user-cust-04',
+    customerName: 'Shakil Ahmed',
+    rating: 5,
+    comment: 'প্যাকেজিং খুবই চমৎকার এবং মজবুত ছিল। ভেতরে ওয়ারেন্টি কার্ড দেওয়া হয়েছে। রিকমেন্ডেড!',
+    images: [
+      'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=800&auto=format&fit=crop&q=80'
+    ],
+    isVerifiedPurchase: true,
+    createdAt: '2026-03-06T09:40:00Z',
     status: 'approved'
   }
 ];

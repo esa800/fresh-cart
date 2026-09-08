@@ -151,6 +151,9 @@ export interface Order {
     simulated?: boolean;
     provider?: string;
   };
+  smsSent?: boolean;
+  smsSentAt?: string;
+  smsContent?: string;
 }
 
 export interface Coupon {
@@ -198,9 +201,22 @@ export interface Review {
   customerName: string;
   rating: number;
   comment: string;
+  images?: string[];
   isVerifiedPurchase: boolean;
   createdAt: string;
   status: 'approved' | 'pending' | 'rejected';
+}
+
+export interface SMSLog {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  recipientPhone: string;
+  recipientName: string;
+  message: string;
+  sentAt: string;
+  status: 'Delivered' | 'Sent' | 'Failed';
+  provider: string;
 }
 
 export interface StoreSettings {
@@ -226,4 +242,7 @@ export interface StoreSettings {
   deliveryChargeDhaka?: number;
   deliveryChargeOutside?: number;
   freeDeliveryThreshold?: number;
+  smsEnabled?: boolean;
+  smsSenderId?: string;
+  smsTemplate?: string;
 }
