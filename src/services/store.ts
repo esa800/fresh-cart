@@ -45,11 +45,32 @@ const STORAGE_KEYS = {
   VISITORS: 'freshcart_visitors_v1',
 };
 
-// Simple event subscriber for reactivity across components
+// Ultra-fast Real-Time Multi-Tab / Multi-Window Synchronizer
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
-function notify() {
+// Create BroadcastChannel for instantaneous zero-latency sync across all tabs/windows
+let syncChannel: BroadcastChannel | null = null;
+try {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    syncChannel = new BroadcastChannel('khan_gadget_realtime_sync');
+    syncChannel.onmessage = (event) => {
+      // Received update from another tab/admin window!
+      internalNotify(false);
+    };
+  }
+} catch (err) {
+  console.warn('BroadcastChannel not supported or restricted', err);
+}
+
+// Listen to native window storage events as fallback
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', () => {
+    internalNotify(false);
+  });
+}
+
+function internalNotify(broadcastToOthers = true) {
   listeners.forEach((listener) => {
     try {
       listener();
@@ -57,6 +78,24 @@ function notify() {
       console.error('Store notification error', e);
     }
   });
+
+  if (typeof window !== 'undefined') {
+    // Fire custom event for any window listeners
+    window.dispatchEvent(new CustomEvent('khan_store_updated', { detail: { timestamp: Date.now() } }));
+
+    // Send broadcast to other open tabs/windows
+    if (broadcastToOthers && syncChannel) {
+      try {
+        syncChannel.postMessage({ action: 'SYNC_UPDATE', timestamp: Date.now() });
+      } catch (e) {
+        // channel may be closed
+      }
+    }
+  }
+}
+
+export function notifyStoreUpdate(): void {
+  internalNotify(true);
 }
 
 export function subscribeToStore(listener: Listener): () => void {
@@ -80,7 +119,7 @@ function getItem<T>(key: string, defaultVal: T): T {
 function setItem<T>(key: string, val: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(val));
-    notify();
+    internalNotify(true);
   } catch (err) {
     console.error(`Failed to write ${key} to storage`, err);
   }
@@ -556,5 +595,13 @@ export const StoreService = {
       console.error('Import store snapshot failed', err);
       return false;
     }
+  },
+
+  // Real-time synchronization hooks
+  subscribeToStore(listener: Listener): () => void {
+    return subscribeToStore(listener);
+  },
+  notify(): void {
+    notifyStoreUpdate();
   }
 };

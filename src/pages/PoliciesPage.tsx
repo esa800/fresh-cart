@@ -14,10 +14,10 @@ export const PoliciesPage: React.FC<PoliciesPageProps> = ({ type }) => {
             <RefreshCcw className="w-6 h-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            24-Hour Return & Refund Policy
+            7-Day Replacement & Warranty Policy
           </h1>
           <p className="text-xs text-slate-500">
-            FreshCart BD's customer-first satisfaction guarantee.
+            KHAN GADGET BD's customer-first satisfaction guarantee.
           </p>
         </div>
 
@@ -57,13 +57,13 @@ export const PoliciesPage: React.FC<PoliciesPageProps> = ({ type }) => {
             Privacy & Data Protection Policy
           </h1>
           <p className="text-xs text-slate-500">
-            How FreshCart BD securely handles your personal and delivery data.
+            How KHAN GADGET BD securely handles your personal and delivery data.
           </p>
         </div>
 
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
           <p>
-            At FreshCart BD, we value your trust. We strictly collect only the necessary information (Name, Phone number, Delivery address, and Email) required to accurately process and deliver your grocery orders in Bangladesh.
+            At KHAN GADGET BD, we value your trust. We strictly collect only the necessary information (Name, Phone number, Delivery address, and Email) required to accurately process and deliver your gadget orders in Bangladesh.
           </p>
           <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Data Security</h3>
           <p>
@@ -77,20 +77,20 @@ export const PoliciesPage: React.FC<PoliciesPageProps> = ({ type }) => {
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-16">
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
           <FileText className="w-6 h-6" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           Terms & Conditions
         </h1>
         <p className="text-xs text-slate-500">
-          General marketplace conditions for ordering on FreshCart BD.
+          General marketplace conditions for ordering on KHAN GADGET BD.
         </p>
       </div>
 
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
         <p>
-          By placing an order on FreshCart BD, you agree to these terms. Prices in Bangladeshi Taka (৳) are subject to daily market changes for fresh river catch and seasonal vegetables.
+          By placing an order on KHAN GADGET BD, you agree to these terms. All products are backed with official brand warranty or store replacement warranty.
         </p>
         <p>
           Our delivery riders will wait up to 10 minutes at the designated address. Please ensure a valid contact number is provided at checkout.

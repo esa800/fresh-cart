@@ -70,7 +70,7 @@ export const HeroBannerSlider: React.FC<HeroBannerSliderProps> = ({ onNavigate }
           className="absolute inset-0 w-full h-full object-cover opacity-35 transform transition-transform duration-1000 scale-105"
           referrerPolicy="no-referrer"
         />
-        <div className={`absolute inset-0 bg-gradient-to-r ${currentBanner.bgGradient || 'from-emerald-950 via-emerald-900/90 to-transparent'}`} />
+        <div className={`absolute inset-0 bg-gradient-to-r ${currentBanner.bgGradient || 'from-slate-950 via-[#2a0e02]/90 to-transparent'}`} />
 
         {/* Content Area */}
         <div className="relative z-10 max-w-2xl px-6 sm:px-12 py-10 text-white space-y-4">
@@ -85,7 +85,7 @@ export const HeroBannerSlider: React.FC<HeroBannerSliderProps> = ({ onNavigate }
             {currentBanner.title}
           </h1>
 
-          <p className="text-xs sm:text-sm lg:text-base text-emerald-100 font-medium leading-relaxed max-w-xl">
+          <p className="text-xs sm:text-sm lg:text-base text-orange-100 font-medium leading-relaxed max-w-xl">
             {currentBanner.subtitle}
           </p>
 
@@ -93,7 +93,7 @@ export const HeroBannerSlider: React.FC<HeroBannerSliderProps> = ({ onNavigate }
             <button
               id="hero-banner-cta-btn"
               onClick={handleCtaClick}
-              className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all hover:gap-3 active:scale-95"
+              className="px-6 py-3.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-orange-500/30 transition-all hover:gap-3 active:scale-95"
             >
               <span>{currentBanner.buttonText || 'Order Now'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -134,7 +134,7 @@ export const HeroBannerSlider: React.FC<HeroBannerSliderProps> = ({ onNavigate }
                 key={i}
                 onClick={() => setCurrentIdx(i)}
                 className={`h-2 rounded-full transition-all ${
-                  i === currentIdx ? 'w-8 bg-emerald-400' : 'w-2 bg-white/40 hover:bg-white/70'
+                  i === currentIdx ? 'w-8 bg-[#f85606]' : 'w-2 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Slide ${i + 1}`}
               />

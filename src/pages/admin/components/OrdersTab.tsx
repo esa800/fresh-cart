@@ -157,7 +157,7 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                 filteredOrders.map((order) => {
                   const cleanPhone = getCleanPhone(order.phone);
                   const whatsappMsg = encodeURIComponent(
-                    `আসসালামু আলাইকুম ${order.customerName}, FreshCart BD থেকে আপনার অর্ডার #${order.orderNumber} সংক্রান্ত আপডেট। মোট: ৳${order.total}। স্ট্যাটাস: ${order.orderStatus}${order.courierTrackingId ? ` (কুরিয়ার ট্র্যাকিং: ${order.courierTrackingId})` : ''}। কোনো প্রয়োজনে আমাদের জানান। ধন্যবাদ!`
+                    `আসসালামু আলাইকুম ${order.customerName}, KHAN GADGET BD থেকে আপনার অর্ডার #${order.orderNumber} সংক্রান্ত আপডেট। মোট: ৳${order.total}। স্ট্যাটাস: ${order.orderStatus}${order.courierTrackingId ? ` (কুরিয়ার ট্র্যাকিং: ${order.courierTrackingId})` : ''}। কোনো প্রয়োজনে আমাদের জানান। ধন্যবাদ!`
                   );
 
                   return (

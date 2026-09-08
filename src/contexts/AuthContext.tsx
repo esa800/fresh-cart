@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('freshcart_users_v1', JSON.stringify(allUsers));
       StoreService.setCurrentUser(newUser);
       setCurrentUserState(newUser);
-      return { success: true, message: 'Welcome to FreshCart BD!', user: newUser };
+      return { success: true, message: 'Welcome to KHAN GADGET BD!', user: newUser };
     }
 
     StoreService.setCurrentUser(found);
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       targetUser = {
         id: `user-${targetRole}-${Date.now()}`,
         name: `Demo ${targetRole.replace('_', ' ').toUpperCase()}`,
-        email: `${targetRole}@freshcartbd.com`,
+        email: `${targetRole}@khangadgetbd.com`,
         phone: '01700000000',
         role: targetRole,
         createdAt: new Date().toISOString()

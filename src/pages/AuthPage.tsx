@@ -22,7 +22,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   
   // Login fields
-  const [loginEmail, setLoginEmail] = useState('tanvir@freshcartbd.com');
+  const [loginEmail, setLoginEmail] = useState('tanvir@khangadgetbd.com');
   const [loginPassword, setLoginPassword] = useState('password123');
 
   // Register fields
@@ -98,11 +98,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
           onClick={() => onNavigate('home')} 
           className="cursor-pointer inline-flex items-center gap-2"
         >
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-            FC
+          <div className="w-10 h-10 rounded-xl bg-[#f85606] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            KG
           </div>
-          <span className="font-extrabold text-2xl text-slate-900 tracking-tight">
-            FreshCart <span className="text-emerald-600">BD</span>
+          <span className="font-black text-2xl text-slate-900 tracking-tight">
+            KHAN GADGET <span className="text-[#f85606]">BD</span>
           </span>
         </div>
         <p className="text-xs text-slate-500">
@@ -152,7 +152,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                   id="login-email-input"
                   type="email"
                   required
-                  placeholder="tanvir@freshcartbd.com"
+                  placeholder="tanvir@khangadgetbd.com"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600"

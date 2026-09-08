@@ -217,10 +217,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               </div>
               <div>
                 <h1 className="font-black text-sm sm:text-base leading-tight tracking-tight flex items-center gap-1.5">
-                  <span>FreshCart</span>
+                  <span>KHAN GADGET</span>
                   <span className="text-amber-400">BD</span>
-                  <span className="text-[11px] bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full border border-slate-700 hidden sm:inline-block font-semibold">
-                    Daraz Admin Engine
+                  <span className="text-[11px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded-full border border-slate-700 hidden sm:inline-block font-semibold">
+                    Admin Engine
                   </span>
                 </h1>
                 <p className="text-[10px] text-slate-400">অ্যাডমিন কন্ট্রোল সেন্টার</p>

@@ -30,7 +30,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         id="mobile-nav-home"
         onClick={() => onNavigate('home')}
         className={`flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold transition-colors ${
-          view === 'home' ? 'text-emerald-700' : 'text-slate-500 hover:text-slate-800'
+          view === 'home' ? 'text-[#f85606]' : 'text-slate-500 hover:text-slate-800'
         }`}
       >
         <Home className="w-5 h-5" />
@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         id="mobile-nav-shop"
         onClick={() => onNavigate('shop')}
         className={`flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold transition-colors ${
-          view === 'shop' || view === 'category-products' ? 'text-emerald-700' : 'text-slate-500 hover:text-slate-800'
+          view === 'shop' || view === 'category-products' ? 'text-[#f85606]' : 'text-slate-500 hover:text-slate-800'
         }`}
       >
         <Grid className="w-5 h-5" />
@@ -53,10 +53,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <button
         id="mobile-nav-cart"
         onClick={() => onOpenCart ? onOpenCart() : onNavigate('cart')}
-        className="flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold text-emerald-700 relative"
+        className="flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold text-[#f85606] relative"
       >
         <div className="relative">
-          <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-md">
+          <div className="w-8 h-8 rounded-full bg-[#f85606] text-white flex items-center justify-center shadow-md">
             <ShoppingBag className="w-4 h-4" />
           </div>
           {itemCount > 0 && (
@@ -73,7 +73,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         id="mobile-nav-wishlist"
         onClick={() => onNavigate('shop')}
         className={`flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold transition-colors relative ${
-          view === 'wishlist' ? 'text-emerald-700' : 'text-slate-500 hover:text-slate-800'
+          view === 'wishlist' ? 'text-[#f85606]' : 'text-slate-500 hover:text-slate-800'
         }`}
       >
         <div className="relative">
@@ -93,7 +93,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         onClick={() => onNavigate(isAuthenticated ? 'customer-dashboard' : 'login')}
         className={`flex flex-col items-center gap-0.5 p-1 text-[10px] font-semibold transition-colors ${
           view && (view.includes('dashboard') || view === 'login' || view === 'profile')
-            ? 'text-emerald-700'
+            ? 'text-[#f85606]'
             : 'text-slate-500 hover:text-slate-800'
         }`}
       >

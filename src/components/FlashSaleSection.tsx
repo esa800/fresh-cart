@@ -34,27 +34,27 @@ export const FlashSaleSection: React.FC<FlashSaleSectionProps> = ({ products, on
   if (flashProducts.length === 0) return null;
 
   return (
-    <section className="bg-gradient-to-br from-rose-900 via-amber-950 to-emerald-950 rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden">
+    <section className="bg-gradient-to-br from-[#1c1917] via-[#2a0e02] to-[#090d16] rounded-3xl p-5 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
       {/* Decorative background glow */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header bar */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-amber-400/20">
-            <Zap className="w-6 h-6 fill-slate-950" />
+          <div className="w-11 h-11 rounded-2xl bg-[#f85606] text-white flex items-center justify-center font-black shadow-lg shadow-orange-500/30">
+            <Zap className="w-6 h-6 fill-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 Flash Sale (সীমিত সময়ের ধামাকা অফার)
               </h2>
-              <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">
-                Up to 25% Off
+              <span className="bg-[#ff4600] text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                Mega Deals
               </span>
             </div>
             <p className="text-xs text-amber-200/80 mt-0.5">
-              Daily flash discounts on essential staples, fresh meat & seasonal fruits.
+              Daily flash discounts on authentic smartwatches, earbuds & tech accessories.
             </p>
           </div>
         </div>

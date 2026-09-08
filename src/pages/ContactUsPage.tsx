@@ -40,16 +40,16 @@ export const ContactUsPage: React.FC = () => {
         {/* Contact Info (5 cols) */}
         <div className="md:col-span-5 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-slate-800">
           <div>
-            <h3 className="text-lg font-black">FreshCart BD HQ</h3>
+            <h3 className="text-lg font-black">KHAN GADGET BD HQ</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Main fulfilment center and cold-storage operations hub.
+              Main office and gadget dispatch operations hub.
             </p>
           </div>
 
           <div className="space-y-4 text-xs">
             <div className="flex items-start gap-3 text-slate-300">
-              <MapPin className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <span>Level 4, Plot 18, Road 2, Block A, Bashundhara R/A, Dhaka 1229, Bangladesh</span>
+              <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <span>House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh</span>
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
@@ -58,19 +58,19 @@ export const ContactUsPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
-              <Mail className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>support@freshcartbd.com</span>
+              <Mail className="w-5 h-5 text-amber-400 shrink-0" />
+              <span>info@khangadgetbd.com</span>
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
-              <Clock className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>Deliveries: 7:00 AM - 10:00 PM (Everyday)</span>
+              <Clock className="w-5 h-5 text-amber-400 shrink-0" />
+              <span>Support & Dispatch: 9:00 AM - 10:00 PM (Everyday)</span>
             </div>
           </div>
 
           <div className="pt-4 border-t border-slate-800 text-xs text-slate-400">
-            <strong className="text-white block mb-1">Corporate & Bulk Supply:</strong>
-            <span>Looking for bulk supplies of rice, pure oil, or beef for corporate catering? Email corporate@freshcartbd.com.</span>
+            <strong className="text-white block mb-1">Corporate & Wholesale Orders:</strong>
+            <span>Looking for corporate gifting or bulk gadget supplies? Email wholesale@khangadgetbd.com or call 01854774406.</span>
           </div>
         </div>
 

@@ -139,7 +139,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate, onOrderP
         customerId: currentUser?.id || 'guest',
         customerName: customerName.trim(),
         phone: phone.trim(),
-        email: email.trim() || 'customer@freshcartbd.com',
+        email: email.trim() || 'customer@khangadgetbd.com',
         items: orderItems,
         subtotal,
         discount: 0,
@@ -627,7 +627,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate, onOrderP
           </button>
 
           <p className="text-[11px] text-slate-400 text-center leading-relaxed">
-            By placing order, you agree to FreshCart BD's Terms of Service and 24-Hour Return Guarantee.
+            By placing order, you agree to KHAN GADGET BD's Terms of Service and 7-Day Replacement Guarantee.
           </p>
         </div>
       </form>

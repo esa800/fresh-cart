@@ -19,27 +19,27 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
   onRefreshData
 }) => {
   // Local Form state for Settings
-  const [storeName, setStoreName] = useState(settings.storeName || 'FreshCart BD');
-  const [tagline, setTagline] = useState(settings.tagline || 'তাজা ও খাঁটি পণ্যের বিশ্বস্ত ঠিকানা');
-  const [phone, setPhone] = useState(settings.phone || '01700-373741');
-  const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber || '01700-373741');
-  const [email, setEmail] = useState(settings.email || 'support@freshcartbd.com');
-  const [address, setAddress] = useState(settings.address || 'House 14, Road 5, Dhanmondi, Dhaka-1205, Bangladesh');
+  const [storeName, setStoreName] = useState(settings.storeName || 'KHAN GADGET BD');
+  const [tagline, setTagline] = useState(settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
+  const [phone, setPhone] = useState(settings.phone || '01854774406');
+  const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber || '01854774406');
+  const [email, setEmail] = useState(settings.email || 'info@khangadgetbd.com');
+  const [address, setAddress] = useState(settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
   
   // Announcement
   const [isAnnouncementActive, setIsAnnouncementActive] = useState(settings.isAnnouncementActive !== false);
   const [announcementText, setAnnouncementText] = useState(
-    settings.announcementText || '🚚 ঢাকা শহরে ২ ঘণ্টার মধ্যে নিশ্চিত এক্সপ্রেস ডেলিভারি! | 🎁 প্রথম অর্ডারে কুপন FRESH10 ব্যবহারে ১০% ছাড়!'
+    settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'
   );
 
   // Delivery Charges
   const [deliveryChargeDhaka, setDeliveryChargeDhaka] = useState(settings.deliveryChargeDhaka || 60);
   const [deliveryChargeOutside, setDeliveryChargeOutside] = useState(settings.deliveryChargeOutside || 120);
-  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(settings.freeDeliveryThreshold || 999);
+  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(settings.freeDeliveryThreshold || 2000);
 
   // About Us
   const [aboutUsText, setAboutUsText] = useState(
-    settings.aboutUsText || 'FreshCart BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অর্গানিক গ্রোসারি ও লাইফস্টাইল ই-কমার্স প্ল্যাটফর্ম।'
+    settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
   );
 
   // Feedback Banner
@@ -116,7 +116,7 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `FreshCart-BD-Store-Backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `KHAN-GADGET-BD-Store-Backup-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
   };

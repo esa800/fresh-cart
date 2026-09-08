@@ -241,7 +241,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 {recentOrders.map((order) => {
                   const cleanPhone = getCleanPhone(order.phone);
                   const whatsappMsg = encodeURIComponent(
-                    `Hello ${order.customerName}, your FreshCart BD order #${order.orderNumber} is received. Total: ৳${order.total}. Status: ${order.orderStatus}. Thank you!`
+                    `Hello ${order.customerName}, your KHAN GADGET BD order #${order.orderNumber} is received. Total: ৳${order.total}. Status: ${order.orderStatus}. Thank you!`
                   );
 
                   return (

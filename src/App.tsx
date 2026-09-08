@@ -37,6 +37,16 @@ function MainApp() {
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
 
+  // Real-time Global Store Version (Auto-triggers instantaneous re-render across the entire website on any Admin update)
+  const [, setStoreVersion] = useState(0);
+
+  useEffect(() => {
+    const unsub = StoreService.subscribeToStore(() => {
+      setStoreVersion((v) => v + 1);
+    });
+    return unsub;
+  }, []);
+
   // Scroll to top on view change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

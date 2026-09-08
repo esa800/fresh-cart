@@ -6,14 +6,14 @@ export const AboutUsPage: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-10 pb-16">
       {/* Header */}
       <div className="text-center space-y-3">
-        <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full">
-          About FreshCart BD
+        <span className="text-xs font-bold text-amber-700 uppercase tracking-wider bg-amber-50 px-3 py-1 rounded-full">
+          About KHAN GADGET BD
         </span>
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-          Bringing Purity Back to the Bangladeshi Dining Table
+          Your Trusted Destination for Smart Gadgets & Mobile Accessories
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 max-w-2xl mx-auto leading-relaxed">
-          Founded with a commitment to health and authenticity, FreshCart BD connects honest village farmers, certified rice millers, and river fishers directly to urban households.
+          Founded with a commitment to authenticity and customer satisfaction, KHAN GADGET BD delivers 100% genuine electronic gadgets, mobile accessories, smart watches, and audio gear nationwide across Bangladesh.
         </p>
       </div>
 

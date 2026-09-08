@@ -84,7 +84,7 @@ export const CategoriesTab: React.FC<CategoriesTabProps> = ({
       slug: generatedSlug,
       icon,
       image: image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&auto=format&fit=crop&q=80',
-      description: `${banglaName} - FreshCart BD প্রিমিয়াম কালেকশন`,
+      description: `${banglaName} - KHAN GADGET BD প্রিমিয়াম কালেকশন`,
       featured: true,
       subcategories: subcats.length > 0 ? subcats : ['General', 'Premium']
     };

@@ -61,13 +61,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
       {/* 2. Highlight Stats Banner */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-emerald-50/80 border border-emerald-200/60 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+        <div className="bg-orange-50/80 border border-orange-200/60 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#f85606] text-white flex items-center justify-center font-bold shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
             <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">100% Authentic</h4>
-            <p className="text-[11px] text-slate-500">Pure food & official warranty</p>
+            <p className="text-[11px] text-slate-500">Official brand warranty</p>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <section className="space-y-4">
         <div className="flex items-end justify-between">
           <div>
-            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block mb-1">
+            <span className="text-xs font-bold text-[#f85606] uppercase tracking-wider block mb-1">
               Top Customer Favorites
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
@@ -121,7 +121,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           </div>
           <button
             onClick={() => onNavigate('shop')}
-            className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 group"
+            className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
           >
             <span>View All</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -302,26 +302,26 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <TestimonialSection />
 
       {/* 12. Hotline Quick Order CTA Bar */}
-      <div className="bg-emerald-900 text-white rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-emerald-800">
+      <div className="bg-[#1c1917] text-white rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-slate-800">
         <div className="space-y-2 text-center sm:text-left">
-          <span className="text-xs font-bold text-emerald-300 uppercase tracking-wider block">
+          <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
             Prefer ordering by phone or WhatsApp?
           </span>
           <h3 className="text-xl sm:text-2xl font-black text-white">
             Call Our Customer Support & Order Desk
           </h3>
-          <p className="text-xs text-emerald-200">
-            Tell our representative your product list in Bangla or English, and we will place the order directly for you!
+          <p className="text-xs text-slate-300">
+            Tell our representative your product list or gadget inquiries, and we will confirm and dispatch your order directly!
           </p>
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
           <a
-            href="tel:+8801700373741"
-            className="px-6 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-400/20 transition-all"
+            href="tel:+8801854774406"
+            className="px-6 py-3.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-orange-500/30 transition-all"
           >
             <PhoneCall className="w-4 h-4" />
-            <span>01700-373741</span>
+            <span>01854774406</span>
           </a>
         </div>
       </div>

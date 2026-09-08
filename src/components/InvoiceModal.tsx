@@ -44,13 +44,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen, onClo
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
-                  FC
+                <div className="w-8 h-8 rounded-xl bg-[#f85606] text-white flex items-center justify-center font-bold text-sm">
+                  KG
                 </div>
-                <h1 className="text-2xl font-black text-slate-900">FreshCart <span className="text-emerald-600">BD</span></h1>
+                <h1 className="text-2xl font-black text-slate-900">KHAN GADGET <span className="text-[#f85606]">BD</span></h1>
               </div>
-              <p className="text-xs text-slate-500">Premium Bangladeshi Online Grocery Marketplace</p>
-              <p className="text-[11px] text-slate-400">Bashundhara R/A, Dhaka 1229 • +880 1700-FRESH</p>
+              <p className="text-xs text-slate-500">Premium Bangladeshi Gadgets & Mobile Accessories Marketplace</p>
+              <p className="text-[11px] text-slate-400">Sector 7, Uttara, Dhaka 1230 • 01854774406</p>
             </div>
 
             <div className="text-left sm:text-right">
@@ -179,7 +179,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen, onClo
 
           {/* Footer note */}
           <div className="pt-4 border-t border-slate-200 text-center text-[11px] text-slate-400">
-            <p>Thank you for shopping with FreshCart BD! For queries, contact support@freshcartbd.com or call 01700-373741.</p>
+            <p>Thank you for shopping with KHAN GADGET BD! For queries, contact info@khangadgetbd.com or call 01854774406.</p>
           </div>
         </div>
       </div>

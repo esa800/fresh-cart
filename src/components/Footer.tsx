@@ -84,27 +84,27 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Col 1: Brand & Contact */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('home')}>
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black text-lg">
-                FC
+              <div className="w-9 h-9 rounded-xl bg-[#f85606] flex items-center justify-center text-white font-black text-lg shadow-sm">
+                KG
               </div>
-              <span className="font-black text-2xl text-white tracking-tight">FreshCart <span className="text-emerald-400 font-bold">BD</span></span>
+              <span className="font-black text-2xl text-white tracking-tight">KHAN GADGET <span className="text-amber-400 font-bold">BD</span></span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              FreshCart BD is Bangladesh's premier modern online shopping destination for pure food items, latest electronic gadgets, and premium men's & women's fashion with reliable nationwide doorstep delivery.
+              KHAN GADGET BD is Bangladesh's premier online destination for authentic mobile accessories, latest electronic gadgets, and smart lifestyle tech with reliable nationwide doorstep cash on delivery.
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
               <div className="flex items-start gap-2.5 text-slate-300">
-                <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Level 4, Plot 18, Road 2, Block A, Bashundhara R/A, Dhaka 1229</span>
+                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span>House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh</span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
-                <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Hotline: +880 1700-FRESH (01700-373741)</span>
+                <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Hotline: 01854774406</span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
-                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Email: support@freshcartbd.com</span>
+                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Email: info@khangadgetbd.com</span>
               </div>
             </div>
           </div>
@@ -114,23 +114,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Main Categories</h3>
             <ul className="space-y-2 text-xs">
               <li>
-                <button onClick={() => onNavigate('category-products', 'food-items')} className="hover:text-emerald-400 transition-colors">
-                  Food Items (খাদ্য সামগ্রী)
+                <button onClick={() => onNavigate('category-products', 'smart-watch')} className="hover:text-amber-400 transition-colors">
+                  Smart Watches (স্মার্ট ওয়াচ)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'electronic-gadget')} className="hover:text-emerald-400 transition-colors">
-                  Electronic Gadgets (ইলেকট্রনিক্স)
+                <button onClick={() => onNavigate('category-products', 'earbuds-audio')} className="hover:text-amber-400 transition-colors">
+                  Earbuds & Audio (ইয়ারবাডস)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'man-fashion')} className="hover:text-emerald-400 transition-colors">
-                  Men's Fashion (পুরুষদের ফ্যাশন)
+                <button onClick={() => onNavigate('category-products', 'mobile-accessories')} className="hover:text-amber-400 transition-colors">
+                  Mobile Accessories (মোবাইল এক্সেসরিজ)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'women-fashion')} className="hover:text-emerald-400 transition-colors">
-                  Women's Fashion (মহিলাদের ফ্যাশন)
+                <button onClick={() => onNavigate('category-products', 'power-bank-chargers')} className="hover:text-amber-400 transition-colors">
+                  Power Banks & Chargers
                 </button>
               </li>
               <li>
@@ -139,8 +139,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('shop')} className="hover:text-emerald-400 transition-colors">
-                  All Marketplace Products
+                <button onClick={() => onNavigate('shop')} className="hover:text-amber-400 transition-colors">
+                  All Gadget Products
                 </button>
               </li>
             </ul>
@@ -151,33 +151,33 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Customer Care</h3>
             <ul className="space-y-2 text-xs">
               <li>
-                <button onClick={() => onNavigate('track-order')} className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-emerald-400" />
+                <button onClick={() => onNavigate('track-order')} className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                  <Truck className="w-3.5 h-3.5 text-amber-400" />
                   <span>Track Your Order</span>
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('faq')} className="hover:text-emerald-400 transition-colors">
+                <button onClick={() => onNavigate('faq')} className="hover:text-amber-400 transition-colors">
                   Frequently Asked Questions (FAQ)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('return-refund')} className="hover:text-emerald-400 transition-colors">
-                  Return & Refund Policy
+                <button onClick={() => onNavigate('return-refund')} className="hover:text-amber-400 transition-colors">
+                  Return & Warranty Policy
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('privacy-policy')} className="hover:text-emerald-400 transition-colors">
-                  Privacy & Data Policy
+                <button onClick={() => onNavigate('privacy-policy')} className="hover:text-amber-400 transition-colors">
+                  Privacy & Security Policy
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('terms-conditions')} className="hover:text-emerald-400 transition-colors">
+                <button onClick={() => onNavigate('terms-conditions')} className="hover:text-amber-400 transition-colors">
                   Terms & Conditions
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('contact-us')} className="hover:text-emerald-400 transition-colors">
+                <button onClick={() => onNavigate('contact-us')} className="hover:text-amber-400 transition-colors">
                   Help & Contact Us
                 </button>
               </li>
@@ -188,7 +188,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Get Discounts</h3>
             <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              Subscribe to get weekly discount alerts and special seasonal grocery offers.
+              Subscribe to get exclusive tech flash discount alerts and new gadget launch updates.
             </p>
             <form onSubmit={handleSubscribe} className="space-y-2">
               <div className="relative">
@@ -197,12 +197,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   placeholder="Your email address..."
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:border-emerald-500"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:border-amber-400"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
               >
                 <span>Subscribe for 10% Off</span>
                 <Send className="w-3.5 h-3.5" />
@@ -221,11 +221,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <span className="bg-orange-900/40 text-orange-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-orange-700/50">Nagad</span>
             <span className="bg-purple-900/40 text-purple-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-purple-700/50">Rocket</span>
             <span className="bg-blue-900/40 text-blue-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-blue-700/50">Visa / Mastercard</span>
-            <span className="bg-emerald-900/40 text-emerald-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-emerald-700/50">Cash on Delivery (COD)</span>
+            <span className="bg-slate-800 text-amber-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-slate-700">Cash on Delivery (COD)</span>
           </div>
 
           <p className="text-xs text-slate-500 text-center md:text-right">
-            © {new Date().getFullYear()} FreshCart BD. All rights reserved. Built for Bangladesh.
+            © {new Date().getFullYear()} KHAN GADGET BD. All rights reserved. Built for Bangladesh.
           </p>
         </div>
       </div>

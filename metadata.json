@@ -1,6 +1,6 @@
 {
-  "name": "FreshCart BD",
-  "description": "Leading Bangladeshi online marketplace for Food Items, Electronic Gadgets, Men's Fashion, and Women's Fashion with express delivery and bKash/COD payments.",
+  "name": "KHAN GADGET BD",
+  "description": "Leading Bangladeshi online marketplace for Mobile Accessories, Electronic Gadgets, Fashion & Lifestyle with express delivery and bKash/COD payments.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

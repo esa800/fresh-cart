@@ -173,7 +173,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fish & Seafood',
     categoryId: 'cat-fish',
     subcategory: 'Padma Ilish',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Original silvery Padma Hilsa caught fresh, iced under hygienic conditions.',
     fullDescription: 'Genuine Padma river Ilish delivered fresh within hours of netting at Chandpur / Mawa ghats. Features natural silver shine, rich omega-3 oils, and signature sweet aroma. Cleaned and scaled upon customer request before dispatch.',
     images: [
@@ -206,7 +206,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Meat & Poultry',
     categoryId: 'cat-meat',
     subcategory: 'Deshi Fresh Beef',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: '100% Halal slaughtered premium local grass-fed beef cut fresh daily.',
     fullDescription: 'Guaranteed local Bangladeshi village grass-fed cattle. Prepared in our certified hygienic meat room following strict Halal slaughter guidelines. Balanced mix of tender lean meat, marrow bone, and slight fat for flavorful curry or bhuna.',
     images: [
@@ -305,7 +305,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fresh Vegetables',
     categoryId: 'cat-vegetables',
     subcategory: 'Potatoes & Onions',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Crisp, aromatic, thin-skinned Deshi red onions from Pabna and Faridpur.',
     fullDescription: 'Locally grown Faridpur Deshi onions boasting authentic pungent aroma and rich reddish tint. Naturally cured to remove excess soil and moisture, ensuring longer shelf life in your kitchen.',
     images: [
@@ -338,7 +338,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fresh Vegetables',
     categoryId: 'cat-vegetables',
     subcategory: 'Potatoes & Onions',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Firm, clean, smooth-skinned Diamond potatoes excellent for curries and fries.',
     fullDescription: 'Cultivated in the fertile alluvial soils of Bogura. Evenly graded Diamond variety potatoes that boil to a fluffy, non-sweet consistency. Washed and dried to prevent rotting.',
     images: [
@@ -470,7 +470,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Meat & Poultry',
     categoryId: 'cat-meat',
     subcategory: 'Sonali Chicken',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Free-range hybrid deshi-texture chicken dressed clean and chilled immediately.',
     fullDescription: 'Sonali chicken has firm meat fibers close to authentic village native poultry (দেশি মুরগি). Raised on healthy grain diets without harmful growth hormones. 100% Halal cut, skin removed or kept per preference.',
     images: [
@@ -503,7 +503,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fish & Seafood',
     categoryId: 'cat-fish',
     subcategory: 'Rui & Katla',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Fresh sweet water Rohu fish from clean river currents, cut into curry slices.',
     fullDescription: 'Sweet and firm Rohu fish collected from Meghna and Jamuna rivers. High in natural protein and omega fatty acids. We slice into standard Bengali curry pieces (goda & peti) and ice neatly.',
     images: [
@@ -668,7 +668,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fresh Vegetables',
     categoryId: 'cat-vegetables',
     subcategory: 'Garlic & Ginger',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Strong flavored, high essential oil Deshi garlic cloves from Natore.',
     fullDescription: 'Unlike large imported Chinese garlic, native Bangladeshi garlic has intense pungent aroma and higher concentration of allicin. Essential for delicious tempering (বাগার) and curries.',
     images: [
@@ -701,7 +701,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fresh Fruits',
     categoryId: 'cat-fruits',
     subcategory: 'Apples & Pears',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Tangy, juicy, crunchy green apples packed with dietary fiber and Vitamin C.',
     fullDescription: 'Hand-picked crisp green apples imported fresh and stored in controlled humidity. Great for healthy salads, fresh juices, or an energizing afternoon snack.',
     images: [
@@ -733,7 +733,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Fresh Vegetables',
     categoryId: 'cat-vegetables',
     subcategory: 'Salad & Veggies',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Naturally vine-ripened juicy red tomatoes from Manikganj farmers.',
     fullDescription: 'Delivered fresh without artificial chemical ripening agents. Plump, juicy, with a delicate balance of sweetness and natural tang. Ideal for fresh salads, dals, and curries.',
     images: [
@@ -863,7 +863,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'Dairy & Eggs',
     categoryId: 'cat-dairy-eggs',
     subcategory: 'Yogurt & Curd (দই)',
-    brand: 'FreshCart BD',
+    brand: 'KHAN GADGET BD',
     shortDescription: 'Famous caramelized thick clay-pot sweet curd prepared with whole buffalo-cow milk.',
     fullDescription: 'Authentic GI-status Bogura Misti Doi baked slowly in red clay pots (মাটির হাঁড়ি). Features a thick creamy caramelized top layer and dense, melt-in-mouth texture. A national festive favorite.',
     images: [
@@ -1826,7 +1826,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'user-super-admin',
     name: 'Al-Amin Siddique (Super Admin)',
-    email: 'admin@freshcartbd.com',
+    email: 'admin@khangadgetbd.com',
     phone: '01700000001',
     role: 'super_admin',
     createdAt: '2026-01-01T00:00:00Z'
@@ -1834,7 +1834,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'user-order-manager',
     name: 'Rafiqul Islam (Order Manager)',
-    email: 'orders@freshcartbd.com',
+    email: 'orders@khangadgetbd.com',
     phone: '01700000002',
     role: 'order_manager',
     createdAt: '2026-01-02T00:00:00Z'
@@ -1842,7 +1842,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'user-prod-manager',
     name: 'Nusrat Jahan (Product Manager)',
-    email: 'products@freshcartbd.com',
+    email: 'products@khangadgetbd.com',
     phone: '01700000003',
     role: 'product_manager',
     createdAt: '2026-01-03T00:00:00Z'
@@ -1850,7 +1850,7 @@ export const INITIAL_USERS: User[] = [
   {
     id: 'user-cust-01',
     name: 'Tanvir Hossain',
-    email: 'customer@freshcartbd.com',
+    email: 'customer@khangadgetbd.com',
     phone: '01711223344',
     role: 'customer',
     wishlistProductIds: ['prod-002', 'prod-003', 'prod-014'],
@@ -1889,7 +1889,7 @@ export const INITIAL_REVIEWS: Review[] = [
     customerId: 'user-cust-01',
     customerName: 'Tanvir Hossain',
     rating: 5,
-    comment: 'একদম খাঁটি সরিষার তেল। বোতল খুললেই সুন্দর ঝাঁঝ বের হয়। ভর্তা আর রান্নায় স্বাদ অতুলনীয়। FreshCart BD-র প্যাকেজিং এবং ডেলিভারি খুব দ্রুত ছিল!',
+    comment: 'একদম অথেন্টিক গ্যাজেট। কোয়ালিটি দারুণ এবং প্রিমিয়াম ফিনিশিং। KHAN GADGET BD-র প্যাকেজিং এবং ডেলিভারি খুব দ্রুত ছিল!',
     isVerifiedPurchase: true,
     createdAt: '2026-03-01T14:30:00Z',
     status: 'approved'

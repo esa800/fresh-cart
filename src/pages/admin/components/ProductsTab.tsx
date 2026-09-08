@@ -33,7 +33,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
   // Form Fields
   const [formName, setFormName] = useState('');
   const [formBanglaName, setFormBanglaName] = useState('');
-  const [formBrand, setFormBrand] = useState('FreshCart Selected');
+  const [formBrand, setFormBrand] = useState('KHAN GADGET Selected');
   const [formCustomBrand, setFormCustomBrand] = useState('');
   const [formCategory, setFormCategory] = useState('');
   const [formRegularPrice, setFormRegularPrice] = useState(120);
@@ -70,8 +70,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
 
   // Popular Brands preset
   const popularBrands = [
-    'FreshCart Selected', 'Anker', 'Baseus', 'Apple', 'Samsung', 
-    'Aarong', 'Richman', 'PRAN', 'Radhuni', 'ACI Pure', 'Teer', 'Kazi Farms', 'Other'
+    'KHAN GADGET Selected', 'Anker', 'Baseus', 'Apple', 'Samsung', 'Xiaomi', 'Remax', 'Hoco', 'Boat', 'Oraimo', 'Other'
   ];
 
   // Open Add / Edit Modal
@@ -106,7 +105,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       setEditingProduct(null);
       setFormName('');
       setFormBanglaName('');
-      setFormBrand('FreshCart Selected');
+      setFormBrand('KHAN GADGET Selected');
       setFormCustomBrand('');
       setFormCategory(categories[0]?.id || 'cat-food-items');
       setFormRegularPrice(200);
@@ -172,7 +171,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       return;
     }
 
-    const brandName = formBrand === 'Other' ? (formCustomBrand.trim() || 'FreshCart Selected') : formBrand;
+    const brandName = formBrand === 'Other' ? (formCustomBrand.trim() || 'KHAN GADGET Selected') : formBrand;
     const catObj = categories.find((c) => c.id === formCategory) || categories[0];
     const discountPct = Number(formRegularPrice) > Number(formSalePrice)
       ? Math.round(((Number(formRegularPrice) - Number(formSalePrice)) / Number(formRegularPrice)) * 100)
@@ -400,7 +399,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                           {product.category}
                         </span>
                         <p className="text-[11px] text-slate-500 mt-1 font-medium">
-                          ব্র্যান্ড: <strong className="text-slate-800">{product.brand || 'FreshCart'}</strong>
+                          ব্র্যান্ড: <strong className="text-slate-800">{product.brand || 'KHAN GADGET'}</strong>
                         </p>
                       </td>
 

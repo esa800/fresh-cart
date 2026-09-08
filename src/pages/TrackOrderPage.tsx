@@ -21,10 +21,10 @@ interface TrackOrderPageProps {
 }
 
 const ORDER_STEPS: { status: OrderStatus; label: string; desc: string }[] = [
-  { status: 'Pending', label: 'Order Placed', desc: 'Order received into FreshCart system' },
-  { status: 'Confirmed', label: 'Confirmed', desc: 'Items verified with warehouse & butcher' },
-  { status: 'Processing', label: 'Packed & Chilled', desc: 'Sealed in insulated temperature-safe bags' },
-  { status: 'Out for Delivery', label: 'Out for Delivery', desc: 'Rider dispatched to your address' },
+  { status: 'Pending', label: 'Order Placed', desc: 'Order received into KHAN GADGET BD system' },
+  { status: 'Confirmed', label: 'Confirmed', desc: 'Items and gadget quality verified at warehouse' },
+  { status: 'Processing', label: 'Packed & Dispatched', desc: 'Sealed with tamper-proof security package' },
+  { status: 'Out for Delivery', label: 'Out for Delivery', desc: 'Courier rider dispatched to your address' },
   { status: 'Delivered', label: 'Delivered', desc: 'Received & inspected by customer' }
 ];
 
@@ -83,10 +83,10 @@ export const TrackOrderPage: React.FC<TrackOrderPageProps> = ({ initialOrderNumb
         </div>
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Track Your Grocery Order (অর্ডার ট্র্যাকিং)
+            Track Your Order (অর্ডার ট্র্যাকিং)
           </h1>
           <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-            Enter your FreshCart Order ID (e.g. <strong>FCBD-2025-001</strong>) or your 11-digit mobile number.
+            Enter your KHAN GADGET Order ID (e.g. <strong>KGBD-2025-001</strong>) or your 11-digit mobile number.
           </p>
         </div>
 

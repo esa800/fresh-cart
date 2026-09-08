@@ -17,8 +17,8 @@ const TESTIMONIALS = [
     location: 'Dhanmondi, Dhaka',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     rating: 5,
-    text: 'পদ্মার ইলিশ মাছটা আসলেই অসাধারণ ছিল। মিষ্টি গন্ধ এবং তাজা রুপালি চকচকে। প্যাকেজিংয়ে বরফের ব্যবস্থা খুব ভালো ছিল। এখন থেকে নিয়মিত FreshCart BD থেকেই বাজার করব।',
-    product: 'Padma River Hilsa (ইলিশ)'
+    text: 'অর্ডার করার পরদিনই ডেলিভারি পেয়েছি। প্রোডাক্টটি ১০০% অরিজিনাল এবং দারুণ সাউন্ড কোয়ালিটি। প্যাকেজিংও খুব প্রিমিয়াম ছিল। এখন থেকে সব গ্যাজেট KHAN GADGET BD থেকেই কিনব।',
+    product: 'Wireless Earbuds Pro'
   },
   {
     id: 3,
