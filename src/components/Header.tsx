@@ -103,51 +103,53 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
   return (
     <header className="relative z-40 bg-[#f85606] shadow-md">
       {/* 0. Top Dark Marquee Ticker Bar */}
-      <div className="bg-[#090d16] text-slate-200 text-xs py-2 px-3 overflow-hidden border-b border-slate-800 select-none">
-        <div className="flex items-center overflow-hidden whitespace-nowrap">
-          <div className="animate-marquee flex items-center gap-6 font-medium text-xs">
-            <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
-              <Megaphone className="w-3 h-3" /> HOT
-            </span>
-            <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
-            <span className="text-slate-500">•</span>
-            <span className="font-extrabold text-white tracking-wide">KHAN GADGET BD</span>
-            <span className="text-slate-500">•</span>
-            <span className="text-amber-300 font-semibold">
-              🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি
-            </span>
-            <span className="text-slate-500">•</span>
-            <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
-              কুপন: KHAN10
-            </span>
-            <span className="text-slate-500">•</span>
-            <span className="text-amber-400 font-bold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
-            </span>
+      {settings.isAnnouncementActive !== false && (
+        <div className="bg-[#090d16] text-slate-200 text-xs py-2 px-3 overflow-hidden border-b border-slate-800 select-none">
+          <div className="flex items-center overflow-hidden whitespace-nowrap">
+            <div className="animate-marquee flex items-center gap-6 font-medium text-xs">
+              <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                <Megaphone className="w-3 h-3" /> HOT
+              </span>
+              <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
+              <span className="text-slate-500">•</span>
+              <span className="font-extrabold text-white tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-amber-300 font-semibold">
+                {settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'}
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
+                কুপন: KHAN10
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="text-amber-400 font-bold flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
+              </span>
 
-            {/* Seamless marquee repetition */}
-            <span className="text-slate-500 ml-4">•</span>
-            <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
-              <Megaphone className="w-3 h-3" /> HOT
-            </span>
-            <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
-            <span className="text-slate-500">•</span>
-            <span className="font-extrabold text-white tracking-wide">KHAN GADGET BD</span>
-            <span className="text-slate-500">•</span>
-            <span className="text-amber-300 font-semibold">
-              🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি
-            </span>
-            <span className="text-slate-500">•</span>
-            <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
-              কুপন: KHAN10
-            </span>
-            <span className="text-slate-500">•</span>
-            <span className="text-amber-400 font-bold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
-            </span>
+              {/* Seamless marquee repetition */}
+              <span className="text-slate-500 ml-4">•</span>
+              <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                <Megaphone className="w-3 h-3" /> HOT
+              </span>
+              <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
+              <span className="text-slate-500">•</span>
+              <span className="font-extrabold text-white tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-amber-300 font-semibold">
+                {settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'}
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
+                কুপন: KHAN10
+              </span>
+              <span className="text-slate-500">•</span>
+              <span className="text-amber-400 font-bold flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 1. Deep Orange Sub-Bar */}
       <div className="bg-[#b93807] text-white text-xs py-1.5 px-4 hidden md:block border-b border-[#a22f04]">
@@ -156,24 +158,24 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
             <span className="text-amber-300 font-bold">⚡ Flash Deals:</span>
             <span>Use code <strong className="bg-white/20 px-1.5 py-0.5 rounded font-mono font-bold text-white">KHAN10</strong> for 10% OFF</span>
             <span className="text-white/40 mx-1">|</span>
-            <span className="text-white/90">Free delivery on orders over ৳ 2,000</span>
+            <span className="text-white/90">Free delivery on orders over ৳ {(settings.freeDeliveryThreshold ?? 2000).toLocaleString()}</span>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-white/95">
               <Phone className="w-3.5 h-3.5 text-white/80" />
-              <span>Contact: <strong>{settings.hotline || '01854774406'}</strong></span>
+              <span>Contact: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
             </div>
 
             <a
-              href="https://wa.me/8801854774406"
+              href={`https://wa.me/88${(settings.whatsappNumber || '01854774406').replace(/\D/g, '')}`}
               target="_blank"
               rel="noreferrer"
               className="bg-[#15803d] hover:bg-[#166534] text-white font-bold text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-colors shadow-xs"
               title="Chat on WhatsApp"
             >
               <MessageCircle className="w-3.5 h-3.5 fill-white" />
-              <span>WhatsApp: 01854774406</span>
+              <span>WhatsApp: {settings.whatsappNumber || '01854774406'}</span>
             </a>
 
             <button
@@ -211,15 +213,20 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          {/* Logo: KHAN GADGET BD */}
+          {/* Logo */}
           <div 
             id="header-brand-logo"
             onClick={() => onNavigate('home')} 
             className="cursor-pointer select-none group shrink-0"
           >
             <h1 className="font-black text-2xl sm:text-3xl text-white tracking-wider uppercase drop-shadow-xs">
-              KHAN GADGET BD
+              {settings.storeName || 'KHAN GADGET BD'}
             </h1>
+            {(settings.tagline || settings.brandTagline) && (
+              <p className="text-[10px] text-amber-100 font-medium tracking-tight hidden lg:block -mt-0.5 max-w-xs truncate">
+                {settings.tagline || settings.brandTagline}
+              </p>
+            )}
           </div>
 
           {/* Live Search Bar */}
@@ -556,7 +563,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                 <div className="w-8 h-8 rounded-lg bg-[#f85606] flex items-center justify-center text-white font-bold text-sm">
                   KG
                 </div>
-                <span className="font-black text-base text-slate-900 tracking-wide">KHAN GADGET BD</span>
+                <span className="font-black text-base text-slate-900 tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}

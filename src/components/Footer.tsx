@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
   Mail, 
@@ -12,6 +12,7 @@ import {
   Truck
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { StoreService } from '../services/store';
 
 interface FooterProps {
   onNavigate: (view: string, param?: string) => void;
@@ -19,7 +20,15 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [settings, setSettings] = useState(() => StoreService.getSettings());
   const { showToast } = useToast();
+
+  useEffect(() => {
+    const unsub = StoreService.subscribeToStore(() => {
+      setSettings(StoreService.getSettings());
+    });
+    return unsub;
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +36,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       showToast('Please enter a valid email address.', 'error');
       return;
     }
-    showToast('Subscribed! Check your inbox for your 10% coupon code (FRESH10).', 'success');
+    showToast('Subscribed! Check your inbox for your 10% coupon code (KHAN10).', 'success');
     setNewsletterEmail('');
   };
 
@@ -37,37 +46,37 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto px-4 pb-10 border-b border-slate-800">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">100% Pure & Fresh</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Adulteration-free groceries guaranteed</p>
+              <h4 className="text-sm font-bold text-white">100% Authentic Brand</h4>
+              <p className="text-xs text-slate-400 mt-0.5">Official brand warranty & intact box</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-              <Clock className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">2-Hour Express Delivery</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Prompt doorstep service across Dhaka</p>
+              <h4 className="text-sm font-bold text-white">Nationwide Express Delivery</h4>
+              <p className="text-xs text-slate-400 mt-0.5">Prompt doorstep service across 64 districts</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
               <RefreshCcw className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">24-Hour Easy Return</h4>
-              <p className="text-xs text-slate-400 mt-0.5">No-questions-asked grocery replacement</p>
+              <h4 className="text-sm font-bold text-white">7-Day Easy Replacement</h4>
+              <p className="text-xs text-slate-400 mt-0.5">Hassle-free warranty & returns</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
               <CreditCard className="w-6 h-6" />
             </div>
             <div>
@@ -87,24 +96,26 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <div className="w-9 h-9 rounded-xl bg-[#f85606] flex items-center justify-center text-white font-black text-lg shadow-sm">
                 KG
               </div>
-              <span className="font-black text-2xl text-white tracking-tight">KHAN GADGET <span className="text-amber-400 font-bold">BD</span></span>
+              <span className="font-black text-2xl text-white tracking-tight">
+                {settings.storeName || 'KHAN GADGET BD'}
+              </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              KHAN GADGET BD is Bangladesh's premier online destination for authentic mobile accessories, latest electronic gadgets, and smart lifestyle tech with reliable nationwide doorstep cash on delivery.
+              {settings.aboutUsText || settings.brandTagline || `${settings.storeName || 'KHAN GADGET BD'} is Bangladesh's premier online destination for authentic mobile accessories, latest electronic gadgets, and smart lifestyle tech with reliable nationwide doorstep cash on delivery.`}
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
               <div className="flex items-start gap-2.5 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh</span>
+                <span>{settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Hotline: 01854774406</span>
+                <span>Hotline: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Email: info@khangadgetbd.com</span>
+                <span>Email: <strong>{settings.supportEmail || settings.email || 'info@khangadgetbd.com'}</strong></span>
               </div>
             </div>
           </div>

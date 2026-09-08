@@ -421,6 +421,9 @@ export const StoreService = {
     }
     setItem(STORAGE_KEYS.DELIVERY_ZONES, zones);
   },
+  saveDeliveryZones(zones: DeliveryZone[]): void {
+    setItem(STORAGE_KEYS.DELIVERY_ZONES, zones);
+  },
 
   // Reviews
   getReviews(productId?: string): Review[] {
@@ -493,10 +496,73 @@ export const StoreService = {
 
   // Store Settings
   getSettings(): StoreSettings {
-    return getItem<StoreSettings>(STORAGE_KEYS.SETTINGS, INITIAL_STORE_SETTINGS);
+    const s = getItem<StoreSettings>(STORAGE_KEYS.SETTINGS, INITIAL_STORE_SETTINGS);
+    // Ensure aliases are populated
+    return {
+      ...s,
+      storeName: s.storeName || 'KHAN GADGET BD',
+      brandTagline: s.brandTagline || s.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      tagline: s.tagline || s.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      hotline: s.hotline || s.phone || '01854774406',
+      phone: s.phone || s.hotline || '01854774406',
+      whatsappNumber: s.whatsappNumber || '01854774406',
+      supportEmail: s.supportEmail || s.email || 'info@khangadgetbd.com',
+      email: s.email || s.supportEmail || 'info@khangadgetbd.com',
+      officeAddress: s.officeAddress || s.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      address: s.address || s.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      isAnnouncementActive: s.isAnnouncementActive !== false,
+      deliveryChargeDhaka: Number(s.deliveryChargeDhaka ?? 60),
+      deliveryChargeOutside: Number(s.deliveryChargeOutside ?? 120),
+      freeDeliveryThreshold: Number(s.freeDeliveryThreshold ?? 2000)
+    };
   },
   updateSettings(settings: StoreSettings): void {
-    setItem(STORAGE_KEYS.SETTINGS, settings);
+    const normalized: StoreSettings = {
+      ...settings,
+      storeName: settings.storeName || 'KHAN GADGET BD',
+      brandTagline: settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      tagline: settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      hotline: settings.hotline || settings.phone || '01854774406',
+      phone: settings.phone || settings.hotline || '01854774406',
+      whatsappNumber: settings.whatsappNumber || '01854774406',
+      supportEmail: settings.supportEmail || settings.email || 'info@khangadgetbd.com',
+      email: settings.email || settings.supportEmail || 'info@khangadgetbd.com',
+      officeAddress: settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      address: settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      isAnnouncementActive: settings.isAnnouncementActive !== false,
+      announcementText: settings.announcementText,
+      deliveryChargeDhaka: Number(settings.deliveryChargeDhaka ?? 60),
+      deliveryChargeOutside: Number(settings.deliveryChargeOutside ?? 120),
+      freeDeliveryThreshold: Number(settings.freeDeliveryThreshold ?? 2000),
+      aboutUsText: settings.aboutUsText
+    };
+    setItem(STORAGE_KEYS.SETTINGS, normalized);
+
+    // Synchronize delivery rates into delivery zones
+    try {
+      const zones = this.getDeliveryZones();
+      const updatedZones = zones.map((z) => {
+        const isDhaka = z.division.toLowerCase().includes('dhaka') || z.id === 'zone-dhaka';
+        return {
+          ...z,
+          standardCharge: isDhaka ? normalized.deliveryChargeDhaka! : normalized.deliveryChargeOutside!,
+          freeDeliveryThreshold: normalized.freeDeliveryThreshold!
+        };
+      });
+      this.saveDeliveryZones(updatedZones);
+
+      const currentSelected = this.getSelectedZone();
+      const isDhaka = currentSelected.division.toLowerCase().includes('dhaka') || currentSelected.id === 'zone-dhaka';
+      this.setSelectedZone({
+        ...currentSelected,
+        standardCharge: isDhaka ? normalized.deliveryChargeDhaka! : normalized.deliveryChargeOutside!,
+        freeDeliveryThreshold: normalized.freeDeliveryThreshold!
+      });
+    } catch (e) {
+      console.error('Failed to sync delivery zones with settings', e);
+    }
+
+    internalNotify(true);
   },
   saveSettings(settings: StoreSettings): void {
     this.updateSettings(settings);

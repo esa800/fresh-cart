@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Settings, Save, Key, Lock, Eye, EyeOff, ShieldCheck, 
   Store, Phone, Mail, MapPin, Bell, Download, Upload, 
-  CheckCircle2, AlertCircle, RefreshCw, Truck
+  CheckCircle2, AlertCircle, RefreshCw, Truck, Globe
 } from 'lucide-react';
 import { StoreSettings } from '../../../types';
 import { StoreService } from '../../../services/store';
@@ -20,11 +20,11 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
 }) => {
   // Local Form state for Settings
   const [storeName, setStoreName] = useState(settings.storeName || 'KHAN GADGET BD');
-  const [tagline, setTagline] = useState(settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
-  const [phone, setPhone] = useState(settings.phone || '01854774406');
+  const [tagline, setTagline] = useState(settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
+  const [phone, setPhone] = useState(settings.phone || settings.hotline || '01854774406');
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber || '01854774406');
-  const [email, setEmail] = useState(settings.email || 'info@khangadgetbd.com');
-  const [address, setAddress] = useState(settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
+  const [email, setEmail] = useState(settings.email || settings.supportEmail || 'info@khangadgetbd.com');
+  const [address, setAddress] = useState(settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
   
   // Announcement
   const [isAnnouncementActive, setIsAnnouncementActive] = useState(settings.isAnnouncementActive !== false);
@@ -33,14 +33,30 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
   );
 
   // Delivery Charges
-  const [deliveryChargeDhaka, setDeliveryChargeDhaka] = useState(settings.deliveryChargeDhaka || 60);
-  const [deliveryChargeOutside, setDeliveryChargeOutside] = useState(settings.deliveryChargeOutside || 120);
-  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(settings.freeDeliveryThreshold || 2000);
+  const [deliveryChargeDhaka, setDeliveryChargeDhaka] = useState(settings.deliveryChargeDhaka ?? 60);
+  const [deliveryChargeOutside, setDeliveryChargeOutside] = useState(settings.deliveryChargeOutside ?? 120);
+  const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState(settings.freeDeliveryThreshold ?? 2000);
 
   // About Us
   const [aboutUsText, setAboutUsText] = useState(
     settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
   );
+
+  // Re-sync local states whenever settings prop changes (e.g. from storage or other tabs)
+  useEffect(() => {
+    setStoreName(settings.storeName || 'KHAN GADGET BD');
+    setTagline(settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
+    setPhone(settings.phone || settings.hotline || '01854774406');
+    setWhatsappNumber(settings.whatsappNumber || '01854774406');
+    setEmail(settings.email || settings.supportEmail || 'info@khangadgetbd.com');
+    setAddress(settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
+    setIsAnnouncementActive(settings.isAnnouncementActive !== false);
+    setAnnouncementText(settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি');
+    setDeliveryChargeDhaka(settings.deliveryChargeDhaka ?? 60);
+    setDeliveryChargeOutside(settings.deliveryChargeOutside ?? 120);
+    setFreeDeliveryThreshold(settings.freeDeliveryThreshold ?? 2000);
+    setAboutUsText(settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।');
+  }, [settings]);
 
   // Feedback Banner
   const [savedSuccessMessage, setSavedSuccessMessage] = useState('');
@@ -61,23 +77,27 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
     e.preventDefault();
     const updated: StoreSettings = {
       ...settings,
-      storeName,
-      tagline,
-      phone,
-      whatsappNumber,
-      email,
-      address,
+      storeName: storeName.trim(),
+      brandTagline: tagline.trim(),
+      tagline: tagline.trim(),
+      hotline: phone.trim(),
+      phone: phone.trim(),
+      whatsappNumber: whatsappNumber.trim(),
+      supportEmail: email.trim(),
+      email: email.trim(),
+      officeAddress: address.trim(),
+      address: address.trim(),
       isAnnouncementActive,
-      announcementText,
+      announcementText: announcementText.trim(),
       deliveryChargeDhaka: Number(deliveryChargeDhaka),
       deliveryChargeOutside: Number(deliveryChargeOutside),
       freeDeliveryThreshold: Number(freeDeliveryThreshold),
-      aboutUsText
+      aboutUsText: aboutUsText.trim()
     };
 
     onSaveSettings(updated);
-    setSavedSuccessMessage('স্টোর সেটিংস সফলভাবে আপডেট ও সংরক্ষিত হয়েছে!');
-    setTimeout(() => setSavedSuccessMessage(''), 3500);
+    setSavedSuccessMessage('স্টোর সেটিংস সফলভাবে আপডেট ও পুরো ওয়েবসাইটে রিয়েলটাইমে সংরক্ষিত হয়েছে!');
+    setTimeout(() => setSavedSuccessMessage(''), 4500);
   };
 
   // Change Admin Password
@@ -157,9 +177,14 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
       </div>
 
       {savedSuccessMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl text-xs font-bold text-emerald-800 flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{savedSuccessMessage}</span>
+        <div className="p-4 bg-orange-50 border border-orange-300 rounded-2xl text-xs font-bold text-orange-950 flex items-center justify-between gap-3 animate-in fade-in shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-[#f85606] shrink-0" />
+            <span>{savedSuccessMessage}</span>
+          </div>
+          <span className="text-[11px] bg-[#f85606] text-white px-2.5 py-1 rounded-lg font-bold shrink-0">
+            লাইভ কার্যকর
+          </span>
         </div>
       )}
 
@@ -352,7 +377,7 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
+            className="px-6 py-2.5 bg-[#f85606] hover:bg-[#e04a00] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md active:scale-95 cursor-pointer transition-colors"
           >
             <Save className="w-4 h-4" />
             <span>স্টোর সেটিংস সংরক্ষণ করুন (Save Settings)</span>

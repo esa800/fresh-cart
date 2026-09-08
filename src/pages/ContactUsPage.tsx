@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, MessageCircle } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import { StoreService } from '../services/store';
 
 export const ContactUsPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -8,7 +9,15 @@ export const ContactUsPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [settings, setSettings] = useState(() => StoreService.getSettings());
   const { showToast } = useToast();
+
+  useEffect(() => {
+    const unsub = StoreService.subscribeToStore(() => {
+      setSettings(StoreService.getSettings());
+    });
+    return unsub;
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,14 +34,14 @@ export const ContactUsPage: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-10 pb-16">
       {/* Header */}
       <div className="text-center space-y-2">
-        <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full">
-          Get in Touch
+        <span className="text-xs font-bold text-[#f85606] uppercase tracking-wider bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+          Customer Support
         </span>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          We are Here to Help with Your Groceries
+          We are Here to Help with Your Gadgets & Orders
         </h1>
         <p className="text-xs text-slate-500 max-w-md mx-auto">
-          Have an inquiry, bulk order request, or need assistance with a delivery? Contact our 24/7 Dhaka team.
+          Have an inquiry, bulk order request, warranty support, or need tracking assistance? Contact our team.
         </p>
       </div>
 
@@ -40,26 +49,38 @@ export const ContactUsPage: React.FC = () => {
         {/* Contact Info (5 cols) */}
         <div className="md:col-span-5 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-slate-800">
           <div>
-            <h3 className="text-lg font-black">KHAN GADGET BD HQ</h3>
+            <h3 className="text-lg font-black">{settings.storeName || 'KHAN GADGET BD'} Support HQ</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Main office and gadget dispatch operations hub.
+              Main office and nationwide gadget dispatch operations hub.
             </p>
           </div>
 
           <div className="space-y-4 text-xs">
             <div className="flex items-start gap-3 text-slate-300">
               <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-              <span>House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh</span>
+              <span>{settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
-              <Phone className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>+880 1700-FRESH (01700-373741)</span>
+              <Phone className="w-5 h-5 text-[#f85606] shrink-0" />
+              <span>Hotline: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
+            </div>
+
+            <div className="flex items-center gap-3 text-slate-300">
+              <MessageCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+              <a
+                href={`https://wa.me/88${(settings.whatsappNumber || '01854774406').replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-emerald-300 transition-colors"
+              >
+                WhatsApp: <strong>{settings.whatsappNumber || '01854774406'}</strong>
+              </a>
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
               <Mail className="w-5 h-5 text-amber-400 shrink-0" />
-              <span>info@khangadgetbd.com</span>
+              <span>{settings.supportEmail || settings.email || 'info@khangadgetbd.com'}</span>
             </div>
 
             <div className="flex items-center gap-3 text-slate-300">
@@ -69,8 +90,8 @@ export const ContactUsPage: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-slate-800 text-xs text-slate-400">
-            <strong className="text-white block mb-1">Corporate & Wholesale Orders:</strong>
-            <span>Looking for corporate gifting or bulk gadget supplies? Email wholesale@khangadgetbd.com or call 01854774406.</span>
+            <strong className="text-white block mb-1">Corporate & Bulk Orders:</strong>
+            <span>Looking for corporate gifting or bulk gadget supplies? Email {settings.supportEmail || 'info@khangadgetbd.com'} or call {settings.hotline || '01854774406'}.</span>
           </div>
         </div>
 
@@ -78,14 +99,14 @@ export const ContactUsPage: React.FC = () => {
         <div className="md:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
           {submitted ? (
             <div className="text-center py-8 space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+              <CheckCircle2 className="w-12 h-12 text-[#f85606] mx-auto" />
               <h3 className="text-base font-bold text-slate-900">Message Received!</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 Thank you, {name}. Our customer care representative will call you shortly on {phone}.
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                className="px-4 py-2 bg-[#f85606] hover:bg-[#e04a00] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 Send Another Message
               </button>
@@ -102,7 +123,7 @@ export const ContactUsPage: React.FC = () => {
                   placeholder="e.g. Asif Mahmud"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#f85606]/20 focus:border-[#f85606] transition-all"
                 />
               </div>
 
@@ -112,10 +133,10 @@ export const ContactUsPage: React.FC = () => {
                   <input
                     type="tel"
                     required
-                    placeholder="017XXXXXXXX"
+                    placeholder="018XXXXXXXX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600 font-mono"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#f85606]/20 focus:border-[#f85606] transition-all font-mono"
                   />
                 </div>
                 <div>
@@ -125,7 +146,7 @@ export const ContactUsPage: React.FC = () => {
                     placeholder="asif@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#f85606]/20 focus:border-[#f85606] transition-all"
                   />
                 </div>
               </div>
@@ -135,16 +156,16 @@ export const ContactUsPage: React.FC = () => {
                 <textarea
                   rows={4}
                   required
-                  placeholder="Write your question, feedback, or delivery issue here..."
+                  placeholder="Write your gadget question, order inquiry, or delivery issue here..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-hidden focus:border-emerald-600 leading-relaxed"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#f85606]/20 focus:border-[#f85606] transition-all leading-relaxed"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-xs shadow-emerald-600/20"
+                className="w-full py-3 bg-[#f85606] hover:bg-[#e04a00] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 <span>Submit Inquiry</span>

@@ -27,10 +27,12 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [products, setProducts] = useState<Product[]>(() => StoreService.getProducts());
+  const [settings, setSettings] = useState(() => StoreService.getSettings());
 
   useEffect(() => {
     const unsub = subscribeToStore(() => {
       setProducts(StoreService.getProducts());
+      setSettings(StoreService.getSettings());
     });
     return unsub;
   }, []);
@@ -317,11 +319,11 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
         <div className="flex items-center gap-4 shrink-0">
           <a
-            href="tel:+8801854774406"
+            href={`tel:${settings.hotline || settings.phone || '01854774406'}`}
             className="px-6 py-3.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-orange-500/30 transition-all"
           >
             <PhoneCall className="w-4 h-4" />
-            <span>01854774406</span>
+            <span>{settings.hotline || settings.phone || '01854774406'}</span>
           </a>
         </div>
       </div>

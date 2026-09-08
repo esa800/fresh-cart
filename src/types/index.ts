@@ -206,10 +206,14 @@ export interface Review {
 export interface StoreSettings {
   storeName: string;
   brandTagline: string;
+  tagline?: string;
   hotline: string;
+  phone?: string;
   whatsappNumber?: string;
   supportEmail: string;
+  email?: string;
   officeAddress: string;
+  address?: string;
   bkashMerchantNumber: string;
   nagadMerchantNumber: string;
   taxPercentage: number;
@@ -219,4 +223,7 @@ export interface StoreSettings {
   currencySymbol: string;
   adminPassword?: string;
   aboutUsText?: string;
+  deliveryChargeDhaka?: number;
+  deliveryChargeOutside?: number;
+  freeDeliveryThreshold?: number;
 }
