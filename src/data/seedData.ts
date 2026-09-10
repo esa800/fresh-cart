@@ -1169,111 +1169,7 @@ export const INITIAL_DELIVERY_ZONES: DeliveryZone[] = [
   }
 ];
 
-export const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ord-1001',
-    orderNumber: 'KS-2026-8801',
-    customerId: 'user-cust-01',
-    customerName: 'Fariha Akter Tumpa',
-    phone: '01711223344',
-    email: 'fariha.tumpa@gmail.com',
-    address: {
-      division: 'Dhaka',
-      district: 'Dhaka',
-      area: 'Rampura, Banasree Block D, Road 3',
-      fullAddress: 'House 24, Road 3, Block D, Banasree, Rampura, Dhaka',
-      deliveryNote: 'Please call before delivery'
-    },
-    items: [
-      {
-        productId: 'prod-001',
-        name: 'Gawa Ghee 1kg',
-        price: 1990,
-        quantity: 1,
-        unit: '1 kg',
-        image: 'https://images.unsplash.com/photo-1631451095765-2c91616fc9e6?w=400&auto=format&fit=crop&q=80',
-        total: 1990
-      },
-      {
-        productId: 'prod-005',
-        name: 'Honey Nuts 800gm',
-        price: 1700,
-        quantity: 1,
-        unit: '800 gm',
-        image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=400&auto=format&fit=crop&q=80',
-        total: 1700
-      }
-    ],
-    subtotal: 3690,
-    discount: 300,
-    deliveryCharge: 0,
-    couponDiscount: 300,
-    couponCode: 'KHAN10',
-    total: 3390,
-    paymentMethod: 'cod',
-    paymentStatus: 'pending',
-    orderStatus: 'Processing',
-    deliveryStatus: 'Packed with food-grade seal',
-    deliveryOption: 'standard',
-    estimatedDelivery: 'Tomorrow by 4:00 PM',
-    orderDate: '2026-03-08T10:15:00Z',
-    notes: 'Pure organic food regular order'
-  },
-  {
-    id: 'ord-1002',
-    orderNumber: 'KS-2026-8802',
-    customerId: 'user-cust-02',
-    customerName: 'Ayesha Khan',
-    phone: '01819876543',
-    email: 'ayesha.banker@yahoo.com',
-    address: {
-      division: 'Dhaka',
-      district: 'Dhaka',
-      area: 'Gulshan 1, Road 28',
-      fullAddress: 'Flat 5A, House 18, Road 28, Gulshan 1, Dhaka',
-      deliveryNote: 'Gate guard will receive'
-    },
-    items: [
-      {
-        productId: 'prod-002',
-        name: 'Deshi Mustard Oil 5 liter',
-        price: 1700,
-        quantity: 1,
-        unit: '5 liter',
-        image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&auto=format&fit=crop&q=80',
-        total: 1700
-      },
-      {
-        productId: 'prod-004',
-        name: 'Sundarban Honey 1kg',
-        price: 2500,
-        quantity: 1,
-        unit: '1 kg',
-        image: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400&auto=format&fit=crop&q=80',
-        total: 2500
-      }
-    ],
-    subtotal: 4200,
-    discount: 300,
-    deliveryCharge: 0,
-    couponDiscount: 300,
-    couponCode: 'KHAN10',
-    total: 3900,
-    paymentMethod: 'bkash',
-    paymentStatus: 'paid',
-    orderStatus: 'Out for Delivery',
-    deliveryStatus: 'Rider on the way',
-    deliveryOption: 'express',
-    estimatedDelivery: 'Today by 6:00 PM',
-    orderDate: '2026-03-09T08:30:00Z',
-    paymentDetails: {
-      provider: 'bKash',
-      transactionId: 'BKS988273615',
-      senderNumber: '01819876543',
-      simulated: true
-    }
-  }
-];
+export const INITIAL_ORDERS: Order[] = [];
 
 export const INITIAL_USERS: User[] = [
   {
@@ -1341,16 +1237,16 @@ export const INITIAL_REVIEWS: Review[] = [
 ];
 
 export const INITIAL_STORE_SETTINGS: StoreSettings = {
-  storeName: 'KHAN store',
-  brandTagline: 'Safe, Pure & Reliable Organic Food to Every Home',
+  storeName: 'KHAN GADGET BD',
+  brandTagline: 'স্মার্ট গ্যাজেট ও লাইফস্টাইল এক্সেসরিজ',
   hotline: '01854774406',
   whatsappNumber: '01854774406',
-  supportEmail: 'contact@khanstore.com',
-  officeAddress: 'Rampura, Dhaka, Bangladesh',
-  bkashMerchantNumber: '01854-774406 (Personal / Send Money)',
-  nagadMerchantNumber: '01854-774406 (Personal / Send Money)',
+  supportEmail: 'contact@khangadgetbd.com',
+  officeAddress: 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+  bkashMerchantNumber: '01854774406 (Personal / Send Money)',
+  nagadMerchantNumber: '01854774406 (Personal / Send Money)',
   taxPercentage: 0,
-  announcementText: '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি',
+  announcementText: '🔥 KHAN GADGET BD: প্রিমিয়াম স্মার্ট গ্যাজেটে আকর্ষণীয় অফার | সারাদেশে ক্যাশ অন ডেলিভারি',
   isAnnouncementActive: true,
   currency: 'BDT',
   currencySymbol: '৳',

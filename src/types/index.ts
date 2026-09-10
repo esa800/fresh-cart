@@ -166,6 +166,7 @@ export interface Order {
   smsSent?: boolean;
   smsSentAt?: string;
   smsContent?: string;
+  isPendingCloudSync?: boolean;
 }
 
 export interface Coupon {

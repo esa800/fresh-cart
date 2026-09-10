@@ -135,7 +135,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate, onOrderP
       }));
 
       // 3. Create persistent order record
-      const createdOrder = StoreService.createOrder({
+      const createdOrder = await StoreService.createOrder({
         customerId: currentUser?.id || 'guest',
         customerName: customerName.trim(),
         phone: phone.trim(),

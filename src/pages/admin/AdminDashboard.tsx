@@ -61,8 +61,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   // Invoice Modal
   const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
 
-  // Subscribe to storage updates
+  // Subscribe to storage updates and pull latest cloud orders
   useEffect(() => {
+    // Initial fetch from cloud to ensure freshest cross-device sync
+    StoreService.forceSyncOrders().then((synced) => {
+      if (synced) setOrders(synced);
+    }).catch((err) => console.warn('Admin initial sync error:', err));
+
     const unsub = subscribeToStore(() => {
       setProducts(StoreService.getProducts());
       setOrders(StoreService.getOrders());

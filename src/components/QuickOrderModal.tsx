@@ -70,7 +70,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
   const finalDeliveryCharge = isFreeDelivery ? 0 : deliveryCharge;
   const total = subtotal + finalDeliveryCharge;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const cleanName = customerName.trim();
@@ -100,7 +100,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
     setIsSubmitting(true);
 
     try {
-      const order = StoreService.createOrder({
+      const order = await StoreService.createOrder({
         customerId: StoreService.getCurrentUser()?.id || `guest-${Date.now()}`,
         customerName: cleanName,
         phone: cleanPhone,

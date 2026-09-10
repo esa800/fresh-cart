@@ -47,6 +47,7 @@ const STORAGE_KEYS = {
   VISITORS: 'khan_store_organic_v4_visitors',
   SMS_LOGS: 'khan_store_organic_v4_sms_logs',
   DELETED_PRODUCT_IDS: 'khan_store_organic_v4_deleted_ids',
+  DELETED_ORDER_IDS: 'khan_store_organic_v4_deleted_order_ids',
   INITIALIZED: 'khan_store_organic_v4_initialized'
 };
 
@@ -157,7 +158,24 @@ export function initStore(): void {
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(INITIAL_USERS.find(u => u.role === 'customer')));
     localStorage.setItem(STORAGE_KEYS.SELECTED_ZONE, JSON.stringify(INITIAL_DELIVERY_ZONES[0]));
     localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCT_IDS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.DELETED_ORDER_IDS, JSON.stringify(['ord-1001', 'ord-1002']));
     localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
+  } else {
+    // Existing store migration: ensure mock demo orders are purged and deleted list initialized
+    try {
+      const existingDeleted = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, []);
+      if (!existingDeleted.includes('ord-1001')) existingDeleted.push('ord-1001');
+      if (!existingDeleted.includes('ord-1002')) existingDeleted.push('ord-1002');
+      setItem(STORAGE_KEYS.DELETED_ORDER_IDS, existingDeleted);
+
+      const currentOrders = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+      const purged = currentOrders.filter(o => !existingDeleted.includes(o.id) && !existingDeleted.includes(o.orderNumber));
+      if (purged.length !== currentOrders.length) {
+        setItem(STORAGE_KEYS.ORDERS, purged);
+      }
+    } catch (e) {
+      // ignore
+    }
   }
 }
 
@@ -196,17 +214,32 @@ export function initFirebaseRealtimeSync(): void {
     FirebaseSyncService.subscribeToOrders((cloudOrders) => {
       try {
         if (cloudOrders) {
+          const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, ['ord-1001', 'ord-1002']);
           const currentLocal = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
-          // Merge any locally created orders (e.g. placed while offline or just placed) that haven't hit cloud yet
-          const merged = [...cloudOrders];
-          for (const local of currentLocal) {
-            const alreadyInCloud = merged.some(co => co.id === local.id || co.orderNumber === local.orderNumber);
-            if (!alreadyInCloud && local.id.startsWith('ord-')) {
-              merged.push(local);
-              // Push this local order to Cloud Firestore so all other devices receive it
-              FirebaseSyncService.saveOrder(local);
+
+          // Keep any locally created orders that are currently pending cloud upload
+          const pendingUnsynced = currentLocal.filter(
+            (o) => o.isPendingCloudSync && !deletedIds.includes(o.id) && !(o.orderNumber && deletedIds.includes(o.orderNumber))
+          );
+
+          // Filter cloud orders by deleted IDs
+          const filteredCloud = cloudOrders.filter(
+            (o) => !deletedIds.includes(o.id) && !(o.orderNumber && deletedIds.includes(o.orderNumber))
+          );
+
+          const merged = [...filteredCloud];
+          for (const pending of pendingUnsynced) {
+            if (!merged.some((co) => co.id === pending.id || co.orderNumber === pending.orderNumber)) {
+              merged.push(pending);
+              // Retry syncing to cloud in background
+              FirebaseSyncService.saveOrder(pending).then((success) => {
+                if (success) {
+                  pending.isPendingCloudSync = false;
+                }
+              });
             }
           }
+
           merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
           setItem(STORAGE_KEYS.ORDERS, merged);
           internalNotify(false);
@@ -398,7 +431,9 @@ export const StoreService = {
 
   // Orders
   getOrders(): Order[] {
-    return getItem<Order[]>(STORAGE_KEYS.ORDERS, INITIAL_ORDERS);
+    const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, ['ord-1001', 'ord-1002']);
+    const rawOrders = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+    return rawOrders.filter((o) => !deletedIds.includes(o.id) && !(o.orderNumber && deletedIds.includes(o.orderNumber)));
   },
   getOrderById(id: string): Order | undefined {
     return this.getOrders().find((o) => o.id === id || o.orderNumber === id);
@@ -406,7 +441,7 @@ export const StoreService = {
   getOrdersByCustomerId(customerId: string): Order[] {
     return this.getOrders().filter((o) => o.customerId === customerId);
   },
-  createOrder(orderData: Omit<Order, 'id' | 'orderNumber' | 'orderDate'>): Order {
+  async createOrder(orderData: Omit<Order, 'id' | 'orderNumber' | 'orderDate'>): Promise<Order> {
     const orders = this.getOrders();
     const now = new Date();
     const orderNumber = `KG-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -416,7 +451,8 @@ export const StoreService = {
       orderNumber,
       orderDate: now.toISOString(),
       orderStatus: 'Pending',
-      paymentStatus: orderData.paymentStatus || 'pending'
+      paymentStatus: orderData.paymentStatus || 'pending',
+      isPendingCloudSync: true
     };
 
     // Decrement stock for ordered items
@@ -439,12 +475,24 @@ export const StoreService = {
       console.warn('SMS dispatch simulation handled:', err);
     }
 
+    // Store locally first
     orders.unshift(newOrder);
     setItem(STORAGE_KEYS.ORDERS, orders);
+    internalNotify(true);
 
-    // Realtime sync to Cloud Firestore
+    // Synchronize to Cloud Firestore immediately and await confirmation
     try {
-      FirebaseSyncService.saveOrder(newOrder);
+      const saved = await FirebaseSyncService.saveOrder(newOrder);
+      if (saved) {
+        newOrder.isPendingCloudSync = false;
+        const currentOrders = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+        const target = currentOrders.find((o) => o.id === newOrder.id);
+        if (target) {
+          target.isPendingCloudSync = false;
+          setItem(STORAGE_KEYS.ORDERS, currentOrders);
+        }
+        internalNotify(true);
+      }
     } catch (e) {
       console.warn('Firebase sync saveOrder error:', e);
     }
@@ -538,12 +586,20 @@ export const StoreService = {
     }
   },
   deleteOrder(orderId: string): void {
+    // 1. Permanently register in deleted IDs list to prevent resurrection across devices
+    const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, ['ord-1001', 'ord-1002']);
+    if (!deletedIds.includes(orderId)) {
+      deletedIds.push(orderId);
+      setItem(STORAGE_KEYS.DELETED_ORDER_IDS, deletedIds);
+    }
+
+    // 2. Remove from local store
     const orders = this.getOrders();
     const filtered = orders.filter((o) => o.id !== orderId && o.orderNumber !== orderId);
     setItem(STORAGE_KEYS.ORDERS, filtered);
     internalNotify(true);
 
-    // Sync deletion to Cloud Firestore
+    // 3. Delete from Cloud Firestore and record in cloud deleted_orders
     try {
       FirebaseSyncService.deleteOrder(orderId);
     } catch (e) {
@@ -553,20 +609,29 @@ export const StoreService = {
   async forceSyncOrders(): Promise<Order[]> {
     try {
       const cloudOrders = await FirebaseSyncService.fetchOrdersOnce();
-      if (cloudOrders && cloudOrders.length > 0) {
-        const currentLocal = this.getOrders();
-        const merged = [...cloudOrders];
-        for (const local of currentLocal) {
-          if (!merged.some(co => co.id === local.id || co.orderNumber === local.orderNumber) && local.id.startsWith('ord-')) {
-            merged.push(local);
-            FirebaseSyncService.saveOrder(local);
-          }
+      const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, ['ord-1001', 'ord-1002']);
+      const currentLocal = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+      
+      const pendingUnsynced = currentLocal.filter(
+        (o) => o.isPendingCloudSync && !deletedIds.includes(o.id) && !(o.orderNumber && deletedIds.includes(o.orderNumber))
+      );
+
+      const filteredCloud = (cloudOrders || []).filter(
+        (o) => !deletedIds.includes(o.id) && !(o.orderNumber && deletedIds.includes(o.orderNumber))
+      );
+
+      const merged = [...filteredCloud];
+      for (const pending of pendingUnsynced) {
+        if (!merged.some((co) => co.id === pending.id || co.orderNumber === pending.orderNumber)) {
+          merged.push(pending);
+          FirebaseSyncService.saveOrder(pending);
         }
-        merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
-        setItem(STORAGE_KEYS.ORDERS, merged);
-        internalNotify(true);
-        return merged;
       }
+
+      merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
+      setItem(STORAGE_KEYS.ORDERS, merged);
+      internalNotify(true);
+      return merged;
     } catch (e) {
       console.warn('forceSyncOrders error:', e);
     }

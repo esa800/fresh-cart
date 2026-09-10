@@ -6,6 +6,7 @@ import {
   setDoc, 
   deleteDoc, 
   getDocs, 
+  getDoc,
   onSnapshot, 
   updateDoc,
   Firestore
@@ -120,6 +121,44 @@ export const FirebaseSyncService = {
     }
   },
 
+  // Get deleted order IDs to prevent resurrecting deleted orders across devices
+  async getDeletedOrderIds(): Promise<string[]> {
+    if (!dbInstance) return ['ord-1001', 'ord-1002'];
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'deleted_orders');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data() as { ids?: string[] };
+        const ids = data.ids || [];
+        if (!ids.includes('ord-1001')) ids.push('ord-1001');
+        if (!ids.includes('ord-1002')) ids.push('ord-1002');
+        return ids;
+      }
+      return ['ord-1001', 'ord-1002'];
+    } catch (err) {
+      console.warn('Firestore getDeletedOrderIds notice:', err);
+      return ['ord-1001', 'ord-1002'];
+    }
+  },
+
+  // Record deleted order ID permanently in Firestore
+  async recordDeletedOrder(orderId: string): Promise<void> {
+    if (!dbInstance) return;
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'deleted_orders');
+      const existingIds = await this.getDeletedOrderIds();
+      if (!existingIds.includes(orderId)) {
+        existingIds.push(orderId);
+      }
+      await setDoc(docRef, {
+        ids: existingIds,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (err) {
+      console.warn('Firestore recordDeletedOrder error:', err);
+    }
+  },
+
   // Save new or updated order to Firestore
   async saveOrder(order: Order): Promise<boolean> {
     if (!dbInstance) {
@@ -127,9 +166,17 @@ export const FirebaseSyncService = {
       return false;
     }
     try {
+      // Never save an order that was marked as deleted
+      const deletedIds = await this.getDeletedOrderIds();
+      if (deletedIds.includes(order.id) || (order.orderNumber && deletedIds.includes(order.orderNumber))) {
+        console.log('Skipping save for deleted order:', order.id);
+        return false;
+      }
+
       const docRef = doc(dbInstance, COLLECTIONS.ORDERS, order.id);
       const sanitized = sanitizeForFirestore({
         ...order,
+        isPendingCloudSync: false,
         updatedAt: new Date().toISOString()
       });
       await setDoc(docRef, sanitized, { merge: true });
@@ -141,13 +188,14 @@ export const FirebaseSyncService = {
     }
   },
 
-  // Delete order from Firestore
+  // Delete order permanently from Firestore
   async deleteOrder(orderId: string): Promise<void> {
     if (!dbInstance) return;
     try {
       const docRef = doc(dbInstance, COLLECTIONS.ORDERS, orderId);
       await deleteDoc(docRef);
-      console.log('Order deleted from Cloud Firestore:', orderId);
+      await this.recordDeletedOrder(orderId);
+      console.log('Order deleted permanently from Cloud Firestore:', orderId);
     } catch (err) {
       console.warn('Firestore deleteOrder error:', err);
     }
@@ -211,11 +259,14 @@ export const FirebaseSyncService = {
   async fetchOrdersOnce(): Promise<Order[]> {
     if (!dbInstance) return [];
     try {
-      const snap = await getDocs(collection(dbInstance, COLLECTIONS.ORDERS));
+      const [snap, deletedIds] = await Promise.all([
+        getDocs(collection(dbInstance, COLLECTIONS.ORDERS)),
+        this.getDeletedOrderIds()
+      ]);
       const list: Order[] = [];
       snap.forEach((docSnap) => {
         const data = docSnap.data() as Order;
-        if (data && data.id) {
+        if (data && data.id && !deletedIds.includes(data.id) && !(data.orderNumber && deletedIds.includes(data.orderNumber))) {
           list.push(data);
         }
       });
@@ -341,11 +392,12 @@ export const FirebaseSyncService = {
       const colRef = collection(dbInstance, COLLECTIONS.ORDERS);
       const unsubscribe = onSnapshot(
         colRef,
-        (snapshot) => {
+        async (snapshot) => {
+          const deletedIds = await this.getDeletedOrderIds();
           const list: Order[] = [];
           snapshot.forEach((docSnap) => {
             const data = docSnap.data() as Order;
-            if (data && data.id) {
+            if (data && data.id && !deletedIds.includes(data.id) && !(data.orderNumber && deletedIds.includes(data.orderNumber))) {
               list.push(data);
             }
           });
