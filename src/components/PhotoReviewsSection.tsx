@@ -91,7 +91,7 @@ export const PhotoReviewsSection: React.FC<PhotoReviewsSectionProps> = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
+    (Array.from(files) as File[]).forEach((file: File) => {
       if (!file.type.startsWith('image/')) {
         showToast('অনুগ্রহ করে শুধুমাত্র ছবি (JPG, PNG, WEBP) আপলোড করুন', 'error');
         return;

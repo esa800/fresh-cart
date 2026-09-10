@@ -1,6 +1,6 @@
 {
-  "name": "KHAN GADGET BD",
-  "description": "Leading Bangladeshi online marketplace for Mobile Accessories, Electronic Gadgets, Fashion & Lifestyle with express delivery and bKash/COD payments.",
+  "name": "KHAN store",
+  "description": "Premium e-commerce platform dedicated to providing safe, 100% pure organic food, raw honey, ghee, mustard oil, dates, nuts & cooking essentials.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

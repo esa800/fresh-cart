@@ -217,19 +217,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               </div>
               <div>
                 <h1 className="font-black text-sm sm:text-base leading-tight tracking-tight flex items-center gap-1.5">
-                  <span>KHAN GADGET</span>
-                  <span className="text-amber-400">BD</span>
+                  <span>KHAN</span>
+                  <span className="text-[#f85606]">store</span>
                   <span className="text-[11px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded-full border border-slate-700 hidden sm:inline-block font-semibold">
-                    Admin Engine
+                    Admin Engine (AP)
                   </span>
                 </h1>
-                <p className="text-[10px] text-slate-400">অ্যাডমিন কন্ট্রোল সেন্টার</p>
+                <p className="text-[10px] text-slate-400">Safe & Pure Food এডমিন কন্ট্রোল সেন্টার</p>
               </div>
             </div>
           </div>
 
           {/* Quick Actions Header */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Firebase Realtime Cloud Connected Badge */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-950/60 border border-emerald-600/40 text-emerald-300 rounded-full text-[11px] font-bold shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Firebase Realtime Cloud: সচল</span>
+            </div>
+
             {/* View Live Store */}
             <button
               id="admin-view-store-btn"

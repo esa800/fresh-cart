@@ -131,6 +131,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
         total: total,
         paymentMethod: paymentMethod,
         paymentStatus: 'pending',
+        orderStatus: 'Pending',
         deliveryStatus: 'Pending Confirmation - 1-Click Buy',
         deliveryOption: deliveryArea === 'dhaka' ? 'express' : 'standard',
         estimatedDelivery: deliveryArea === 'dhaka' ? '১-২ কার্যদিবস' : '২-৩ কার্যদিবস'

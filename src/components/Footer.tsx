@@ -4,12 +4,12 @@ import {
   Mail, 
   MapPin, 
   ShieldCheck, 
-  Clock, 
   RefreshCcw, 
   Send, 
-  Heart,
   CreditCard,
-  Truck
+  Truck,
+  Leaf,
+  Lock
 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { StoreService } from '../services/store';
@@ -41,47 +41,47 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   };
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-12 pb-24 md:pb-12 border-t border-slate-800">
+    <footer className="bg-[#0c1f1c] text-slate-300 pt-12 pb-24 md:pb-12 border-t border-emerald-950">
       {/* 1. Value Badges Top Bar */}
-      <div className="max-w-7xl mx-auto px-4 pb-10 border-b border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 pb-10 border-b border-emerald-900/40">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#112a26] border border-emerald-800/40">
             <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6" />
+              <Leaf className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">100% Authentic Brand</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Official brand warranty & intact box</p>
+              <h4 className="text-sm font-bold text-white">১০০% খাঁটি ও নিরাপদ</h4>
+              <p className="text-xs text-slate-400 mt-0.5">ন্যাচারাল ও বিশুদ্ধ খাদ্যপণ্য</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#112a26] border border-emerald-800/40">
             <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
               <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">Nationwide Express Delivery</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Prompt doorstep service across 64 districts</p>
+              <h4 className="text-sm font-bold text-white">সারাদেশে হোম ডেলিভারি</h4>
+              <p className="text-xs text-slate-400 mt-0.5">ক্যাশ অন ডেলিভারি সুবিধা</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#112a26] border border-emerald-800/40">
             <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
               <RefreshCcw className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">7-Day Easy Replacement</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Hassle-free warranty & returns</p>
+              <h4 className="text-sm font-bold text-white">সহজ রিটার্ন পলিসি</h4>
+              <p className="text-xs text-slate-400 mt-0.5">পণ্য অপছন্দ হলে পরিবর্তনের সুযোগ</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#112a26] border border-emerald-800/40">
             <div className="w-11 h-11 rounded-xl bg-orange-500/10 text-[#f85606] flex items-center justify-center shrink-0">
-              <CreditCard className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white">bKash, Nagad & COD</h4>
-              <p className="text-xs text-slate-400 mt-0.5">Safe mobile wallets or pay upon delivery</p>
+              <h4 className="text-sm font-bold text-white">অর্গানিক সনদপ্রাপ্ত</h4>
+              <p className="text-xs text-slate-400 mt-0.5">কোয়ালিটি ও মান যাচাইকৃত</p>
             </div>
           </div>
         </div>
@@ -92,66 +92,72 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
           {/* Col 1: Brand & Contact */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('home')}>
-              <div className="w-9 h-9 rounded-xl bg-[#f85606] flex items-center justify-center text-white font-black text-lg shadow-sm">
-                KG
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => onNavigate('home')}>
+              <div className="w-10 h-10 rounded-xl bg-[#f85606] flex items-center justify-center text-white font-black text-lg shadow-sm">
+                <Leaf className="w-5 h-5 fill-white" />
               </div>
-              <span className="font-black text-2xl text-white tracking-tight">
-                {settings.storeName || 'KHAN GADGET BD'}
-              </span>
+              <div>
+                <span className="font-black text-2xl text-white tracking-tight uppercase flex items-center gap-1">
+                  <span>KHAN</span>
+                  <span className="text-[#f85606]">store</span>
+                </span>
+                <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">
+                  Safe & Pure Food
+                </p>
+              </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              {settings.aboutUsText || settings.brandTagline || `${settings.storeName || 'KHAN GADGET BD'} is Bangladesh's premier online destination for authentic mobile accessories, latest electronic gadgets, and smart lifestyle tech with reliable nationwide doorstep cash on delivery.`}
+              {settings.aboutUsText || 'KHAN store বাংলাদেশের নির্ভরযোগ্য অর্গানিক ও প্রাকৃতিক নিরাপদ খাদ্য সরবরাহের বিশ্বস্ত প্রতিষ্ঠান। খাঁটি মধু, ঘানির সরিষার তেল, প্রিমিয়াম খেজুর ও পাবনার গাওয়া ঘি সরাসরি আপনার ঘরে পৌঁছে দিচ্ছি।'}
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
               <div className="flex items-start gap-2.5 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
+                <span>{settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Hotline: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
+                <span>Hotline: <strong>{settings.hotline || '01854774406'}</strong></span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Email: <strong>{settings.supportEmail || settings.email || 'info@khangadgetbd.com'}</strong></span>
+                <span>Email: <strong>{settings.supportEmail || 'support@khanstore.com'}</strong></span>
               </div>
             </div>
           </div>
 
           {/* Col 2: Top Categories */}
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Main Categories</h3>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">জনপ্রিয় ক্যাটাগরি</h3>
             <ul className="space-y-2 text-xs">
               <li>
-                <button onClick={() => onNavigate('category-products', 'smart-watch')} className="hover:text-amber-400 transition-colors">
-                  Smart Watches (স্মার্ট ওয়াচ)
+                <button onClick={() => onNavigate('category-products', 'honey')} className="hover:text-amber-400 transition-colors">
+                  প্রাকৃতিক মধু (All Natural Honey)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'earbuds-audio')} className="hover:text-amber-400 transition-colors">
-                  Earbuds & Audio (ইয়ারবাডস)
+                <button onClick={() => onNavigate('category-products', 'oil-ghee')} className="hover:text-amber-400 transition-colors">
+                  তেল ও খাঁটি ঘি (Oil & Ghee)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'mobile-accessories')} className="hover:text-amber-400 transition-colors">
-                  Mobile Accessories (মোবাইল এক্সেসরিজ)
+                <button onClick={() => onNavigate('category-products', 'dates')} className="hover:text-amber-400 transition-colors">
+                  প্রিমিয়াম খেজুর (Premium Dates)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('category-products', 'power-bank-chargers')} className="hover:text-amber-400 transition-colors">
-                  Power Banks & Chargers
+                <button onClick={() => onNavigate('category-products', 'spices')} className="hover:text-amber-400 transition-colors">
+                  খাঁটি মসলা (Pure Spices)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('shop', 'filter=flash')} className="hover:text-amber-400 transition-colors font-semibold">
-                  Flash Sale Deals (হট ডিল)
+                <button onClick={() => onNavigate('category-products', 'nuts-seeds')} className="hover:text-amber-400 transition-colors">
+                  বাদাম ও বীজ (Nuts & Seeds)
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('shop')} className="hover:text-amber-400 transition-colors">
-                  All Gadget Products
+                <button onClick={() => onNavigate('category-products', 'certified')} className="hover:text-amber-400 transition-colors">
+                  অর্গানিক সার্টিফাইড (Certified)
                 </button>
               </li>
             </ul>
@@ -159,37 +165,32 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Col 3: Customer Service */}
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Customer Care</h3>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">গ্রাহক সেবা</h3>
             <ul className="space-y-2 text-xs">
               <li>
                 <button onClick={() => onNavigate('track-order')} className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Track Your Order</span>
+                  <span>অর্ডার ট্র্যাক করুন (Track Order)</span>
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('faq')} className="hover:text-amber-400 transition-colors">
-                  Frequently Asked Questions (FAQ)
+                  প্রশ্নোত্তর (FAQ)
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('return-refund')} className="hover:text-amber-400 transition-colors">
-                  Return & Warranty Policy
+                  রিটার্ন পলিসি (Return Policy)
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('privacy-policy')} className="hover:text-amber-400 transition-colors">
-                  Privacy & Security Policy
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('terms-conditions')} className="hover:text-amber-400 transition-colors">
-                  Terms & Conditions
+                  প্রাইভেসি পলিসি (Privacy Policy)
                 </button>
               </li>
               <li>
                 <button onClick={() => onNavigate('contact-us')} className="hover:text-amber-400 transition-colors">
-                  Help & Contact Us
+                  যোগাযোগ (Contact Us)
                 </button>
               </li>
             </ul>
@@ -197,25 +198,25 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Col 4: Newsletter */}
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Get Discounts</h3>
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-3">ডিসকাউন্ট অফার</h3>
             <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              Subscribe to get exclusive tech flash discount alerts and new gadget launch updates.
+              আপনার ইমেইল দিয়ে সাবস্ক্রাইব করুন এবং পরবর্তী অর্ডারে ১০% ছাড়ের স্পেশাল কুপন কোড পান।
             </p>
             <form onSubmit={handleSubscribe} className="space-y-2">
               <div className="relative">
                 <input
                   type="email"
-                  placeholder="Your email address..."
+                  placeholder="আপনার ইমেইল দিন..."
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:border-amber-400"
+                  className="w-full bg-[#112a26] border border-emerald-800/60 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:border-amber-400"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-2.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2.5 bg-[#f85606] hover:bg-[#e04a00] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-md active:scale-95"
               >
-                <span>Subscribe for 10% Off</span>
+                <span>সাবস্ক্রাইব করুন</span>
                 <Send className="w-3.5 h-3.5" />
               </button>
             </form>
@@ -224,19 +225,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
       </div>
 
       {/* 3. Payment Methods & Copyright */}
-      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 pt-8 border-t border-emerald-900/40">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-slate-400 font-semibold mr-1">Accepted In Bangladesh:</span>
-            <span className="bg-pink-900/40 text-pink-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-pink-700/50">bKash</span>
-            <span className="bg-orange-900/40 text-orange-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-orange-700/50">Nagad</span>
-            <span className="bg-purple-900/40 text-purple-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-purple-700/50">Rocket</span>
-            <span className="bg-blue-900/40 text-blue-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-blue-700/50">Visa / Mastercard</span>
-            <span className="bg-slate-800 text-amber-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-slate-700">Cash on Delivery (COD)</span>
+            <span className="text-slate-400 font-semibold mr-1">মূল্য পরিশোধের মাধ্যম:</span>
+            <span className="bg-pink-950/60 text-pink-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-pink-700/50">bKash</span>
+            <span className="bg-orange-950/60 text-orange-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-orange-700/50">Nagad</span>
+            <span className="bg-purple-950/60 text-purple-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-purple-700/50">Rocket</span>
+            <span className="bg-blue-950/60 text-blue-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-blue-700/50">Card</span>
+            <span className="bg-emerald-900/60 text-emerald-300 px-2.5 py-1 rounded-md font-bold text-[11px] border border-emerald-700/50">Cash on Delivery (ক্যাশ অন ডেলিভারি)</span>
           </div>
 
           <p className="text-xs text-slate-500 text-center md:text-right">
-            © {new Date().getFullYear()} KHAN GADGET BD. All rights reserved. Built for Bangladesh.
+            © {new Date().getFullYear()} KHAN store (Safe & Pure Food). সর্বস্বত্ব সংরক্ষিত।
           </p>
         </div>
       </div>

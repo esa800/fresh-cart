@@ -11,6 +11,7 @@ import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { DeliveryAreaModal } from './components/DeliveryAreaModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { FloatingCartButton } from './components/FloatingCartButton';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -182,6 +183,11 @@ function MainApp() {
           onNavigate={handleNavigate}
           onOpenCart={() => setIsCartDrawerOpen(true)}
         />
+      )}
+
+      {/* Floating Right Cart Badge Widget (matching reference screenshot) */}
+      {!isAdminView && (
+        <FloatingCartButton />
       )}
 
       {/* Slide-over Cart Drawer */}

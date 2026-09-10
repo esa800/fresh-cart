@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Store products for KHAN store with real-time stock and prices",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "banglaName": { "type": "string" },
+        "slug": { "type": "string" },
+        "price": { "type": "number" },
+        "regularPrice": { "type": "number" },
+        "category": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "unit": { "type": "string" },
+        "image": { "type": "string" },
+        "stock": { "type": "number" },
+        "description": { "type": "string" },
+        "isBestSeller": { "type": "boolean" },
+        "isOrganicCertified": { "type": "boolean" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "origin": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "price"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer orders with live status tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "trackingNumber": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerAddress": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "deliveryCharge": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "orderStatus": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "customerName", "customerPhone", "totalAmount"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product categories",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "banglaName": { "type": "string" },
+        "slug": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global store settings and banner configuration",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string" },
+        "hotline": { "type": "string" },
+        "bkashNumber": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Catalog of products, publicly readable, writable for admin and store sync"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Orders created by customers and tracked in real-time"
+    },
+    "/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "Store categories"
+    },
+    "/settings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Global store configuration"
+    },
+    "/users/{userId}": {
+      "description": "Customer profiles"
+    }
+  }
+}

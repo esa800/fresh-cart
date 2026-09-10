@@ -4,8 +4,6 @@ import {
   ShoppingCart, 
   Heart, 
   User, 
-  MapPin, 
-  Phone, 
   Truck, 
   ChevronDown, 
   Menu, 
@@ -13,19 +11,21 @@ import {
   ShieldCheck,
   Percent,
   Sparkles,
-  Layers,
+  Flame,
   LogOut,
   Settings,
   PackageCheck,
-  Megaphone,
   MessageCircle,
-  RotateCw,
-  Lock
+  Phone,
+  Lock,
+  Leaf,
+  Layers
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { StoreService } from '../services/store';
+import { Category, Product } from '../types';
 
 interface HeaderProps {
   currentView: string;
@@ -35,22 +35,21 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onNavigate, onOpenAreaModal }) => {
-  const { itemCount, subtotal, setIsCartOpen, selectedZone } = useCart();
+  const { itemCount, setIsCartOpen } = useCart();
   const { wishlistCount } = useWishlist();
-  const { currentUser, isAuthenticated, isAdmin, role, logout, switchDemoRole } = useAuth();
+  const { currentUser, isAuthenticated, logout } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const searchRef = useRef<HTMLDivElement>(null);
   
   // Real-time Reactive State for Categories, Products & Settings
-  const [categories, setCategories] = useState(() => StoreService.getCategories());
-  const [allProducts, setAllProducts] = useState(() => StoreService.getProducts());
+  const [categories, setCategories] = useState<Category[]>(() => StoreService.getCategories());
+  const [allProducts, setAllProducts] = useState<Product[]>(() => StoreService.getProducts());
   const [settings, setSettings] = useState(() => StoreService.getSettings());
 
   useEffect(() => {
@@ -100,154 +99,119 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
     onNavigate('product-detail', slug);
   };
 
-  return (
-    <header className="relative z-40 bg-[#f85606] shadow-md">
-      {/* 0. Top Dark Marquee Ticker Bar */}
-      {settings.isAnnouncementActive !== false && (
-        <div className="bg-[#090d16] text-slate-200 text-xs py-2 px-3 overflow-hidden border-b border-slate-800 select-none">
-          <div className="flex items-center overflow-hidden whitespace-nowrap">
-            <div className="animate-marquee flex items-center gap-6 font-medium text-xs">
-              <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
-                <Megaphone className="w-3 h-3" /> HOT
-              </span>
-              <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
-              <span className="text-slate-500">•</span>
-              <span className="font-extrabold text-white tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
-              <span className="text-slate-500">•</span>
-              <span className="text-amber-300 font-semibold">
-                {settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'}
-              </span>
-              <span className="text-slate-500">•</span>
-              <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
-                কুপন: KHAN10
-              </span>
-              <span className="text-slate-500">•</span>
-              <span className="text-amber-400 font-bold flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
-              </span>
+  const navCategories = [
+    { name: 'Offer Zone', slug: 'offer-zone', isSpecial: true, icon: <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" /> },
+    { 
+      name: 'Honey', 
+      slug: 'honey', 
+      hasDropdown: true,
+      subItems: ['Sundarban Honey', 'Black Seed Honey', 'African Wild Honey', 'Honey Nuts', 'Lychee Honey']
+    },
+    { name: 'Oil & Ghee', slug: 'oil-ghee', hasDropdown: false },
+    { 
+      name: 'Dates', 
+      slug: 'dates', 
+      hasDropdown: true,
+      subItems: ['Ajwa Dates', 'Sukkari Dates', 'Egyptian Medjool', 'Safawi Dates']
+    },
+    { 
+      name: 'Spices', 
+      slug: 'spices', 
+      hasDropdown: true,
+      subItems: ['Kala Bhuna Masala', 'Chili Powder', 'Coriander Powder', 'Turmeric Powder']
+    },
+    { 
+      name: 'Nuts & Seeds', 
+      slug: 'nuts-seeds', 
+      hasDropdown: true,
+      subItems: ['Cashew Nuts', 'Honey Nuts', 'Almonds', 'Chia Seeds']
+    },
+    { 
+      name: 'Beverage', 
+      slug: 'beverage', 
+      hasDropdown: true,
+      subItems: ['Organic Apple Cider Vinegar', 'Herbal Tea', 'Green Tea']
+    },
+    { name: 'Rice', slug: 'rice', hasDropdown: false },
+    { 
+      name: 'Flours & Lentils', 
+      slug: 'flours-lentils', 
+      hasDropdown: true,
+      subItems: ['Rice Flour (Chaler Gura)', 'Laal Atta', 'Red Lentils']
+    },
+    { name: 'Certified', slug: 'certified', hasDropdown: false },
+    { name: 'Pickle', slug: 'pickle', hasDropdown: false },
+    { name: 'Tabaya', slug: 'organic', hasDropdown: false }
+  ];
 
-              {/* Seamless marquee repetition */}
-              <span className="text-slate-500 ml-4">•</span>
-              <span className="inline-flex items-center gap-1.5 bg-[#ff4600] text-white text-[11px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
-                <Megaphone className="w-3 h-3" /> HOT
+  return (
+    <header className="relative z-40 bg-white">
+      {/* 0. Top Clean Announcement Bar */}
+      {settings.isAnnouncementActive !== false && (
+        <div className="bg-[#0f2824] text-slate-200 text-xs py-1.5 px-4 border-b border-emerald-950/40">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 bg-[#f85606] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                <Leaf className="w-2.5 h-2.5" /> 100% PURE
               </span>
-              <span className="text-amber-400 font-bold tracking-wider font-mono">KHAN10</span>
-              <span className="text-slate-500">•</span>
-              <span className="font-extrabold text-white tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
-              <span className="text-slate-500">•</span>
-              <span className="text-amber-300 font-semibold">
-                {settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'}
+              <span className="text-emerald-100 font-medium hidden sm:inline">
+                {settings.announcementText || '🌿 KHAN store: ১০০% খাঁটি ও প্রাকৃতিক খাদ্যসামগ্রী | প্রমোকোড: KHAN10 (১০% ছাড়) | হটলাইন: 01854774406'}
               </span>
-              <span className="text-slate-500">•</span>
-              <span className="bg-orange-950 border border-orange-500/40 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
-                কুপন: KHAN10
-              </span>
-              <span className="text-slate-500">•</span>
-              <span className="text-amber-400 font-bold flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> কোড: KHAN10
-              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-[11px] font-semibold text-emerald-200">
+              <div className="flex items-center gap-1">
+                <Phone className="w-3 h-3 text-emerald-400" />
+                <span>{settings.hotline || '01854774406'}</span>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 1. Deep Orange Sub-Bar */}
-      <div className="bg-[#b93807] text-white text-xs py-1.5 px-4 hidden md:block border-b border-[#a22f04]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-medium text-white/95">
-            <span className="text-amber-300 font-bold">⚡ Flash Deals:</span>
-            <span>Use code <strong className="bg-white/20 px-1.5 py-0.5 rounded font-mono font-bold text-white">KHAN10</strong> for 10% OFF</span>
-            <span className="text-white/40 mx-1">|</span>
-            <span className="text-white/90">Free delivery on orders over ৳ {(settings.freeDeliveryThreshold ?? 2000).toLocaleString()}</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-white/95">
-              <Phone className="w-3.5 h-3.5 text-white/80" />
-              <span>Contact: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
-            </div>
-
-            <a
-              href={`https://wa.me/88${(settings.whatsappNumber || '01854774406').replace(/\D/g, '')}`}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-[#15803d] hover:bg-[#166534] text-white font-bold text-[11px] px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-colors shadow-xs"
-              title="Chat on WhatsApp"
-            >
-              <MessageCircle className="w-3.5 h-3.5 fill-white" />
-              <span>WhatsApp: {settings.whatsappNumber || '01854774406'}</span>
-            </a>
-
-            <button
-              onClick={() => window.location.reload()}
-              className="p-1 rounded bg-black/20 hover:bg-black/30 text-white transition-colors"
-              title="Refresh Page"
-            >
-              <RotateCw className="w-3.5 h-3.5" />
-            </button>
-
-            {/* AP Admin Panel Button */}
-            <button
-              id="topbar-admin-panel-btn"
-              onClick={() => onNavigate('admin')}
-              className="bg-[#7c2d12] hover:bg-[#9a3412] text-amber-200 border border-amber-500/40 text-[11px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1.5 transition-colors shadow-xs"
-              title="অ্যাডমিন প্যানেল"
-            >
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
-              <span>AP</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Header Bar (Signature Daraz Vibrant Orange) */}
-      <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5">
-        <div className="flex items-center justify-between gap-3 sm:gap-6">
-          {/* Mobile menu trigger */}
-          <button
-            id="mobile-menu-toggle-btn"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-white hover:bg-black/10"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-
+      {/* 1. Main Header Bar (Clean White aesthetic matching the reference image) */}
+      <div className="border-b border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-between gap-4">
+          
           {/* Logo */}
           <div 
             id="header-brand-logo"
             onClick={() => onNavigate('home')} 
-            className="cursor-pointer select-none group shrink-0"
+            className="cursor-pointer select-none flex items-center gap-2.5 shrink-0 group"
           >
-            <h1 className="font-black text-2xl sm:text-3xl text-white tracking-wider uppercase drop-shadow-xs">
-              {settings.storeName || 'KHAN GADGET BD'}
-            </h1>
-            {(settings.tagline || settings.brandTagline) && (
-              <p className="text-[10px] text-amber-100 font-medium tracking-tight hidden lg:block -mt-0.5 max-w-xs truncate">
-                {settings.tagline || settings.brandTagline}
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f85606] to-[#e04a00] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+              <Leaf className="w-5 h-5 fill-white" />
+            </div>
+            <div>
+              <h1 className="font-black text-2xl tracking-tight text-slate-900 uppercase flex items-center gap-1 leading-none">
+                <span>KHAN</span>
+                <span className="text-[#f85606]">store</span>
+              </h1>
+              <p className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5">
+                Safe & Pure Food
               </p>
-            )}
+            </div>
           </div>
 
-          {/* Live Search Bar */}
+          {/* Centered Search Bar */}
           <div ref={searchRef} className="flex-1 max-w-xl relative hidden md:block">
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 id="header-search-input"
                 type="text"
-                placeholder="Search mobile accessories..."
+                placeholder="Search in..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full pl-4 pr-11 py-2.5 bg-white rounded-md text-sm text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-300 shadow-xs"
+                className="w-full pl-5 pr-12 py-2.5 bg-white rounded-full text-sm text-slate-800 placeholder:text-slate-400 border border-slate-300 focus:outline-hidden focus:border-[#f85606] focus:ring-2 focus:ring-orange-100 shadow-xs transition-all"
               />
               <button
                 id="header-search-btn"
                 type="submit"
-                className="absolute right-1 top-1 bottom-1 px-3 text-[#f85606] hover:text-[#d44702] transition-colors flex items-center justify-center"
+                className="absolute right-1.5 top-1 bottom-1 px-3 text-slate-400 hover:text-[#f85606] transition-colors flex items-center justify-center"
                 title="Search"
               >
-                <Search className="w-5 h-5 stroke-[2.5]" />
+                <Search className="w-5 h-5 stroke-[2.2]" />
               </button>
             </form>
 
@@ -257,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                 id="header-search-results-dropdown" 
                 className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50 max-h-96 overflow-y-auto text-slate-800"
               >
-                <div className="p-2 border-b border-slate-100 bg-slate-50 flex items-center justify-between text-[11px] text-slate-500 font-semibold px-3">
+                <div className="p-2.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between text-[11px] text-slate-500 font-semibold px-4">
                   <span>Product Suggestions</span>
                   <span>{filteredSuggestions.length} found</span>
                 </div>
@@ -266,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                     <div
                       key={prod.id}
                       onClick={() => handleSelectSuggestion(prod.slug)}
-                      className="p-3 hover:bg-amber-50/60 cursor-pointer flex items-center gap-3 transition-colors group"
+                      className="p-3 hover:bg-orange-50/70 cursor-pointer flex items-center gap-3 transition-colors group"
                     >
                       <img
                         src={prod.images[0]}
@@ -275,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                         referrerPolicy="no-referrer"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-800 group-hover:text-[#f85606] truncate">
+                        <p className="text-xs font-bold text-slate-800 group-hover:text-[#f85606] truncate">
                           {prod.name}
                         </p>
                         <p className="text-[11px] text-slate-500 truncate">
@@ -283,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-bold text-[#f85606]">৳{prod.salePrice}</span>
+                        <span className="text-xs font-black text-[#f85606]">৳{prod.salePrice}</span>
                         {prod.regularPrice > prod.salePrice && (
                           <span className="text-[10px] text-slate-400 line-through block">৳{prod.regularPrice}</span>
                         )}
@@ -295,381 +259,302 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
             )}
           </div>
 
-          {/* Header Actions: Track My Order, Wishlist, Account, Cart */}
-          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-            {/* Track My Order */}
-            <button
-              id="header-track-order-btn"
-              onClick={() => onNavigate('track-order')}
-              className="hidden lg:flex items-center gap-1 text-xs sm:text-sm font-bold text-white hover:text-amber-200 transition-colors"
-            >
-              <span>Track My Order</span>
-            </button>
-
-            {/* Wishlist */}
-            <button
-              id="header-wishlist-btn"
-              onClick={() => onNavigate('wishlist')}
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white hover:text-amber-200 transition-colors"
-              title="Wishlist"
-            >
-              <div className="relative">
-                <Heart className="w-5 h-5 text-white stroke-[2]" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 w-4 h-4 bg-white text-[#f85606] text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
-                    {wishlistCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden sm:inline">Wishlist</span>
-            </button>
-
-            {/* Cart Trigger */}
-            <button
-              id="header-cart-drawer-trigger"
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 bg-[#df4b02] hover:bg-[#cf4200] border border-white/30 text-white px-3.5 py-2 rounded-lg transition-all shadow-xs active:scale-95 text-xs sm:text-sm font-bold"
-            >
-              <ShoppingCart className="w-5 h-5 text-white" />
-              <span>{itemCount} (৳ {subtotal})</span>
-            </button>
-
-            {/* Account / User Menu Dropdown */}
+          {/* Right Header Navigation Items: Sign In | Live Order Track | Cart | 3-Line Menu */}
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            
+            {/* 1. Sign In / My Account */}
             <div className="relative">
               <button
                 id="header-account-btn"
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-1.5 p-1 text-white hover:text-amber-200 rounded-lg transition-colors"
-                title="Account"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    setIsUserMenuOpen(!isUserMenuOpen);
+                  } else {
+                    onNavigate('login');
+                  }
+                }}
+                className="flex items-center gap-2 text-slate-700 hover:text-[#f85606] transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-xs">
-                  {currentUser ? currentUser.name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                  <User className="w-4 h-4 stroke-[2]" />
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-white/80 hidden sm:block" />
+                <span className="text-xs font-semibold hidden sm:inline">
+                  {isAuthenticated ? (currentUser?.name?.split(' ')[0] || 'Account') : 'Sign In'}
+                </span>
+                {isAuthenticated && <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />}
               </button>
 
               {/* User Dropdown */}
-              {isUserMenuOpen && (
+              {isUserMenuOpen && isAuthenticated && (
                 <div 
                   id="header-user-dropdown-menu" 
                   className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 divide-y divide-slate-100 text-slate-800"
                 >
-                  {isAuthenticated ? (
-                    <>
-                      <div className="px-4 py-2.5">
-                        <p className="text-xs font-bold text-slate-900 truncate">{currentUser?.name}</p>
-                        <p className="text-[11px] text-slate-500 truncate">{currentUser?.email}</p>
-                        <span className="inline-block mt-1 text-[10px] font-semibold bg-amber-50 text-[#f85606] px-2 py-0.5 rounded-md uppercase">
-                          {currentUser?.role.replace('_', ' ')}
-                        </span>
-                      </div>
+                  <div className="px-4 py-2.5">
+                    <p className="text-xs font-bold text-slate-900 truncate">{currentUser?.name}</p>
+                    <p className="text-[11px] text-slate-500 truncate">{currentUser?.email}</p>
+                  </div>
 
-                      <div className="py-1">
-                        <button
-                          onClick={() => { onNavigate('customer-dashboard'); setIsUserMenuOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium"
-                        >
-                          <User className="w-4 h-4 text-slate-400" />
-                          <span>My Account</span>
-                        </button>
-                        <button
-                          onClick={() => { onNavigate('my-orders'); setIsUserMenuOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium"
-                        >
-                          <PackageCheck className="w-4 h-4 text-slate-400" />
-                          <span>My Orders</span>
-                        </button>
-                        <button
-                          onClick={() => { onNavigate('wishlist'); setIsUserMenuOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium"
-                        >
-                          <Heart className="w-4 h-4 text-slate-400" />
-                          <span>My Wishlist ({wishlistCount})</span>
-                        </button>
-                      </div>
+                  <div className="py-1">
+                    <button
+                      onClick={() => { onNavigate('customer-dashboard'); setIsUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium"
+                    >
+                      <User className="w-4 h-4 text-slate-400" />
+                      <span>My Profile</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('my-orders'); setIsUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 font-medium"
+                    >
+                      <PackageCheck className="w-4 h-4 text-slate-400" />
+                      <span>My Orders</span>
+                    </button>
+                  </div>
 
-                      {isAdmin && (
-                        <div className="py-1">
-                          <button
-                            onClick={() => { onNavigate('admin'); setIsUserMenuOpen(false); }}
-                            className="w-full text-left px-4 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 flex items-center gap-2.5"
-                          >
-                            <Settings className="w-4 h-4 text-amber-600" />
-                            <span>Go to Admin Panel</span>
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="py-1">
-                        <button
-                          onClick={() => { logout(); setIsUserMenuOpen(false); }}
-                          className="w-full text-left px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 font-medium"
-                        >
-                          <LogOut className="w-4 h-4 text-rose-500" />
-                          <span>Sign Out</span>
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-3 text-center">
-                      <p className="text-xs text-slate-600 mb-2">Access your orders and wishlist</p>
-                      <button
-                        id="user-menu-login-btn"
-                        onClick={() => { onNavigate('login'); setIsUserMenuOpen(false); }}
-                        className="w-full py-2 bg-[#f85606] hover:bg-[#e04a00] text-white rounded-xl text-xs font-bold transition-colors mb-2"
-                      >
-                        Sign In / Register
-                      </button>
-                    </div>
-                  )}
+                  <div className="py-1">
+                    <button
+                      onClick={() => { logout(); setIsUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 font-medium"
+                    >
+                      <LogOut className="w-4 h-4 text-rose-500" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
+
+            {/* 2. Live Order Track (Replaces Wishlist / Love option next to Sign In) */}
+            <button
+              id="header-live-track-btn"
+              onClick={() => onNavigate('track-order')}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl transition-all shadow-2xs group cursor-pointer"
+              title="লাইভ অর্ডার ট্র্যাক করুন"
+            >
+              <div className="relative">
+                <Truck className="w-4 h-4 text-emerald-700 stroke-[2] group-hover:scale-110 transition-transform" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-600 rounded-full" />
+              </div>
+              <span className="text-xs font-bold text-emerald-900 hidden md:inline">
+                Live Order Track
+              </span>
+            </button>
+
+            {/* 3. Cart */}
+            <button
+              id="header-cart-drawer-trigger"
+              onClick={() => setIsCartOpen(true)}
+              className="flex items-center gap-2 text-slate-700 hover:text-[#f85606] transition-colors"
+              title="Cart"
+            >
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5 text-slate-700 stroke-[1.8]" />
+                <span className="absolute -top-1.5 -right-2 w-4 h-4 bg-[#f85606] text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                  {itemCount}
+                </span>
+              </div>
+              <span className="text-xs font-semibold hidden sm:inline">Cart</span>
+            </button>
+
+            {/* 4. Three-Line Menu (Hamburger) */}
+            <button
+              id="three-line-menu-btn"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5 border border-slate-200 cursor-pointer"
+              title="Menu"
+            >
+              <Menu className="w-5 h-5" />
+              <span className="text-xs font-bold text-slate-800 hidden lg:inline">Menu</span>
+            </button>
           </div>
         </div>
 
         {/* Mobile Search input bar */}
-        <div className="mt-2.5 md:hidden">
+        <div className="px-4 pb-3 md:hidden">
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
               id="mobile-search-input"
               type="text"
-              placeholder="Search mobile accessories..."
+              placeholder="Search in..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-3 pr-10 py-2 bg-white rounded-md text-xs text-slate-800 placeholder:text-slate-400 focus:outline-hidden shadow-xs"
+              className="w-full pl-4 pr-10 py-2 bg-slate-50 rounded-full text-xs text-slate-800 placeholder:text-slate-400 border border-slate-200 focus:outline-hidden focus:border-[#f85606]"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 bottom-1 px-2.5 text-[#f85606]"
+              className="absolute right-1 top-1 bottom-1 px-3 text-slate-400 hover:text-[#f85606]"
               title="Search"
             >
-              <Search className="w-4 h-4 stroke-[2.5]" />
+              <Search className="w-4 h-4 stroke-[2.2]" />
             </button>
           </form>
         </div>
       </div>
 
-      {/* 3. Navigation Bar (Desktop) */}
-      <nav className="bg-[#ea580c] text-white hidden md:block border-t border-[#f97316]/40">
+      {/* 2. Deep Forest Green / Teal Secondary Category Navigation Bar */}
+      <nav className="bg-[#0f2824] text-white text-xs font-semibold select-none hidden md:block shadow-inner">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center">
-            {/* Categories Dropdown button */}
-            <div className="relative">
-              <button
-                id="header-all-categories-btn"
-                onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
-                className="bg-[#c2410c] hover:bg-[#9a3412] text-white px-5 py-3 font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+          <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none py-1">
+            {navCategories.map((cat) => (
+              <div 
+                key={cat.slug} 
+                className="relative group"
+                onMouseEnter={() => cat.hasDropdown && setActiveDropdown(cat.slug)}
+                onMouseLeave={() => cat.hasDropdown && setActiveDropdown(null)}
               >
-                <Menu className="w-4 h-4 text-amber-300" />
-                <span>All Categories (ক্যাটাগরি)</span>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-200 ml-1" />
-              </button>
-
-              {isCategoryMenuOpen && (
-                <div 
-                  id="header-categories-dropdown" 
-                  className="absolute left-0 top-full w-64 bg-white rounded-b-2xl shadow-2xl border border-slate-200 py-2 z-50 text-slate-800 max-h-[460px] overflow-y-auto"
+                <button
+                  onClick={() => {
+                    if (cat.slug === 'offer-zone') {
+                      onNavigate('shop', 'filter=discount');
+                    } else {
+                      onNavigate('category-products', cat.slug);
+                    }
+                  }}
+                  className={`px-3 py-2.5 rounded-md hover:bg-emerald-900/60 transition-colors flex items-center gap-1 whitespace-nowrap ${
+                    cat.isSpecial ? 'text-orange-400 font-extrabold' : 'text-slate-100'
+                  }`}
                 >
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        onNavigate('category-products', cat.slug);
-                        setIsCategoryMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 text-xs hover:bg-orange-50 hover:text-[#f85606] flex items-center justify-between transition-colors group"
-                    >
-                      <span className="font-semibold group-hover:translate-x-1 transition-transform">
-                        {cat.name}
-                      </span>
-                      <span className="text-[10px] text-slate-400 bg-slate-100 group-hover:bg-orange-100 group-hover:text-[#c2410c] px-1.5 py-0.5 rounded-full">
-                        {cat.productCount}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                  {cat.icon && cat.icon}
+                  <span>{cat.name}</span>
+                  {cat.hasDropdown && <ChevronDown className="w-3 h-3 text-emerald-300 opacity-70 group-hover:rotate-180 transition-transform" />}
+                </button>
 
-            {/* Nav links */}
-            <div className="flex items-center text-xs font-semibold tracking-wide">
-              <button
-                id="nav-link-home"
-                onClick={() => onNavigate('home')}
-                className={`px-3 py-3 hover:bg-[#c2410c] transition-colors ${currentView === 'home' ? 'bg-[#c2410c] text-amber-300' : ''}`}
-              >
-                Home
-              </button>
-              <button
-                id="nav-link-cat-gadget"
-                onClick={() => onNavigate('category-products', 'electronic-gadget')}
-                className={`px-3 py-3 hover:bg-[#c2410c] transition-colors ${currentView === 'category-products' && viewParam === 'electronic-gadget' ? 'bg-[#c2410c] text-amber-300' : ''}`}
-              >
-                Electronic Gadget (গ্যাজেট)
-              </button>
-              <button
-                id="nav-link-cat-mobile-acc"
-                onClick={() => onNavigate('shop', 'search=mobile')}
-                className="px-3 py-3 hover:bg-[#c2410c] transition-colors"
-              >
-                Mobile Accessories
-              </button>
-              <button
-                id="nav-link-cat-smart-watches"
-                onClick={() => onNavigate('shop', 'search=watch')}
-                className="px-3 py-3 hover:bg-[#c2410c] transition-colors"
-              >
-                Smart Watches
-              </button>
-              <button
-                id="nav-link-cat-audio"
-                onClick={() => onNavigate('shop', 'search=earbuds')}
-                className="px-3 py-3 hover:bg-[#c2410c] transition-colors"
-              >
-                TWS & Audio
-              </button>
-              <button
-                id="nav-link-flashsale"
-                onClick={() => onNavigate('shop', 'filter=flash')}
-                className="px-3 py-3 hover:bg-[#c2410c] transition-colors flex items-center gap-1.5 text-amber-200 font-bold"
-              >
-                <Percent className="w-3.5 h-3.5" />
-                <span>Flash Sale</span>
-              </button>
-              <button
-                id="nav-link-offers"
-                onClick={() => onNavigate('shop', 'filter=discount')}
-                className="px-3 py-3 hover:bg-[#c2410c] transition-colors"
-              >
-                Offers
-              </button>
-            </div>
-          </div>
-
-          <div className="text-xs font-bold text-amber-200 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Use Code: <strong className="text-white bg-black/20 px-1.5 py-0.5 rounded font-mono">KHAN10</strong> for 10% Off</span>
+                {/* Dropdown Menu */}
+                {cat.hasDropdown && activeDropdown === cat.slug && (
+                  <div className="absolute left-0 top-full w-48 bg-white rounded-xl shadow-2xl border border-slate-100 py-1.5 z-50 text-slate-800 animate-in fade-in slide-in-from-top-1 duration-150">
+                    {cat.subItems?.map((sub) => (
+                      <button
+                        key={sub}
+                        onClick={() => {
+                          onNavigate('shop', `search=${encodeURIComponent(sub)}`);
+                          setActiveDropdown(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-xs hover:bg-orange-50 hover:text-[#f85606] transition-colors"
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </nav>
 
-      {/* 4. Mobile Drawer Menu */}
+      {/* 3. Three-Line Slide-Over Menu (Hamburger Drawer with prominent AP button) */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex">
-          <div className="w-4/5 max-w-sm bg-white h-full overflow-y-auto p-4 flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex">
+          <div className="w-4/5 max-w-sm bg-white h-full overflow-y-auto p-5 flex flex-col shadow-2xl">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#f85606] flex items-center justify-center text-white font-bold text-sm">
-                  KG
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#f85606] to-[#e04a00] flex items-center justify-center text-white font-black text-base shadow-sm">
+                  <Leaf className="w-5 h-5 fill-white" />
                 </div>
-                <span className="font-black text-base text-slate-900 tracking-wide">{settings.storeName || 'KHAN GADGET BD'}</span>
+                <div>
+                  <span className="font-black text-lg text-slate-900 tracking-tight block leading-none">
+                    KHAN <span className="text-[#f85606]">store</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">Safe & Pure Food</span>
+                </div>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1 rounded-lg text-slate-500 hover:bg-slate-100"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Mobile Delivery Area */}
-            <div className="my-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
-                <div className="text-xs">
-                  <span className="text-slate-500 block text-[10px]">Zone:</span>
-                  <strong className="text-slate-800">{selectedZone.division || 'Dhaka'}</strong>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenAreaModal();
-                }}
-                className="text-xs font-bold text-emerald-700 underline"
-              >
-                Change
-              </button>
-            </div>
-
-            {/* Mobile Navigation Links */}
+            {/* Quick Links */}
             <div className="py-2 space-y-1 text-sm font-semibold text-slate-700">
               <button
                 onClick={() => { onNavigate('home'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center justify-between"
               >
-                Home
+                <span>Home (হোম)</span>
               </button>
               <button
                 onClick={() => { onNavigate('shop'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center justify-between"
               >
-                All Products
-              </button>
-              <button
-                onClick={() => { onNavigate('shop', 'filter=flash'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 text-amber-600 flex items-center gap-2"
-              >
-                <Percent className="w-4 h-4" /> Flash Sale Deals
+                <span>All Products (সকল পণ্য)</span>
               </button>
               <button
                 onClick={() => { onNavigate('track-order'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800"
               >
-                <Truck className="w-4 h-4 text-emerald-600" /> Track My Order
+                <Truck className="w-4 h-4 text-emerald-600" />
+                <span>Track Order (অর্ডার ট্র্যাকিং)</span>
               </button>
               <button
-                onClick={() => { onNavigate('about-us'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100"
+                onClick={() => { onNavigate('wishlist'); setIsMobileMenuOpen(false); }}
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800"
               >
-                About Us
+                <Heart className="w-4 h-4 text-rose-500" />
+                <span>Wishlist (পছন্দের তালিকা)</span>
               </button>
               <button
-                onClick={() => { onNavigate('faq'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100"
+                onClick={() => { onNavigate('customer-dashboard'); setIsMobileMenuOpen(false); }}
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 flex items-center gap-2 text-slate-800"
               >
-                Frequently Asked Questions
+                <User className="w-4 h-4 text-slate-500" />
+                <span>My Account (আমার প্রোফাইল)</span>
               </button>
+
+              {/* Discreet single AP option disguised as "ap 😊" - inaccessible to regular customers */}
               <button
-                onClick={() => { onNavigate('contact-us'); setIsMobileMenuOpen(false); }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100"
+                id="drawer-discreet-ap-btn"
+                onClick={() => {
+                  onNavigate('admin');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 text-xs font-normal flex items-center justify-between transition-colors cursor-pointer"
+                title="ap 😊"
               >
-                Contact & Support
+                <span>ap 😊</span>
               </button>
             </div>
 
-            {/* Categories list in mobile */}
-            <div className="pt-3 border-t border-slate-100">
-              <p className="text-xs uppercase font-bold text-slate-400 px-3 mb-2">Categories</p>
+            {/* Categories List in Drawer */}
+            <div className="pt-3 mt-2 border-t border-slate-100">
+              <p className="text-xs uppercase font-extrabold text-slate-400 px-3 mb-2 tracking-wider">
+                Categories (ক্যাটাগরি সমূহ)
+              </p>
               <div className="space-y-1">
-                {categories.slice(0, 8).map((c) => (
+                {categories.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => {
                       onNavigate('category-products', c.slug);
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:text-emerald-700 hover:bg-slate-50 rounded"
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:text-[#f85606] hover:bg-orange-50 rounded-xl transition-colors flex items-center justify-between"
                   >
-                    {c.name}
+                    <span>{c.name} ({c.banglaName})</span>
+                    <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {c.productCount}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Mobile Admin Link if logged in as admin */}
-            {isAdmin && (
-              <div className="mt-auto pt-4 border-t border-slate-200">
-                <button
-                  onClick={() => { onNavigate('admin'); setIsMobileMenuOpen(false); }}
-                  className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2"
-                >
-                  <Layers className="w-4 h-4" />
-                  Admin Dashboard ({role})
-                </button>
+            {/* Customer Support Info at bottom of Drawer */}
+            <div className="mt-auto pt-4 border-t border-slate-100">
+              <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-600 space-y-1.5">
+                <div className="flex items-center gap-2 font-bold text-slate-900">
+                  <Phone className="w-3.5 h-3.5 text-[#f85606]" />
+                  <span>হটলাইন: 01854774406</span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  সরাসরি কল করে বা হোয়াটসঅ্যাপে অর্ডার করুন।
+                </p>
               </div>
-            )}
+            </div>
           </div>
           <div className="flex-1" onClick={() => setIsMobileMenuOpen(false)} />
         </div>

@@ -42,18 +42,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // If user doesn't exist yet, create a customer account automatically for smooth user test experience!
       const newUser: User = {
         id: `user-${Date.now()}`,
-        name: email.split('@')[0],
+        name: email.includes('@') ? email.split('@')[0] : email,
         email: cleanEmail,
         phone: '01711000000',
         role: 'customer',
         createdAt: new Date().toISOString()
       };
-      const allUsers = StoreService.getUsers();
-      allUsers.push(newUser);
-      localStorage.setItem('freshcart_users_v1', JSON.stringify(allUsers));
+      StoreService.saveUser(newUser);
       StoreService.setCurrentUser(newUser);
       setCurrentUserState(newUser);
-      return { success: true, message: 'Welcome to KHAN GADGET BD!', user: newUser };
+      return { success: true, message: 'Welcome to KHAN store!', user: newUser };
     }
 
     StoreService.setCurrentUser(found);
@@ -63,11 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (name: string, email: string, phone: string, _pass: string) => {
     const users = StoreService.getUsers();
-    const cleanEmail = email.trim().toLowerCase();
-    const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
+    const cleanEmail = email ? email.trim().toLowerCase() : `${phone.trim()}@khanstore.com`;
+    const existing = users.find((u) => u.email.toLowerCase() === cleanEmail || (phone && u.phone === phone));
 
     if (existing) {
-      return { success: false, message: 'An account with this email already exists. Please log in.' };
+      return { success: false, message: 'এই ইমেইল বা ফোন নম্বরে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। দয়া করে লগইন করুন।' };
     }
 
     const newUser: User = {
@@ -81,8 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: new Date().toISOString()
     };
 
-    users.push(newUser);
-    localStorage.setItem('freshcart_users_v1', JSON.stringify(users));
+    StoreService.saveUser(newUser);
     StoreService.setCurrentUser(newUser);
     setCurrentUserState(newUser);
 

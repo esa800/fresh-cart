@@ -13,6 +13,7 @@ import {
   PaymentStatus,
   SMSLog 
 } from '../types';
+import { FirebaseSyncService } from './firebase';
 import { 
   INITIAL_CATEGORIES, 
   INITIAL_PRODUCTS, 
@@ -27,24 +28,26 @@ import {
 } from '../data/seedData';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'freshcart_products_v2',
-  CATEGORIES: 'freshcart_categories_v2',
-  BRANDS: 'freshcart_brands_v2',
-  ORDERS: 'freshcart_orders_v1',
-  COUPONS: 'freshcart_coupons_v1',
-  BANNERS: 'freshcart_banners_v2',
-  DELIVERY_ZONES: 'freshcart_zones_v1',
-  USERS: 'freshcart_users_v1',
-  CURRENT_USER: 'freshcart_current_user_v1',
-  REVIEWS: 'freshcart_reviews_v1',
-  SETTINGS: 'freshcart_settings_v1',
-  CART: 'freshcart_cart_v1',
-  WISHLIST: 'freshcart_wishlist_v1',
-  SELECTED_ZONE: 'freshcart_selected_zone_v1',
-  ADMIN_AUTH: 'freshcart_admin_auth_v1',
-  ADMIN_PASS: 'freshcart_admin_pass_v1',
-  VISITORS: 'freshcart_visitors_v1',
-  SMS_LOGS: 'freshcart_sms_logs_v1',
+  PRODUCTS: 'khan_store_organic_v4_products',
+  CATEGORIES: 'khan_store_organic_v4_categories',
+  BRANDS: 'khan_store_organic_v4_brands',
+  ORDERS: 'khan_store_organic_v4_orders',
+  COUPONS: 'khan_store_organic_v4_coupons',
+  BANNERS: 'khan_store_organic_v4_banners',
+  DELIVERY_ZONES: 'khan_store_organic_v4_zones',
+  USERS: 'khan_store_organic_v4_users',
+  CURRENT_USER: 'khan_store_organic_v4_current_user',
+  REVIEWS: 'khan_store_organic_v4_reviews',
+  SETTINGS: 'khan_store_organic_v4_settings',
+  CART: 'khan_store_organic_v4_cart',
+  WISHLIST: 'khan_store_organic_v4_wishlist',
+  SELECTED_ZONE: 'khan_store_organic_v4_selected_zone',
+  ADMIN_AUTH: 'khan_store_organic_v4_admin_auth',
+  ADMIN_PASS: 'khan_store_organic_v4_admin_pass',
+  VISITORS: 'khan_store_organic_v4_visitors',
+  SMS_LOGS: 'khan_store_organic_v4_sms_logs',
+  DELETED_PRODUCT_IDS: 'khan_store_organic_v4_deleted_ids',
+  INITIALIZED: 'khan_store_organic_v4_initialized'
 };
 
 // Ultra-fast Real-Time Multi-Tab / Multi-Window Synchronizer
@@ -55,9 +58,8 @@ const listeners = new Set<Listener>();
 let syncChannel: BroadcastChannel | null = null;
 try {
   if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-    syncChannel = new BroadcastChannel('khan_gadget_realtime_sync');
-    syncChannel.onmessage = (event) => {
-      // Received update from another tab/admin window!
+    syncChannel = new BroadcastChannel('khan_store_realtime_sync');
+    syncChannel.onmessage = () => {
       internalNotify(false);
     };
   }
@@ -82,10 +84,8 @@ function internalNotify(broadcastToOthers = true) {
   });
 
   if (typeof window !== 'undefined') {
-    // Fire custom event for any window listeners
     window.dispatchEvent(new CustomEvent('khan_store_updated', { detail: { timestamp: Date.now() } }));
 
-    // Send broadcast to other open tabs/windows
     if (broadcastToOthers && syncChannel) {
       try {
         syncChannel.postMessage({ action: 'SYNC_UPDATE', timestamp: Date.now() });
@@ -127,51 +127,98 @@ function setItem<T>(key: string, val: T): void {
   }
 }
 
-// Initialize seed data if not present
+// Initialize seed data once and only once
 export function initStore(): void {
-  if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+  if (typeof window === 'undefined') return;
+
+  const isInitialized = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
+  if (!isInitialized) {
+    try {
+      // Clear old obsolete keys
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('freshcart_') || key.startsWith('khan_gadget_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (e) {
+      // ignore
+    }
+
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(INITIAL_CATEGORIES));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.BRANDS)) {
     localStorage.setItem(STORAGE_KEYS.BRANDS, JSON.stringify(INITIAL_BRANDS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.COUPONS)) {
     localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(INITIAL_COUPONS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.BANNERS)) {
     localStorage.setItem(STORAGE_KEYS.BANNERS, JSON.stringify(INITIAL_BANNERS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.DELIVERY_ZONES)) {
     localStorage.setItem(STORAGE_KEYS.DELIVERY_ZONES, JSON.stringify(INITIAL_DELIVERY_ZONES));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(INITIAL_ORDERS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(INITIAL_USERS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
     localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(INITIAL_REVIEWS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_STORE_SETTINGS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.CURRENT_USER)) {
-    // Default logged-in as customer for easy browsing experience, or switchable via UI
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(INITIAL_USERS.find(u => u.role === 'customer')));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.SELECTED_ZONE)) {
     localStorage.setItem(STORAGE_KEYS.SELECTED_ZONE, JSON.stringify(INITIAL_DELIVERY_ZONES[0]));
+    localStorage.setItem(STORAGE_KEYS.DELETED_PRODUCT_IDS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
   }
+}
+
+let hasInitializedFirebaseSync = false;
+
+export function initFirebaseRealtimeSync(): void {
+  if (typeof window === 'undefined' || hasInitializedFirebaseSync) return;
+  hasInitializedFirebaseSync = true;
+
+  // 1. Seed initial products to Cloud Firestore if cloud collection is currently empty
+  setTimeout(() => {
+    try {
+      const currentProds = StoreService.getProducts();
+      FirebaseSyncService.seedInitialProductsIfEmpty(currentProds);
+    } catch (e) {
+      console.warn('Firebase initial seed check:', e);
+    }
+  }, 1200);
+
+  // 2. Realtime listener for Products from Cloud Firestore
+  FirebaseSyncService.subscribeToProducts((cloudProducts) => {
+    if (cloudProducts && cloudProducts.length > 0) {
+      const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
+      const filtered = cloudProducts.filter(p => !deletedIds.includes(p.id));
+      setItem(STORAGE_KEYS.PRODUCTS, filtered);
+      internalNotify(false);
+    }
+  });
+
+  // 3. Realtime listener for Orders from Cloud Firestore
+  FirebaseSyncService.subscribeToOrders((cloudOrders) => {
+    if (cloudOrders && cloudOrders.length > 0) {
+      setItem(STORAGE_KEYS.ORDERS, cloudOrders);
+      internalNotify(false);
+    }
+  });
+
+  // 4. Realtime listener for Settings from Cloud Firestore
+  FirebaseSyncService.subscribeToSettings((cloudSettings) => {
+    if (cloudSettings) {
+      setItem(STORAGE_KEYS.SETTINGS, cloudSettings);
+      internalNotify(false);
+    }
+  });
+}
+
+// Auto-run init safely and initialize Firebase Realtime sync
+if (typeof window !== 'undefined') {
+  initStore();
+  initFirebaseRealtimeSync();
 }
 
 export const StoreService = {
   // Products
   getProducts(): Product[] {
-    return getItem<Product[]>(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
+    const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
+    const stored = getItem<Product[]>(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
+    if (deletedIds && deletedIds.length > 0) {
+      return stored.filter((p) => !deletedIds.includes(p.id));
+    }
+    return stored;
   },
   getProductById(id: string): Product | undefined {
     return this.getProducts().find((p) => p.id === id);
@@ -180,6 +227,12 @@ export const StoreService = {
     return this.getProducts().find((p) => p.slug === slug);
   },
   saveProduct(product: Product): void {
+    // If this product was in deleted list, remove from deleted list
+    const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
+    if (deletedIds.includes(product.id)) {
+      setItem(STORAGE_KEYS.DELETED_PRODUCT_IDS, deletedIds.filter((d) => d !== product.id));
+    }
+
     const products = this.getProducts();
     const index = products.findIndex((p) => p.id === product.id);
     if (index >= 0) {
@@ -193,10 +246,44 @@ export const StoreService = {
       });
     }
     setItem(STORAGE_KEYS.PRODUCTS, products);
+    internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      const savedProd = products[index >= 0 ? index : 0];
+      FirebaseSyncService.saveProduct(savedProd);
+    } catch (e) {
+      console.warn('Firebase sync saveProduct error:', e);
+    }
   },
   deleteProduct(id: string): void {
-    const products = this.getProducts().filter((p) => p.id !== id);
-    setItem(STORAGE_KEYS.PRODUCTS, products);
+    // Permanently record deletion so it can NEVER auto-add again
+    const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      setItem(STORAGE_KEYS.DELETED_PRODUCT_IDS, deletedIds);
+    }
+
+    const currentProds = this.getProducts();
+    const filtered = currentProds.filter((p) => p.id !== id);
+    setItem(STORAGE_KEYS.PRODUCTS, filtered);
+
+    // Also purge from cart and wishlist immediately
+    try {
+      this.removeFromCart(id);
+      this.removeFromWishlist(id);
+    } catch (e) {
+      // ignore
+    }
+
+    internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      FirebaseSyncService.deleteProduct(id);
+    } catch (e) {
+      console.warn('Firebase sync deleteProduct error:', e);
+    }
   },
   updateStock(productId: string, delta: number): boolean {
     const products = this.getProducts();
@@ -287,6 +374,14 @@ export const StoreService = {
 
     orders.unshift(newOrder);
     setItem(STORAGE_KEYS.ORDERS, orders);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      FirebaseSyncService.saveOrder(newOrder);
+    } catch (e) {
+      console.warn('Firebase sync saveOrder error:', e);
+    }
+
     return newOrder;
   },
 
@@ -365,6 +460,14 @@ export const StoreService = {
         target.notes = deliveryNote;
       }
       setItem(STORAGE_KEYS.ORDERS, orders);
+      internalNotify(true);
+
+      // Realtime sync to Cloud Firestore
+      try {
+        FirebaseSyncService.updateOrderStatus(orderId, status, target.paymentStatus);
+      } catch (e) {
+        console.warn('Firebase sync updateOrderStatus error:', e);
+      }
     }
   },
   updatePaymentStatus(orderId: string, status: PaymentStatus): void {
@@ -373,6 +476,14 @@ export const StoreService = {
     if (target) {
       target.paymentStatus = status;
       setItem(STORAGE_KEYS.ORDERS, orders);
+      internalNotify(true);
+
+      // Realtime sync to Cloud Firestore
+      try {
+        FirebaseSyncService.updateOrderStatus(orderId, target.orderStatus, status);
+      } catch (e) {
+        console.warn('Firebase sync updatePaymentStatus error:', e);
+      }
     }
   },
 
@@ -551,6 +662,16 @@ export const StoreService = {
   setCurrentUser(user: User | null): void {
     setItem(STORAGE_KEYS.CURRENT_USER, user);
   },
+  saveUser(user: User): void {
+    const users = this.getUsers();
+    const idx = users.findIndex((u) => u.id === user.id);
+    if (idx >= 0) {
+      users[idx] = user;
+    } else {
+      users.push(user);
+    }
+    setItem(STORAGE_KEYS.USERS, users);
+  },
   updateUserProfile(updatedUser: User): void {
     const users = this.getUsers();
     const idx = users.findIndex((u) => u.id === updatedUser.id);
@@ -619,6 +740,14 @@ export const StoreService = {
       aboutUsText: settings.aboutUsText
     };
     setItem(STORAGE_KEYS.SETTINGS, normalized);
+    internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      FirebaseSyncService.saveSettings(normalized);
+    } catch (e) {
+      console.warn('Firebase sync saveSettings error:', e);
+    }
 
     // Synchronize delivery rates into delivery zones
     try {
@@ -743,6 +872,20 @@ export const StoreService = {
       console.error('Import store snapshot failed', err);
       return false;
     }
+  },
+
+  resetToDefaults(): void {
+    setItem(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
+    setItem(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+    setItem(STORAGE_KEYS.BRANDS, INITIAL_BRANDS);
+    setItem(STORAGE_KEYS.COUPONS, INITIAL_COUPONS);
+    setItem(STORAGE_KEYS.BANNERS, INITIAL_BANNERS);
+    setItem(STORAGE_KEYS.DELIVERY_ZONES, INITIAL_DELIVERY_ZONES);
+    setItem(STORAGE_KEYS.ORDERS, INITIAL_ORDERS);
+    setItem(STORAGE_KEYS.USERS, INITIAL_USERS);
+    setItem(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
+    setItem(STORAGE_KEYS.SETTINGS, INITIAL_STORE_SETTINGS);
+    internalNotify(true);
   },
 
   // Real-time synchronization hooks
