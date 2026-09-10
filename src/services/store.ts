@@ -167,41 +167,57 @@ export function initFirebaseRealtimeSync(): void {
   if (typeof window === 'undefined' || hasInitializedFirebaseSync) return;
   hasInitializedFirebaseSync = true;
 
-  // 1. Seed initial products to Cloud Firestore if cloud collection is currently empty
-  setTimeout(() => {
-    try {
-      const currentProds = StoreService.getProducts();
-      FirebaseSyncService.seedInitialProductsIfEmpty(currentProds);
-    } catch (e) {
-      console.warn('Firebase initial seed check:', e);
-    }
-  }, 1200);
+  try {
+    // 1. Seed initial products to Cloud Firestore if cloud collection is currently empty
+    setTimeout(() => {
+      try {
+        const currentProds = StoreService.getProducts();
+        FirebaseSyncService.seedInitialProductsIfEmpty(currentProds);
+      } catch (e) {
+        console.warn('Firebase initial seed check:', e);
+      }
+    }, 1200);
 
-  // 2. Realtime listener for Products from Cloud Firestore
-  FirebaseSyncService.subscribeToProducts((cloudProducts) => {
-    if (cloudProducts && cloudProducts.length > 0) {
-      const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
-      const filtered = cloudProducts.filter(p => !deletedIds.includes(p.id));
-      setItem(STORAGE_KEYS.PRODUCTS, filtered);
-      internalNotify(false);
-    }
-  });
+    // 2. Realtime listener for Products from Cloud Firestore
+    FirebaseSyncService.subscribeToProducts((cloudProducts) => {
+      try {
+        if (cloudProducts && cloudProducts.length > 0) {
+          const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_PRODUCT_IDS, []);
+          const filtered = cloudProducts.filter(p => !deletedIds.includes(p.id));
+          setItem(STORAGE_KEYS.PRODUCTS, filtered);
+          internalNotify(false);
+        }
+      } catch (err) {
+        console.warn('Firebase product sync error:', err);
+      }
+    });
 
-  // 3. Realtime listener for Orders from Cloud Firestore
-  FirebaseSyncService.subscribeToOrders((cloudOrders) => {
-    if (cloudOrders && cloudOrders.length > 0) {
-      setItem(STORAGE_KEYS.ORDERS, cloudOrders);
-      internalNotify(false);
-    }
-  });
+    // 3. Realtime listener for Orders from Cloud Firestore
+    FirebaseSyncService.subscribeToOrders((cloudOrders) => {
+      try {
+        if (cloudOrders && cloudOrders.length > 0) {
+          setItem(STORAGE_KEYS.ORDERS, cloudOrders);
+          internalNotify(false);
+        }
+      } catch (err) {
+        console.warn('Firebase order sync error:', err);
+      }
+    });
 
-  // 4. Realtime listener for Settings from Cloud Firestore
-  FirebaseSyncService.subscribeToSettings((cloudSettings) => {
-    if (cloudSettings) {
-      setItem(STORAGE_KEYS.SETTINGS, cloudSettings);
-      internalNotify(false);
-    }
-  });
+    // 4. Realtime listener for Settings from Cloud Firestore
+    FirebaseSyncService.subscribeToSettings((cloudSettings) => {
+      try {
+        if (cloudSettings) {
+          setItem(STORAGE_KEYS.SETTINGS, cloudSettings);
+          internalNotify(false);
+        }
+      } catch (err) {
+        console.warn('Firebase settings sync error:', err);
+      }
+    });
+  } catch (err) {
+    console.warn('initFirebaseRealtimeSync warning:', err);
+  }
 }
 
 // Auto-run init safely and initialize Firebase Realtime sync

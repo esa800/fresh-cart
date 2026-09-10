@@ -60,18 +60,23 @@ export interface Product {
   brand: string;
   shortDescription: string;
   fullDescription: string;
+  description?: string;
   images: string[];
+  image?: string;
   regularPrice: number; // in BDT (৳)
   salePrice: number;    // in BDT (৳)
+  price?: number;
   discountPercentage: number;
   unit: string;         // e.g. '1kg', '500g', '1 litre', '1 dozen', '1 piece'
   weightSize: string;
   stockQuantity: number;
+  stock?: number;
   lowStockThreshold: number;
   availability: 'in_stock' | 'out_of_stock' | 'low_stock';
   isFeatured: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
+  isOrganicCertified?: boolean;
   isDarazMall?: boolean;
   isFreeDelivery?: boolean;
   isFlashSale?: boolean;
@@ -79,7 +84,12 @@ export interface Product {
   tags: string[];
   rating: number;       // 1.0 - 5.0
   reviewCount: number;
+  reviewsCount?: number;
+  soldCount?: number;
   origin?: string;      // e.g. 'Dinajpur', 'Bogura', 'Chattogram Sea'
+  nutritionalFacts?: Record<string, any>;
+  storageTips?: string;
+  shelfLife?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,7 +119,9 @@ export type OrderStatus =
   | 'Shipped'
   | 'Out for Delivery'
   | 'Delivered'
-  | 'Cancelled';
+  | 'Cancelled'
+  | 'delivered'
+  | 'cancelled';
 
 export type PaymentMethod = 'cod' | 'bkash' | 'nagad' | 'rocket' | 'card';
 export type PaymentStatus = 'pending' | 'paid' | 'failed';

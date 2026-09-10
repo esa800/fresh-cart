@@ -372,7 +372,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug, onNa
               {Object.entries(product.nutritionalFacts).map(([k, v]) => (
                 <div key={k} className="flex justify-between px-4 py-2.5">
                   <span className="capitalize text-slate-600">{k}</span>
-                  <span className="font-bold text-slate-900">{v}</span>
+                  <span className="font-bold text-slate-900">{String(v)}</span>
                 </div>
               ))}
             </div>

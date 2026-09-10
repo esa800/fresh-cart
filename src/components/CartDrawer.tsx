@@ -16,6 +16,9 @@ import { useToast } from '../contexts/ToastContext';
 
 interface CartDrawerProps {
   onNavigate: (view: string, param?: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  onOpenAreaModal?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({ onNavigate }) => {

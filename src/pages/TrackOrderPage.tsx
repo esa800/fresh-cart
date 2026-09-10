@@ -67,7 +67,9 @@ export const TrackOrderPage: React.FC<TrackOrderPageProps> = ({ initialOrderNumb
       'Shipped': 3,
       'Out for Delivery': 3,
       'Delivered': 4,
-      'Cancelled': -1
+      'Cancelled': -1,
+      'delivered': 4,
+      'cancelled': -1
     };
     return map[status] ?? 0;
   };

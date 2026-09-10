@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { 
   getFirestore, 
   collection, 
@@ -7,24 +7,53 @@ import {
   deleteDoc, 
   getDocs, 
   onSnapshot, 
-  updateDoc 
+  updateDoc,
+  Firestore
 } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
+import { getAuth, Auth } from 'firebase/auth';
 import type { Product, Order, StoreSettings } from '../types';
 
-// 1. Initialize Firebase App
-export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+// Default Firebase Configuration for KHAN store (Cloud Firestore & Auth)
+// Works seamlessly both with and without external config files on Vercel / GitHub
+const DEFAULT_FIREBASE_CONFIG = {
+  projectId: "gen-lang-client-0711712259",
+  appId: "1:867985691468:web:13b5c0212299b139f775e9",
+  apiKey: "AIzaSyBYg709h2rIWI_MZGTHdwKQb73yCK442Ko",
+  authDomain: "gen-lang-client-0711712259.firebaseapp.com",
+  firestoreDatabaseId: "ai-studio-freshcartbd-f6a72862-f00f-45bc-9ff4-444b8cb19780",
+  storageBucket: "gen-lang-client-0711712259.firebasestorage.app",
+  messagingSenderId: "867985691468",
+  measurementId: "",
+  oAuthClientId: "867985691468-40psb7a4resi0j7s0d2i1d2shprrs59j.apps.googleusercontent.com"
+};
 
-// 2. Initialize Firestore with the custom databaseId if configured
-export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
-  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-  : getFirestore(app);
+// Safe initialization of Firebase App, Firestore and Auth
+let appInstance: FirebaseApp | null = null;
+let dbInstance: Firestore | null = null;
+let authInstance: Auth | null = null;
+let isConnected = false;
 
-// 3. Initialize Firebase Auth
-export const auth = getAuth(app);
+try {
+  appInstance = getApps().length > 0 ? getApp() : initializeApp(DEFAULT_FIREBASE_CONFIG);
+  
+  const customDbId = DEFAULT_FIREBASE_CONFIG.firestoreDatabaseId;
+  if (customDbId && customDbId !== '(default)') {
+    dbInstance = getFirestore(appInstance, customDbId);
+  } else {
+    dbInstance = getFirestore(appInstance);
+  }
+  
+  authInstance = getAuth(appInstance);
+  isConnected = true;
+} catch (error) {
+  console.warn('Firebase safe initialization notice (store will use local offline storage):', error);
+}
 
-// 4. Firestore Collection References
+export const app = appInstance;
+export const db = dbInstance;
+export const auth = authInstance;
+
+// Firestore Collection References
 export const COLLECTIONS = {
   PRODUCTS: 'products',
   ORDERS: 'orders',
@@ -34,14 +63,17 @@ export const COLLECTIONS = {
   SMS_LOGS: 'sms_logs'
 } as const;
 
-// 5. Firebase Realtime Cloud Service
+// Firebase Realtime Cloud Service
 export const FirebaseSyncService = {
-  isConnected: true,
+  get isConnected(): boolean {
+    return isConnected && !!dbInstance;
+  },
 
   // Save or update product in Firestore
   async saveProduct(product: Product): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const docRef = doc(db, COLLECTIONS.PRODUCTS, product.id);
+      const docRef = doc(dbInstance, COLLECTIONS.PRODUCTS, product.id);
       await setDoc(docRef, {
         ...product,
         updatedAt: new Date().toISOString()
@@ -53,8 +85,9 @@ export const FirebaseSyncService = {
 
   // Delete product from Firestore
   async deleteProduct(productId: string): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const docRef = doc(db, COLLECTIONS.PRODUCTS, productId);
+      const docRef = doc(dbInstance, COLLECTIONS.PRODUCTS, productId);
       await deleteDoc(docRef);
     } catch (err) {
       console.warn('Firestore deleteProduct error:', err);
@@ -63,8 +96,9 @@ export const FirebaseSyncService = {
 
   // Save new order to Firestore
   async saveOrder(order: Order): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const docRef = doc(db, COLLECTIONS.ORDERS, order.id);
+      const docRef = doc(dbInstance, COLLECTIONS.ORDERS, order.id);
       await setDoc(docRef, {
         ...order,
         updatedAt: new Date().toISOString()
@@ -76,8 +110,9 @@ export const FirebaseSyncService = {
 
   // Update order status in Firestore
   async updateOrderStatus(orderId: string, orderStatus: string, paymentStatus?: string): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const docRef = doc(db, COLLECTIONS.ORDERS, orderId);
+      const docRef = doc(dbInstance, COLLECTIONS.ORDERS, orderId);
       const updateData: Record<string, unknown> = {
         orderStatus,
         updatedAt: new Date().toISOString()
@@ -93,8 +128,9 @@ export const FirebaseSyncService = {
 
   // Save store settings to Firestore
   async saveSettings(settings: StoreSettings): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const docRef = doc(db, COLLECTIONS.SETTINGS, 'global_settings');
+      const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'global_settings');
       await setDoc(docRef, settings, { merge: true });
     } catch (err) {
       console.warn('Firestore saveSettings error:', err);
@@ -103,12 +139,13 @@ export const FirebaseSyncService = {
 
   // Seed initial products to Firestore if empty
   async seedInitialProductsIfEmpty(initialProducts: Product[]): Promise<void> {
+    if (!dbInstance) return;
     try {
-      const snap = await getDocs(collection(db, COLLECTIONS.PRODUCTS));
+      const snap = await getDocs(collection(dbInstance, COLLECTIONS.PRODUCTS));
       if (snap.empty && initialProducts.length > 0) {
         console.log('Seeding initial products to Cloud Firestore...');
         for (const p of initialProducts) {
-          await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), p);
+          await setDoc(doc(dbInstance, COLLECTIONS.PRODUCTS, p.id), p);
         }
       }
     } catch (err) {
@@ -121,8 +158,9 @@ export const FirebaseSyncService = {
     onUpdate: (products: Product[]) => void,
     onError?: (error: unknown) => void
   ): () => void {
+    if (!dbInstance) return () => {};
     try {
-      const colRef = collection(db, COLLECTIONS.PRODUCTS);
+      const colRef = collection(dbInstance, COLLECTIONS.PRODUCTS);
       const unsubscribe = onSnapshot(
         colRef,
         (snapshot) => {
@@ -151,8 +189,9 @@ export const FirebaseSyncService = {
     onUpdate: (orders: Order[]) => void,
     onError?: (error: unknown) => void
   ): () => void {
+    if (!dbInstance) return () => {};
     try {
-      const colRef = collection(db, COLLECTIONS.ORDERS);
+      const colRef = collection(dbInstance, COLLECTIONS.ORDERS);
       const unsubscribe = onSnapshot(
         colRef,
         (snapshot) => {
@@ -182,8 +221,9 @@ export const FirebaseSyncService = {
   subscribeToSettings(
     onUpdate: (settings: StoreSettings) => void
   ): () => void {
+    if (!dbInstance) return () => {};
     try {
-      const docRef = doc(db, COLLECTIONS.SETTINGS, 'global_settings');
+      const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'global_settings');
       const unsubscribe = onSnapshot(
         docRef,
         (docSnap) => {

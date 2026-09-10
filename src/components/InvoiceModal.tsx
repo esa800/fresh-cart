@@ -4,11 +4,11 @@ import { Order } from '../types';
 
 interface InvoiceModalProps {
   order: Order | null;
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
 }
 
-export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen, onClose }) => {
+export const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, isOpen = true, onClose }) => {
   if (!isOpen || !order) return null;
 
   const handlePrint = () => {
