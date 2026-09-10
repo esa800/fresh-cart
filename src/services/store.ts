@@ -629,8 +629,15 @@ export const StoreService = {
       }
 
       merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
-      setItem(STORAGE_KEYS.ORDERS, merged);
-      internalNotify(true);
+      
+      // Only notify if orders have actually changed to avoid unnecessary re-render loops
+      const prevOrders = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+      const prevJson = JSON.stringify(prevOrders);
+      const mergedJson = JSON.stringify(merged);
+      if (prevJson !== mergedJson) {
+        setItem(STORAGE_KEYS.ORDERS, merged);
+        internalNotify(true);
+      }
       return merged;
     } catch (e) {
       console.warn('forceSyncOrders error:', e);
@@ -867,7 +874,7 @@ export const StoreService = {
   // Store Settings
   getSettings(): StoreSettings {
     const s = getItem<StoreSettings>(STORAGE_KEYS.SETTINGS, INITIAL_STORE_SETTINGS);
-    // Ensure aliases are populated
+    // Ensure aliases and fallbacks are populated
     return {
       ...s,
       storeName: s.storeName || 'KHAN GADGET BD',
@@ -880,13 +887,16 @@ export const StoreService = {
       email: s.email || s.supportEmail || 'info@khangadgetbd.com',
       officeAddress: s.officeAddress || s.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       address: s.address || s.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      bkashMerchantNumber: s.bkashMerchantNumber || '01854774406 (Personal / Send Money)',
+      nagadMerchantNumber: s.nagadMerchantNumber || '01854774406 (Personal / Send Money)',
       isAnnouncementActive: s.isAnnouncementActive !== false,
       deliveryChargeDhaka: Number(s.deliveryChargeDhaka ?? 60),
       deliveryChargeOutside: Number(s.deliveryChargeOutside ?? 120),
-      freeDeliveryThreshold: Number(s.freeDeliveryThreshold ?? 2000)
+      freeDeliveryThreshold: Number(s.freeDeliveryThreshold ?? 2000),
+      aboutUsText: s.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল এক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
     };
   },
-  updateSettings(settings: StoreSettings, syncToCloud: boolean = true): void {
+  async updateSettings(settings: StoreSettings, syncToCloud: boolean = true): Promise<boolean> {
     const normalized: StoreSettings = {
       ...settings,
       storeName: settings.storeName?.trim() || 'KHAN GADGET BD',
@@ -899,6 +909,8 @@ export const StoreService = {
       email: settings.email?.trim() || settings.supportEmail?.trim() || 'info@khangadgetbd.com',
       officeAddress: settings.officeAddress?.trim() || settings.address?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       address: settings.address?.trim() || settings.officeAddress?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      bkashMerchantNumber: settings.bkashMerchantNumber?.trim() || '01854774406 (Personal / Send Money)',
+      nagadMerchantNumber: settings.nagadMerchantNumber?.trim() || '01854774406 (Personal / Send Money)',
       isAnnouncementActive: settings.isAnnouncementActive !== false,
       announcementText: settings.announcementText ?? '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি',
       deliveryChargeDhaka: Number(settings.deliveryChargeDhaka ?? 60),
@@ -907,16 +919,6 @@ export const StoreService = {
       aboutUsText: settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
     };
     setItem(STORAGE_KEYS.SETTINGS, normalized);
-    internalNotify(true);
-
-    // Realtime sync to Cloud Firestore
-    if (syncToCloud) {
-      try {
-        FirebaseSyncService.saveSettings(normalized);
-      } catch (e) {
-        console.warn('Firebase sync saveSettings error:', e);
-      }
-    }
 
     // Synchronize delivery rates into delivery zones
     try {
@@ -943,9 +945,20 @@ export const StoreService = {
     }
 
     internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    let cloudSynced = false;
+    if (syncToCloud) {
+      try {
+        cloudSynced = await FirebaseSyncService.saveSettings(normalized);
+      } catch (e) {
+        console.warn('Firebase sync saveSettings error:', e);
+      }
+    }
+    return cloudSynced;
   },
-  saveSettings(settings: StoreSettings): void {
-    this.updateSettings(settings);
+  async saveSettings(settings: StoreSettings): Promise<boolean> {
+    return await this.updateSettings(settings, true);
   },
 
   // Visitors Counter & Analytics
@@ -975,10 +988,17 @@ export const StoreService = {
 
   // Admin Security
   getAdminPassword(): string {
+    const s = this.getSettings();
+    if (s && s.adminPassword && s.adminPassword.trim()) {
+      return s.adminPassword.trim();
+    }
     return getItem<string>(STORAGE_KEYS.ADMIN_PASS, 'ESA006##');
   },
   setAdminPassword(newPass: string): void {
     setItem(STORAGE_KEYS.ADMIN_PASS, newPass);
+    const s = this.getSettings();
+    s.adminPassword = newPass;
+    this.updateSettings(s, true);
   },
   isAdminSessionActive(): boolean {
     return getItem<boolean>(STORAGE_KEYS.ADMIN_AUTH, false);
