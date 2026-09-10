@@ -11,7 +11,7 @@ import {
   Firestore
 } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
-import type { Product, Order, StoreSettings } from '../types';
+import type { Product, Order, StoreSettings, Category } from '../types';
 
 // Default Firebase Configuration for KHAN store (Cloud Firestore & Auth)
 // Works seamlessly both with and without external config files on Vercel / GitHub
@@ -134,6 +134,63 @@ export const FirebaseSyncService = {
       await setDoc(docRef, settings, { merge: true });
     } catch (err) {
       console.warn('Firestore saveSettings error:', err);
+    }
+  },
+
+  // Save or update category in Firestore
+  async saveCategory(category: Category): Promise<void> {
+    if (!dbInstance) return;
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.CATEGORIES, category.id);
+      await setDoc(docRef, {
+        ...category,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (err) {
+      console.warn('Firestore saveCategory error:', err);
+    }
+  },
+
+  // Delete category from Firestore
+  async deleteCategory(categoryId: string): Promise<void> {
+    if (!dbInstance) return;
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.CATEGORIES, categoryId);
+      await deleteDoc(docRef);
+    } catch (err) {
+      console.warn('Firestore deleteCategory error:', err);
+    }
+  },
+
+  // Subscribe to real-time categories collection updates
+  subscribeToCategories(
+    onUpdate: (categories: Category[]) => void,
+    onError?: (error: unknown) => void
+  ): () => void {
+    if (!dbInstance) return () => {};
+    try {
+      const colRef = collection(dbInstance, COLLECTIONS.CATEGORIES);
+      const unsubscribe = onSnapshot(
+        colRef,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const list: Category[] = [];
+            snapshot.forEach((docSnap) => {
+              list.push(docSnap.data() as Category);
+            });
+            list.sort((a, b) => (a.displayOrder || 99) - (b.displayOrder || 99));
+            onUpdate(list);
+          }
+        },
+        (error) => {
+          console.warn('Firestore categories onSnapshot warning:', error);
+          if (onError) onError(error);
+        }
+      );
+      return unsubscribe;
+    } catch (err) {
+      console.warn('Failed to start Firestore categories subscription:', err);
+      return () => {};
     }
   },
 

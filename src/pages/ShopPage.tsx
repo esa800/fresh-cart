@@ -43,10 +43,22 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialFilter = '', initialC
 
   const isProductInCategory = (p: Product, targetCat: string): boolean => {
     if (!targetCat || targetCat === 'all') return true;
-    if (p.categoryId === targetCat || p.category === targetCat) return true;
-    const catObj = categories.find((c) => c.slug === targetCat || c.id === targetCat);
+    const cleanTarget = targetCat.toLowerCase().trim();
+    if (p.categoryId && (p.categoryId === targetCat || p.categoryId.toLowerCase() === cleanTarget)) return true;
+    if (p.category && p.category.toLowerCase().trim() === cleanTarget) return true;
+
+    const catObj = categories.find((c) => c.slug === targetCat || c.id === targetCat || c.slug.toLowerCase() === cleanTarget || c.name.toLowerCase() === cleanTarget);
     if (catObj) {
-      return p.categoryId === catObj.id || p.category === catObj.slug || p.category === catObj.name;
+      if (p.categoryId === catObj.id || p.categoryId === catObj.slug) return true;
+      if (p.category) {
+        const pCat = p.category.toLowerCase().trim();
+        const cName = catObj.name.toLowerCase().trim();
+        const cSlug = catObj.slug.toLowerCase().trim();
+        if (pCat === cName || pCat === cSlug || pCat.includes(cName) || cName.includes(pCat)) return true;
+      }
+      if (p.tags && Array.isArray(p.tags)) {
+        if (p.tags.includes(catObj.slug) || p.tags.includes(catObj.id) || p.tags.some(t => t.toLowerCase() === cleanTarget)) return true;
+      }
     }
     return false;
   };

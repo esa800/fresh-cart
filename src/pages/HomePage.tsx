@@ -25,7 +25,6 @@ interface HomePageProps {
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [products, setProducts] = useState<Product[]>(() => StoreService.getProducts());
   const [categories, setCategories] = useState<Category[]>(() => StoreService.getCategories());
-  const [justForYouCount, setJustForYouCount] = useState(10);
 
   const categoryScrollRef = useRef<HTMLDivElement>(null);
 
@@ -52,40 +51,41 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
     ? topSellingFiltered.slice(0, 4) 
     : [...topSellingFiltered, ...products.filter(p => !topSellingFiltered.some(t => t.id === p.id))].slice(0, 4);
 
-  // All Natural Honey (Categorized dynamically)
-  const honeyFiltered = products.filter(
-    (p) => p.categoryId === 'honey' || p.category?.toLowerCase().includes('honey') || (p.tags && p.tags.includes('honey'))
-  );
-  const honeyProducts = honeyFiltered.length > 0 
-    ? honeyFiltered.slice(0, 5) 
-    : products.slice(0, 5);
+  // Helper to match products for any category dynamically created in Admin Panel
+  const getCategoryProducts = (cat: Category): Product[] => {
+    return products.filter((p) => {
+      // 1. By direct ID or Slug match
+      if (p.categoryId && (p.categoryId === cat.id || p.categoryId === cat.slug)) return true;
+      
+      // 2. By Category Name string match
+      if (p.category) {
+        const pCat = p.category.toLowerCase().trim();
+        const cName = cat.name.toLowerCase().trim();
+        const cSlug = cat.slug.toLowerCase().trim();
+        if (pCat === cName || pCat === cSlug || pCat.includes(cName) || cName.includes(pCat)) return true;
+      }
 
-  // Premium Dates (Categorized dynamically)
-  const datesFiltered = products.filter(
-    (p) => p.categoryId === 'dates' || p.category?.toLowerCase().includes('date') || (p.tags && p.tags.includes('dates'))
-  );
-  const datesProducts = datesFiltered.length > 0 
-    ? datesFiltered.slice(0, 5) 
-    : products.slice(5, 10);
+      // 3. By product tags matching category slug or id
+      if (p.tags && Array.isArray(p.tags)) {
+        if (p.tags.includes(cat.slug) || p.tags.includes(cat.id)) return true;
+      }
 
-  // Cooking Essentials (Oil, Ghee, Spices, Flours, Lentils)
-  const cookingFiltered = products.filter(
-    (p) => p.categoryId === 'oil-ghee' || p.categoryId === 'spices' || p.categoryId === 'flours-lentils' || (p.tags && p.tags.includes('cooking'))
-  );
-  const cookingProducts = cookingFiltered.length > 0 
-    ? cookingFiltered.slice(0, 5) 
-    : products.slice(10, 15);
+      // 4. By Bangla name if present
+      if (cat.banglaName && p.banglaName && p.banglaName.includes(cat.banglaName)) {
+        return true;
+      }
 
-  // Organic Certified (Certified category or marked certified)
-  const certifiedFiltered = products.filter(
-    (p) => p.categoryId === 'certified' || p.isOrganicCertified || (p.tags && p.tags.includes('organic'))
-  );
-  const certifiedProducts = certifiedFiltered.length > 0 
-    ? certifiedFiltered.slice(0, 5) 
-    : products.slice(15, 20);
+      return false;
+    });
+  };
 
-  // Just For You
-  const justForYouProducts = products.slice(0, justForYouCount);
+  // Categories that have products uploaded, in their configured display order
+  const activeCategorySections = categories
+    .map((cat) => ({
+      category: cat,
+      products: getCategoryProducts(cat)
+    }))
+    .filter((entry) => entry.products.length > 0);
 
   // Brands list from screenshot
   const brandsList = [
@@ -329,51 +329,36 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 5. All Natural Honey Section (VIEW ALL ITEMS ->) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>All Natural Honey</span>
-          </h2>
-          <button
-            onClick={() => onNavigate('category-products', 'honey')}
-            className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-          >
-            <span>VIEW ALL ITEMS</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
+      {/* 5. Dynamic Category Sections from Admin Panel (First 2 categories) */}
+      {activeCategorySections.slice(0, 2).map(({ category: cat, products: catProds }) => (
+        <section key={cat.id} className="space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>{cat.name}</span>
+              {cat.banglaName && (
+                <span className="text-slate-400 font-semibold text-xs sm:text-sm">
+                  ({cat.banglaName})
+                </span>
+              )}
+            </h2>
+            <button
+              onClick={() => onNavigate('category-products', cat.slug)}
+              className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
+            >
+              <span>VIEW ALL ITEMS</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {honeyProducts.map((prod) => (
-            <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {catProds.slice(0, 5).map((prod) => (
+              <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </section>
+      ))}
 
-      {/* 6. Premium Dates Section (VIEW ALL ITEMS ->) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-            Premium Dates
-          </h2>
-          <button
-            onClick={() => onNavigate('category-products', 'dates')}
-            className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-          >
-            <span>VIEW ALL ITEMS</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {datesProducts.map((prod) => (
-            <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
-
-      {/* 7. Mid-Page Landscape Banner: Shosti Brand (স্বস্তি - খাবারে স্বাদ এবং প্রশান্তি) */}
+      {/* 6. Mid-Page Landscape Banner: Shosti Brand (স্বস্তি - খাবারে স্বাদ এবং প্রশান্তি) */}
       <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-white p-6 sm:p-10 shadow-xl border border-amber-900/40 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-3 max-w-xl">
           <span className="inline-block bg-amber-400 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
@@ -421,57 +406,46 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 8. Cooking Essentials Section (VIEW ALL ITEMS ->) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-            Cooking Essentials
-          </h2>
-          <button
-            onClick={() => onNavigate('shop', 'filter=cooking')}
-            className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-          >
-            <span>VIEW ALL ITEMS</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
+      {/* 7. Remaining Dynamic Category Sections from Admin Panel */}
+      {activeCategorySections.slice(2).map(({ category: cat, products: catProds }) => (
+        <section key={cat.id} className="space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span>{cat.name}</span>
+              {cat.banglaName && (
+                <span className="text-slate-400 font-semibold text-xs sm:text-sm">
+                  ({cat.banglaName})
+                </span>
+              )}
+            </h2>
+            <button
+              onClick={() => onNavigate('category-products', cat.slug)}
+              className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
+            >
+              <span>VIEW ALL ITEMS</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {cookingProducts.map((prod) => (
-            <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {catProds.slice(0, 5).map((prod) => (
+              <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </section>
+      ))}
 
-      {/* 9. Organic Certified Section (VIEW ALL ITEMS ->) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>Organic Certified</span>
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          </h2>
-          <button
-            onClick={() => onNavigate('category-products', 'certified')}
-            className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-          >
-            <span>VIEW ALL ITEMS</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {certifiedProducts.map((prod) => (
-            <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-          ))}
-        </div>
-      </section>
-
-      {/* 10. Just For You Section (VIEW ALL PRODUCTS ->) with LOAD MORE button */}
+      {/* 8. Just For You Section (All products from the store) */}
       <section className="space-y-5">
         <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-            Just For You
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              Just For You
+            </h2>
+            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              {products.length} Products
+            </span>
+          </div>
           <button
             onClick={() => onNavigate('shop')}
             className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
@@ -482,21 +456,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-          {justForYouProducts.map((prod) => (
+          {products.map((prod) => (
             <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
           ))}
         </div>
-
-        {justForYouCount < products.length && (
-          <div className="text-center pt-4">
-            <button
-              onClick={() => setJustForYouCount((prev) => Math.min(prev + 10, products.length))}
-              className="px-8 py-3 bg-white hover:bg-orange-50 text-[#f85606] border-2 border-[#f85606] font-black rounded-full text-xs uppercase tracking-wider transition-all shadow-xs active:scale-95"
-            >
-              LOAD MORE
-            </button>
-          </div>
-        )}
       </section>
 
       {/* 11. Customer Testimonials (Matching the 3 cards in the screenshot) */}

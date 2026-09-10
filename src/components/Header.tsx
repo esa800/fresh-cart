@@ -99,49 +99,47 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
     onNavigate('product-detail', slug);
   };
 
+  // Dynamically generated navigation categories:
+  // Starts with Offer Zone, then incorporates all categories configured in the Admin Panel
   const navCategories = [
-    { name: 'Offer Zone', slug: 'offer-zone', isSpecial: true, icon: <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" /> },
     { 
-      name: 'Honey', 
-      slug: 'honey', 
-      hasDropdown: true,
-      subItems: ['Sundarban Honey', 'Black Seed Honey', 'African Wild Honey', 'Honey Nuts', 'Lychee Honey']
+      name: 'Offer Zone', 
+      slug: 'offer-zone', 
+      isSpecial: true, 
+      hasDropdown: false,
+      subItems: [] as string[],
+      icon: <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400" /> 
     },
-    { name: 'Oil & Ghee', slug: 'oil-ghee', hasDropdown: false },
-    { 
-      name: 'Dates', 
-      slug: 'dates', 
-      hasDropdown: true,
-      subItems: ['Ajwa Dates', 'Sukkari Dates', 'Egyptian Medjool', 'Safawi Dates']
-    },
-    { 
-      name: 'Spices', 
-      slug: 'spices', 
-      hasDropdown: true,
-      subItems: ['Kala Bhuna Masala', 'Chili Powder', 'Coriander Powder', 'Turmeric Powder']
-    },
-    { 
-      name: 'Nuts & Seeds', 
-      slug: 'nuts-seeds', 
-      hasDropdown: true,
-      subItems: ['Cashew Nuts', 'Honey Nuts', 'Almonds', 'Chia Seeds']
-    },
-    { 
-      name: 'Beverage', 
-      slug: 'beverage', 
-      hasDropdown: true,
-      subItems: ['Organic Apple Cider Vinegar', 'Herbal Tea', 'Green Tea']
-    },
-    { name: 'Rice', slug: 'rice', hasDropdown: false },
-    { 
-      name: 'Flours & Lentils', 
-      slug: 'flours-lentils', 
-      hasDropdown: true,
-      subItems: ['Rice Flour (Chaler Gura)', 'Laal Atta', 'Red Lentils']
-    },
-    { name: 'Certified', slug: 'certified', hasDropdown: false },
-    { name: 'Pickle', slug: 'pickle', hasDropdown: false },
-    { name: 'Tabaya', slug: 'organic', hasDropdown: false }
+    ...categories.map((cat) => {
+      // Find matching products for this category to populate dropdown suggestions
+      const matchingProducts = allProducts.filter((p) => {
+        if (p.categoryId && (p.categoryId === cat.id || p.categoryId === cat.slug)) return true;
+        if (p.category) {
+          const pCat = p.category.toLowerCase().trim();
+          const cName = cat.name.toLowerCase().trim();
+          const cSlug = cat.slug.toLowerCase().trim();
+          if (pCat === cName || pCat === cSlug || pCat.includes(cName) || cName.includes(pCat)) return true;
+        }
+        if (p.tags && Array.isArray(p.tags)) {
+          if (p.tags.includes(cat.slug) || p.tags.includes(cat.id)) return true;
+        }
+        return false;
+      });
+
+      // Use subcategories if defined by admin, or top product names
+      const subItems = cat.subcategories && cat.subcategories.length > 0
+        ? cat.subcategories
+        : matchingProducts.slice(0, 5).map((p) => p.name);
+
+      return {
+        name: cat.name,
+        slug: cat.slug,
+        isSpecial: false,
+        icon: undefined,
+        hasDropdown: subItems.length > 0,
+        subItems
+      };
+    })
   ];
 
   return (

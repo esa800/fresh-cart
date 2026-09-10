@@ -215,6 +215,18 @@ export function initFirebaseRealtimeSync(): void {
         console.warn('Firebase settings sync error:', err);
       }
     });
+
+    // 5. Realtime listener for Categories from Cloud Firestore
+    FirebaseSyncService.subscribeToCategories((cloudCategories) => {
+      try {
+        if (cloudCategories && cloudCategories.length > 0) {
+          setItem(STORAGE_KEYS.CATEGORIES, cloudCategories);
+          internalNotify(false);
+        }
+      } catch (err) {
+        console.warn('Firebase categories sync error:', err);
+      }
+    });
   } catch (err) {
     console.warn('initFirebaseRealtimeSync warning:', err);
   }
@@ -334,10 +346,27 @@ export const StoreService = {
       });
     }
     setItem(STORAGE_KEYS.CATEGORIES, cats);
+    internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      const savedCat = cats[index >= 0 ? index : cats.length - 1];
+      FirebaseSyncService.saveCategory(savedCat);
+    } catch (e) {
+      console.warn('Firebase sync saveCategory error:', e);
+    }
   },
   deleteCategory(id: string): void {
     const cats = this.getCategories().filter((c) => c.id !== id);
     setItem(STORAGE_KEYS.CATEGORIES, cats);
+    internalNotify(true);
+
+    // Realtime sync to Cloud Firestore
+    try {
+      FirebaseSyncService.deleteCategory(id);
+    } catch (e) {
+      console.warn('Firebase sync deleteCategory error:', e);
+    }
   },
 
   // Brands
