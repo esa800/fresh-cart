@@ -195,8 +195,20 @@ export function initFirebaseRealtimeSync(): void {
     // 3. Realtime listener for Orders from Cloud Firestore
     FirebaseSyncService.subscribeToOrders((cloudOrders) => {
       try {
-        if (cloudOrders && cloudOrders.length > 0) {
-          setItem(STORAGE_KEYS.ORDERS, cloudOrders);
+        if (cloudOrders) {
+          const currentLocal = getItem<Order[]>(STORAGE_KEYS.ORDERS, []);
+          // Merge any locally created orders (e.g. placed while offline or just placed) that haven't hit cloud yet
+          const merged = [...cloudOrders];
+          for (const local of currentLocal) {
+            const alreadyInCloud = merged.some(co => co.id === local.id || co.orderNumber === local.orderNumber);
+            if (!alreadyInCloud && local.id.startsWith('ord-')) {
+              merged.push(local);
+              // Push this local order to Cloud Firestore so all other devices receive it
+              FirebaseSyncService.saveOrder(local);
+            }
+          }
+          merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
+          setItem(STORAGE_KEYS.ORDERS, merged);
           internalNotify(false);
         }
       } catch (err) {
@@ -207,14 +219,24 @@ export function initFirebaseRealtimeSync(): void {
     // 4. Realtime listener for Settings from Cloud Firestore
     FirebaseSyncService.subscribeToSettings((cloudSettings) => {
       try {
-        if (cloudSettings) {
-          setItem(STORAGE_KEYS.SETTINGS, cloudSettings);
+        if (cloudSettings && cloudSettings.storeName) {
+          StoreService.updateSettings(cloudSettings, false);
           internalNotify(false);
         }
       } catch (err) {
         console.warn('Firebase settings sync error:', err);
       }
     });
+
+    // Seed default settings to Firestore if not already present
+    setTimeout(() => {
+      try {
+        const currentSettings = StoreService.getSettings();
+        FirebaseSyncService.seedInitialSettingsIfEmpty(currentSettings);
+      } catch (e) {
+        console.warn('Firebase settings initial seed check:', e);
+      }
+    }, 1500);
 
     // 5. Realtime listener for Categories from Cloud Firestore
     FirebaseSyncService.subscribeToCategories((cloudCategories) => {
@@ -507,13 +529,48 @@ export const StoreService = {
       setItem(STORAGE_KEYS.ORDERS, orders);
       internalNotify(true);
 
-      // Realtime sync to Cloud Firestore
+      // Realtime sync full order to Cloud Firestore
       try {
-        FirebaseSyncService.updateOrderStatus(orderId, status, target.paymentStatus);
+        FirebaseSyncService.saveOrder(target);
       } catch (e) {
         console.warn('Firebase sync updateOrderStatus error:', e);
       }
     }
+  },
+  deleteOrder(orderId: string): void {
+    const orders = this.getOrders();
+    const filtered = orders.filter((o) => o.id !== orderId && o.orderNumber !== orderId);
+    setItem(STORAGE_KEYS.ORDERS, filtered);
+    internalNotify(true);
+
+    // Sync deletion to Cloud Firestore
+    try {
+      FirebaseSyncService.deleteOrder(orderId);
+    } catch (e) {
+      console.warn('Firebase sync deleteOrder error:', e);
+    }
+  },
+  async forceSyncOrders(): Promise<Order[]> {
+    try {
+      const cloudOrders = await FirebaseSyncService.fetchOrdersOnce();
+      if (cloudOrders && cloudOrders.length > 0) {
+        const currentLocal = this.getOrders();
+        const merged = [...cloudOrders];
+        for (const local of currentLocal) {
+          if (!merged.some(co => co.id === local.id || co.orderNumber === local.orderNumber) && local.id.startsWith('ord-')) {
+            merged.push(local);
+            FirebaseSyncService.saveOrder(local);
+          }
+        }
+        merged.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
+        setItem(STORAGE_KEYS.ORDERS, merged);
+        internalNotify(true);
+        return merged;
+      }
+    } catch (e) {
+      console.warn('forceSyncOrders error:', e);
+    }
+    return this.getOrders();
   },
   updatePaymentStatus(orderId: string, status: PaymentStatus): void {
     const orders = this.getOrders();
@@ -525,7 +582,7 @@ export const StoreService = {
 
       // Realtime sync to Cloud Firestore
       try {
-        FirebaseSyncService.updateOrderStatus(orderId, target.orderStatus, status);
+        FirebaseSyncService.saveOrder(target);
       } catch (e) {
         console.warn('Firebase sync updatePaymentStatus error:', e);
       }
@@ -764,34 +821,36 @@ export const StoreService = {
       freeDeliveryThreshold: Number(s.freeDeliveryThreshold ?? 2000)
     };
   },
-  updateSettings(settings: StoreSettings): void {
+  updateSettings(settings: StoreSettings, syncToCloud: boolean = true): void {
     const normalized: StoreSettings = {
       ...settings,
-      storeName: settings.storeName || 'KHAN GADGET BD',
-      brandTagline: settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
-      tagline: settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
-      hotline: settings.hotline || settings.phone || '01854774406',
-      phone: settings.phone || settings.hotline || '01854774406',
-      whatsappNumber: settings.whatsappNumber || '01854774406',
-      supportEmail: settings.supportEmail || settings.email || 'info@khangadgetbd.com',
-      email: settings.email || settings.supportEmail || 'info@khangadgetbd.com',
-      officeAddress: settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
-      address: settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      storeName: settings.storeName?.trim() || 'KHAN GADGET BD',
+      brandTagline: settings.brandTagline?.trim() || settings.tagline?.trim() || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      tagline: settings.tagline?.trim() || settings.brandTagline?.trim() || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      hotline: settings.hotline?.trim() || settings.phone?.trim() || '01854774406',
+      phone: settings.phone?.trim() || settings.hotline?.trim() || '01854774406',
+      whatsappNumber: settings.whatsappNumber?.trim() || '01854774406',
+      supportEmail: settings.supportEmail?.trim() || settings.email?.trim() || 'info@khangadgetbd.com',
+      email: settings.email?.trim() || settings.supportEmail?.trim() || 'info@khangadgetbd.com',
+      officeAddress: settings.officeAddress?.trim() || settings.address?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+      address: settings.address?.trim() || settings.officeAddress?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       isAnnouncementActive: settings.isAnnouncementActive !== false,
-      announcementText: settings.announcementText,
+      announcementText: settings.announcementText ?? '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি',
       deliveryChargeDhaka: Number(settings.deliveryChargeDhaka ?? 60),
       deliveryChargeOutside: Number(settings.deliveryChargeOutside ?? 120),
       freeDeliveryThreshold: Number(settings.freeDeliveryThreshold ?? 2000),
-      aboutUsText: settings.aboutUsText
+      aboutUsText: settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
     };
     setItem(STORAGE_KEYS.SETTINGS, normalized);
     internalNotify(true);
 
     // Realtime sync to Cloud Firestore
-    try {
-      FirebaseSyncService.saveSettings(normalized);
-    } catch (e) {
-      console.warn('Firebase sync saveSettings error:', e);
+    if (syncToCloud) {
+      try {
+        FirebaseSyncService.saveSettings(normalized);
+      } catch (e) {
+        console.warn('Firebase sync saveSettings error:', e);
+      }
     }
 
     // Synchronize delivery rates into delivery zones
@@ -875,6 +934,14 @@ export const StoreService = {
         order.deliveryStatus = `Shipped via ${courierService} (${courierTrackingId})`;
       }
       setItem(STORAGE_KEYS.ORDERS, orders);
+      internalNotify(true);
+
+      // Realtime sync to Cloud Firestore
+      try {
+        FirebaseSyncService.saveOrder(order);
+      } catch (e) {
+        console.warn('Firebase sync updateOrderCourier error:', e);
+      }
     }
   },
 

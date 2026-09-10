@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Settings, Save, Key, Lock, Eye, EyeOff, ShieldCheck, 
   Store, Phone, Mail, MapPin, Bell, Download, Upload, 
-  CheckCircle2, AlertCircle, RefreshCw, Truck, Globe
+  CheckCircle2, AlertCircle, RefreshCw, RefreshCcw, Truck, Globe
 } from 'lucide-react';
 import { StoreSettings } from '../../../types';
 import { StoreService } from '../../../services/store';
@@ -123,7 +123,12 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
     }
 
     StoreService.setAdminPassword(newPassword);
-    setPasswordSuccess('অ্যাডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে! পরবর্তী লগইনে এটি ব্যবহার করুন।');
+    const updatedWithPass = {
+      ...StoreService.getSettings(),
+      adminPassword: newPassword
+    };
+    onSaveSettings(updatedWithPass);
+    setPasswordSuccess('অ্যাডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে ও ক্লাউডে সিঙ্ক হয়েছে! সকল ডিভাইসে পরবর্তী লগইনে এটি ব্যবহার করুন।');
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
@@ -165,15 +170,37 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-          <Settings className="w-5 h-5 text-emerald-600" />
-          <span>স্টোর কন্ট্রোল ও সিকিউরিটি সেটিংস (Store Controls & Security)</span>
-        </h2>
-        <p className="text-xs text-slate-500 mt-0.5">
-          যোগাযোগের তথ্য, নোটিশ বার, ডেলিভারি চার্জ, পাসওয়ার্ড ও ডাটা ব্যাকআপ
-        </p>
+      {/* Header with Cloud Sync Status */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+            <Settings className="w-5 h-5 text-emerald-600" />
+            <span>স্টোর কন্ট্রোল ও সিকিউরিটি সেটিংস (Store Controls & Security)</span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            যোগাযোগের তথ্য, নোটিশ বার, ডেলিভারি চার্জ, পাসওয়ার্ড ও ডাটা ব্যাকআপ
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2.5 shrink-0">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>ক্লাউড সিঙ্ক সক্রিয় (Live Cloud Synced)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onRefreshData();
+              setSavedSuccessMessage('ক্লাউড ডাটা সফলভাবে রিফ্রেশ ও সিঙ্ক করা হয়েছে!');
+              setTimeout(() => setSavedSuccessMessage(''), 3000);
+            }}
+            className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-xl shadow-2xs transition-colors flex items-center gap-1.5"
+            title="ক্লাউড থেকে ডাটা রিফ্রেশ করুন"
+          >
+            <RefreshCcw className="w-3.5 h-3.5 text-slate-500" />
+            <span>রিফ্রেশ ডাটা</span>
+          </button>
+        </div>
       </div>
 
       {savedSuccessMessage && (

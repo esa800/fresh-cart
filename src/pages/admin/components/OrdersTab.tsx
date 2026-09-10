@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   ShoppingBag, Search, Filter, Printer, Phone, 
   MessageSquare, Truck, CheckCircle2, Clock, AlertCircle, 
-  ChevronDown, MapPin, Eye, ExternalLink, ShieldCheck
+  ChevronDown, MapPin, Eye, ExternalLink, ShieldCheck,
+  Trash2, RefreshCcw
 } from 'lucide-react';
 import { Order, OrderStatus, PaymentStatus } from '../../../types';
 
@@ -11,17 +12,22 @@ interface OrdersTabProps {
   onUpdateOrderStatus: (orderId: string, status: OrderStatus, paymentStatus?: PaymentStatus) => void;
   onAssignCourier: (orderId: string, courierService: string, trackingId: string) => void;
   onPrintInvoice: (order: Order) => void;
+  onDeleteOrder?: (orderId: string) => void;
+  onRefreshOrders?: () => void;
 }
 
 export const OrdersTab: React.FC<OrdersTabProps> = ({
   orders,
   onUpdateOrderStatus,
   onAssignCourier,
-  onPrintInvoice
+  onPrintInvoice,
+  onDeleteOrder,
+  onRefreshOrders
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [courierFilter, setCourierFilter] = useState<string>('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Selected Order for Courier Modal / Assignment
   const [courierModalOrder, setCourierModalOrder] = useState<Order | null>(null);
@@ -42,6 +48,22 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
     if (!courierModalOrder) return;
     onAssignCourier(courierModalOrder.id, selectedCourier, trackingNumber.trim());
     setCourierModalOrder(null);
+  };
+
+  const handleDelete = (order: Order) => {
+    if (window.confirm(`আপনি কি নিশ্চিতভাবে অর্ডার #${order.orderNumber} ডিলিট করতে চান? এটি ক্লাউড ডাটাবেজ থেকেও মুছে যাবে।`)) {
+      if (onDeleteOrder) {
+        onDeleteOrder(order.id);
+      }
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    if (onRefreshOrders) {
+      setIsRefreshing(true);
+      await onRefreshOrders();
+      setTimeout(() => setIsRefreshing(false), 800);
+    }
   };
 
   const getCleanPhone = (phone: string) => {
@@ -77,8 +99,22 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
           </p>
         </div>
 
-        <div className="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs self-start sm:self-auto">
-          মোট অর্ডার: <span className="text-emerald-700">{orders.length} টি</span>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>ক্লাউড সিঙ্ক সক্রিয় ({orders.length} অর্ডার)</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-xl shadow-2xs transition-colors flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
+            title="ক্লাউড ডাটাবেজ থেকে সর্বশেষ সকল অর্ডার রিফ্রেশ করুন"
+          >
+            <RefreshCcw className={`w-3.5 h-3.5 text-emerald-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'সিঙ্ক হচ্ছে...' : 'রিফ্রেশ ও সিঙ্ক'}</span>
+          </button>
         </div>
       </div>
 
@@ -315,6 +351,17 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                           >
                             <Phone className="w-3.5 h-3.5" />
                           </a>
+
+                          {/* Delete Order */}
+                          {onDeleteOrder && (
+                            <button
+                              onClick={() => handleDelete(order)}
+                              title="অর্ডার ডিলিট করুন"
+                              className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

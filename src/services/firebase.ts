@@ -53,6 +53,31 @@ export const app = appInstance;
 export const db = dbInstance;
 export const auth = authInstance;
 
+// Helper to strip undefined values so Firestore never throws "Unsupported field value: undefined"
+export function sanitizeForFirestore<T>(data: T): T {
+  if (data === undefined) {
+    return null as unknown as T;
+  }
+  if (data === null || typeof data !== 'object') {
+    return data;
+  }
+  if (data instanceof Date) {
+    return data.toISOString() as unknown as T;
+  }
+  if (Array.isArray(data)) {
+    return data
+      .filter((val) => val !== undefined)
+      .map((item) => sanitizeForFirestore(item)) as unknown as T;
+  }
+  const sanitizedObj: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+    if (value !== undefined) {
+      sanitizedObj[key] = sanitizeForFirestore(value);
+    }
+  }
+  return sanitizedObj as T;
+}
+
 // Firestore Collection References
 export const COLLECTIONS = {
   PRODUCTS: 'products',
@@ -74,10 +99,11 @@ export const FirebaseSyncService = {
     if (!dbInstance) return;
     try {
       const docRef = doc(dbInstance, COLLECTIONS.PRODUCTS, product.id);
-      await setDoc(docRef, {
+      const sanitized = sanitizeForFirestore({
         ...product,
         updatedAt: new Date().toISOString()
-      }, { merge: true });
+      });
+      await setDoc(docRef, sanitized, { merge: true });
     } catch (err) {
       console.warn('Firestore saveProduct error:', err);
     }
@@ -94,17 +120,36 @@ export const FirebaseSyncService = {
     }
   },
 
-  // Save new order to Firestore
-  async saveOrder(order: Order): Promise<void> {
-    if (!dbInstance) return;
+  // Save new or updated order to Firestore
+  async saveOrder(order: Order): Promise<boolean> {
+    if (!dbInstance) {
+      console.warn('Firestore dbInstance unavailable, cannot save order to cloud');
+      return false;
+    }
     try {
       const docRef = doc(dbInstance, COLLECTIONS.ORDERS, order.id);
-      await setDoc(docRef, {
+      const sanitized = sanitizeForFirestore({
         ...order,
         updatedAt: new Date().toISOString()
-      }, { merge: true });
+      });
+      await setDoc(docRef, sanitized, { merge: true });
+      console.log('Order successfully synced to Cloud Firestore:', order.orderNumber, order.id);
+      return true;
     } catch (err) {
-      console.warn('Firestore saveOrder error:', err);
+      console.error('Firestore saveOrder error:', err);
+      return false;
+    }
+  },
+
+  // Delete order from Firestore
+  async deleteOrder(orderId: string): Promise<void> {
+    if (!dbInstance) return;
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.ORDERS, orderId);
+      await deleteDoc(docRef);
+      console.log('Order deleted from Cloud Firestore:', orderId);
+    } catch (err) {
+      console.warn('Firestore deleteOrder error:', err);
     }
   },
 
@@ -120,20 +165,65 @@ export const FirebaseSyncService = {
       if (paymentStatus) {
         updateData.paymentStatus = paymentStatus;
       }
-      await updateDoc(docRef, updateData);
+      await setDoc(docRef, sanitizeForFirestore(updateData), { merge: true });
     } catch (err) {
       console.warn('Firestore updateOrderStatus error:', err);
     }
   },
 
   // Save store settings to Firestore
-  async saveSettings(settings: StoreSettings): Promise<void> {
+  async saveSettings(settings: StoreSettings): Promise<boolean> {
+    if (!dbInstance) {
+      console.warn('Firestore dbInstance unavailable, cannot save settings');
+      return false;
+    }
+    try {
+      const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'global_settings');
+      const sanitized = sanitizeForFirestore({
+        ...settings,
+        updatedAt: new Date().toISOString()
+      });
+      await setDoc(docRef, sanitized, { merge: true });
+      console.log('Store settings successfully synced to Cloud Firestore:', settings.storeName);
+      return true;
+    } catch (err) {
+      console.error('Firestore saveSettings error:', err);
+      return false;
+    }
+  },
+
+  // Seed default settings to Firestore if not already present
+  async seedInitialSettingsIfEmpty(defaultSettings: StoreSettings): Promise<void> {
     if (!dbInstance) return;
     try {
       const docRef = doc(dbInstance, COLLECTIONS.SETTINGS, 'global_settings');
-      await setDoc(docRef, settings, { merge: true });
+      const snap = await getDocs(collection(dbInstance, COLLECTIONS.SETTINGS));
+      if (snap.empty) {
+        console.log('Seeding initial store settings to Cloud Firestore...');
+        await setDoc(docRef, sanitizeForFirestore(defaultSettings), { merge: true });
+      }
     } catch (err) {
-      console.warn('Firestore saveSettings error:', err);
+      console.warn('Firestore seedInitialSettingsIfEmpty error:', err);
+    }
+  },
+
+  // Fetch orders once from Cloud Firestore
+  async fetchOrdersOnce(): Promise<Order[]> {
+    if (!dbInstance) return [];
+    try {
+      const snap = await getDocs(collection(dbInstance, COLLECTIONS.ORDERS));
+      const list: Order[] = [];
+      snap.forEach((docSnap) => {
+        const data = docSnap.data() as Order;
+        if (data && data.id) {
+          list.push(data);
+        }
+      });
+      list.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
+      return list;
+    } catch (err) {
+      console.warn('Firestore fetchOrdersOnce warning:', err);
+      return [];
     }
   },
 
@@ -252,15 +342,16 @@ export const FirebaseSyncService = {
       const unsubscribe = onSnapshot(
         colRef,
         (snapshot) => {
-          if (!snapshot.empty) {
-            const list: Order[] = [];
-            snapshot.forEach((docSnap) => {
-              list.push(docSnap.data() as Order);
-            });
-            // Sort by latest order first
-            list.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
-            onUpdate(list);
-          }
+          const list: Order[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data() as Order;
+            if (data && data.id) {
+              list.push(data);
+            }
+          });
+          // Sort by latest order first
+          list.sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
+          onUpdate(list);
         },
         (error) => {
           console.warn('Firestore orders onSnapshot warning:', error);

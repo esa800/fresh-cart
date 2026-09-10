@@ -98,30 +98,34 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </div>
               <div>
                 <span className="font-black text-2xl text-white tracking-tight uppercase flex items-center gap-1">
-                  <span>KHAN</span>
-                  <span className="text-[#f85606]">store</span>
+                  <span>{(settings.storeName || 'KHAN GADGET BD').split(' ')[0]}</span>
+                  {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).length > 0 && (
+                    <span className="text-[#f85606]">
+                      {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).join(' ')}
+                    </span>
+                  )}
                 </span>
                 <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">
-                  Safe & Pure Food
+                  {settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজ'}
                 </p>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              {settings.aboutUsText || 'KHAN store বাংলাদেশের নির্ভরযোগ্য অর্গানিক ও প্রাকৃতিক নিরাপদ খাদ্য সরবরাহের বিশ্বস্ত প্রতিষ্ঠান। খাঁটি মধু, ঘানির সরিষার তেল, প্রিমিয়াম খেজুর ও পাবনার গাওয়া ঘি সরাসরি আপনার ঘরে পৌঁছে দিচ্ছি।'}
+              {settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।'}
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">
               <div className="flex items-start gap-2.5 text-slate-300">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
+                <span>{settings.officeAddress || settings.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh'}</span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Hotline: <strong>{settings.hotline || '01854774406'}</strong></span>
+                <span>Hotline: <strong>{settings.hotline || settings.phone || '01854774406'}</strong></span>
               </div>
               <div className="flex items-center gap-2.5 text-slate-300">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Email: <strong>{settings.supportEmail || 'support@khanstore.com'}</strong></span>
+                <span>Email: <strong>{settings.supportEmail || settings.email || 'info@khangadgetbd.com'}</strong></span>
               </div>
             </div>
           </div>

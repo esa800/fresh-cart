@@ -139,6 +139,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     setOrders(StoreService.getOrders());
   };
 
+  const handleDeleteOrder = (orderId: string) => {
+    StoreService.deleteOrder(orderId);
+    setOrders(StoreService.getOrders());
+  };
+
+  const handleRefreshOrders = async () => {
+    const updated = await StoreService.forceSyncOrders();
+    setOrders(updated);
+  };
+
   const handleSaveCoupon = (coupon: Coupon) => {
     const existing = StoreService.getCoupons();
     const updated = [coupon, ...existing.filter((c) => c.id !== coupon.id)];
@@ -370,6 +380,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               onUpdateOrderStatus={handleUpdateOrderStatus}
               onAssignCourier={handleAssignCourier}
               onPrintInvoice={(ord) => setInvoiceOrder(ord)}
+              onDeleteOrder={handleDeleteOrder}
+              onRefreshOrders={handleRefreshOrders}
             />
           )}
 

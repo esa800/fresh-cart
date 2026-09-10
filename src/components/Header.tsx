@@ -150,17 +150,17 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs">
               <span className="inline-flex items-center gap-1 bg-[#f85606] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
-                <Leaf className="w-2.5 h-2.5" /> 100% PURE
+                <Leaf className="w-2.5 h-2.5" /> NOTICE
               </span>
               <span className="text-emerald-100 font-medium hidden sm:inline">
-                {settings.announcementText || '🌿 KHAN store: ১০০% খাঁটি ও প্রাকৃতিক খাদ্যসামগ্রী | প্রমোকোড: KHAN10 (১০% ছাড়) | হটলাইন: 01854774406'}
+                {settings.announcementText || '🔥 স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে আকর্ষণীয় ছাড়! সারাদেশে ক্যাশ অন ডেলিভারি'}
               </span>
             </div>
 
             <div className="flex items-center gap-4 text-[11px] font-semibold text-emerald-200">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3 text-emerald-400" />
-                <span>{settings.hotline || '01854774406'}</span>
+                <span>{settings.hotline || settings.phone || '01854774406'}</span>
               </div>
             </div>
           </div>
@@ -181,12 +181,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
               <Leaf className="w-5 h-5 fill-white" />
             </div>
             <div>
-              <h1 className="font-black text-2xl tracking-tight text-slate-900 uppercase flex items-center gap-1 leading-none">
-                <span>KHAN</span>
-                <span className="text-[#f85606]">store</span>
+              <h1 className="font-black text-xl sm:text-2xl tracking-tight text-slate-900 uppercase flex items-center gap-1 leading-none">
+                <span>{(settings.storeName || 'KHAN GADGET BD').split(' ')[0]}</span>
+                {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).length > 0 && (
+                  <span className="text-[#f85606]">
+                    {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).join(' ')}
+                  </span>
+                )}
               </h1>
-              <p className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5">
-                Safe & Pure Food
+              <p className="text-[10px] text-slate-500 font-semibold tracking-wider mt-0.5 max-w-[180px] sm:max-w-xs truncate">
+                {settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজ'}
               </p>
             </div>
           </div>
@@ -454,9 +458,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                 </div>
                 <div>
                   <span className="font-black text-lg text-slate-900 tracking-tight block leading-none">
-                    KHAN <span className="text-[#f85606]">store</span>
+                    <span>{(settings.storeName || 'KHAN GADGET BD').split(' ')[0]} </span>
+                    {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).length > 0 && (
+                      <span className="text-[#f85606]">
+                        {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).join(' ')}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Safe & Pure Food</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase truncate max-w-[150px] block">
+                    {settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজ'}
+                  </span>
                 </div>
               </div>
               <button
