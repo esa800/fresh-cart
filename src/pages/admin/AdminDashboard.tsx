@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { StoreService, subscribeToStore } from '../../services/store';
+import { FirebaseSyncService } from '../../services/firebase';
 import { Product, Order, Category, Coupon, StoreSettings, OrderStatus, PaymentStatus } from '../../types';
 import { InvoiceModal } from '../../components/InvoiceModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
@@ -61,21 +62,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   // Invoice Modal
   const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
 
-  // Subscribe to storage updates and pull latest cloud orders
+  // Subscribe to storage updates, direct Firestore real-time listener, and regular polling
   useEffect(() => {
-    // Initial fetch from cloud to ensure freshest cross-device sync
+    // 1. Initial immediate pull from cloud
     StoreService.forceSyncOrders().then((synced) => {
-      if (synced) setOrders(synced);
+      if (synced && synced.length > 0) setOrders(synced);
     }).catch((err) => console.warn('Admin initial sync error:', err));
 
-    const unsub = subscribeToStore(() => {
+    // 2. Direct real-time cloud listener for Orders (instant push across all devices)
+    const unsubCloud = FirebaseSyncService.subscribeToOrders((cloudOrders) => {
+      if (cloudOrders) {
+        setOrders(cloudOrders);
+      }
+    });
+
+    // 3. Local store subscriber for products/categories/settings/coupons
+    const unsubStore = subscribeToStore(() => {
       setProducts(StoreService.getProducts());
       setOrders(StoreService.getOrders());
       setCategories(StoreService.getCategories());
       setCoupons(StoreService.getCoupons());
       setStoreSettings(StoreService.getSettings());
     });
-    return unsub;
+
+    // 4. Guaranteed multi-device fallback sync every 6 seconds
+    const interval = setInterval(() => {
+      StoreService.forceSyncOrders().then((synced) => {
+        if (synced) setOrders(synced);
+      }).catch(() => {});
+    }, 6000);
+
+    return () => {
+      unsubCloud();
+      unsubStore();
+      clearInterval(interval);
+    };
   }, []);
 
   // Handlers for Data Mutations

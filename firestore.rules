@@ -15,9 +15,7 @@ service cloud.firestore {
 
     // Orders: readable and creatable by customers and admins for live tracking
     match /orders/{orderId} {
-      allow read: if true;
-      allow create, update: if !(orderId in ['ord-1001', 'ord-1002']);
-      allow delete: if true;
+      allow read, write: if true;
     }
 
     // Store settings: readable by all visitors
