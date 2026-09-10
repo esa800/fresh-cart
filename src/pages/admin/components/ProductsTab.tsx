@@ -6,6 +6,46 @@ import {
 } from 'lucide-react';
 import { Product, Category } from '../../../types';
 
+// Helper to detect category type for dynamic inputs and unit suggestions
+const getCategoryType = (catId?: string, catName?: string, catSlug?: string): 'fashion' | 'food' | 'electronics' | 'beauty' | 'general' => {
+  const s = `${catId || ''} ${catName || ''} ${catSlug || ''}`.toLowerCase();
+  if (
+    s.includes('fashion') || s.includes('cloth') || s.includes('dress') ||
+    s.includes('sharee') || s.includes('sari') || s.includes('panjabi') ||
+    s.includes('shirt') || s.includes('pant') || s.includes('shoe') ||
+    s.includes('apparel') || s.includes('wear') || s.includes('জামদানি') ||
+    s.includes('শাড়ি') || s.includes('পোশাক') || s.includes('পাঞ্জাবি') ||
+    s.includes('বোরকা') || s.includes('হিজাব') || s.includes('থ্রি-পিস') ||
+    s.includes('জুতো') || s.includes('জুতা') || s.includes('ব্যাগ')
+  ) {
+    return 'fashion';
+  }
+  if (
+    s.includes('gadget') || s.includes('electronic') || s.includes('mobile') ||
+    s.includes('watch') || s.includes('headphone') || s.includes('earphone') ||
+    s.includes('cable') || s.includes('charger') || s.includes('phone')
+  ) {
+    return 'electronics';
+  }
+  if (
+    s.includes('cosmetic') || s.includes('beauty') || s.includes('skin') ||
+    s.includes('hair') || s.includes('perfume') || s.includes('cream') || s.includes('soap')
+  ) {
+    return 'beauty';
+  }
+  if (
+    s.includes('food') || s.includes('honey') || s.includes('date') ||
+    s.includes('oil') || s.includes('ghee') || s.includes('spice') ||
+    s.includes('rice') || s.includes('flour') || s.includes('lentil') ||
+    s.includes('khejur') || s.includes('চাল') || s.includes('মধু') ||
+    s.includes('তেল') || s.includes('ঘি') || s.includes('মশলা') || s.includes('ডাল') ||
+    s.includes('organic') || s.includes('খাবার')
+  ) {
+    return 'food';
+  }
+  return 'general';
+};
+
 interface ProductsTabProps {
   products: Product[];
   categories: Category[];
@@ -33,23 +73,18 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
   // Form Fields
   const [formName, setFormName] = useState('');
   const [formBanglaName, setFormBanglaName] = useState('');
-  const [formBrand, setFormBrand] = useState('KHAN GADGET Selected');
+  const [formBrand, setFormBrand] = useState('KHAN Selected');
   const [formCustomBrand, setFormCustomBrand] = useState('');
   const [formCategory, setFormCategory] = useState('');
   const [formRegularPrice, setFormRegularPrice] = useState(120);
   const [formSalePrice, setFormSalePrice] = useState(100);
-  const [formUnit, setFormUnit] = useState('1 kg');
+  const [formUnit, setFormUnit] = useState('1 Piece');
   const [formStock, setFormStock] = useState(25);
   const [formLowStockThreshold, setFormLowStockThreshold] = useState(5);
   const [formDescription, setFormDescription] = useState('');
   
   // 4 Images slots (Slot 1: Cover, Slots 2-4: Gallery)
-  const [formImages, setFormImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
-    '',
-    '',
-    ''
-  ]);
+  const [formImages, setFormImages] = useState<string[]>(['', '', '', '']);
 
   // Badges
   const [formIsFlashSale, setFormIsFlashSale] = useState(false);
@@ -68,10 +103,43 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
     useRef<HTMLInputElement>(null)
   ];
 
-  // Popular Brands preset
+  // Popular Brands preset with Fashion, Gadgets & Essentials
   const popularBrands = [
-    'KHAN GADGET Selected', 'Anker', 'Baseus', 'Apple', 'Samsung', 'Xiaomi', 'Remax', 'Hoco', 'Boat', 'Oraimo', 'Other'
+    'KHAN Selected', 'KHAN Collection', 'Aarong', 'Dorji', 'Sailor', 'Yellow', 'Apex', 'Bata',
+    'Anker', 'Baseus', 'Apple', 'Samsung', 'Xiaomi', 'Remax', 'Hoco', 'Boat', 'Oraimo',
+    'Square', 'Pran', 'ACI', 'Radhuni', 'No Brand', 'Other'
   ];
+
+  // Active Category Type helper
+  const currentCategoryObj = categories.find((c) => c.id === formCategory || c.slug === formCategory);
+  const activeCategoryType = getCategoryType(formCategory, currentCategoryObj?.name, currentCategoryObj?.slug);
+
+  // Handle Category Change and adapt Unit and Variants automatically
+  const handleCategoryChange = (newCatId: string) => {
+    setFormCategory(newCatId);
+    const cat = categories.find((c) => c.id === newCatId);
+    const type = getCategoryType(newCatId, cat?.name, cat?.slug);
+
+    if (type === 'fashion') {
+      if (formUnit === '1 kg' || !formUnit || formUnit === '1 piece') {
+        setFormUnit('1 Piece');
+      }
+      if (formVariants.length === 0 || (formVariants.length === 1 && formVariants[0] === 'Standard')) {
+        setFormVariants(['Free Size']);
+      }
+    } else if (type === 'food') {
+      if (formUnit === '1 Piece' || !formUnit) {
+        setFormUnit('1 kg');
+      }
+      if (formVariants.length === 0 || (formVariants.length === 1 && formVariants[0] === 'Free Size')) {
+        setFormVariants(['Standard']);
+      }
+    } else {
+      if (!formUnit || formUnit === '1 kg') {
+        setFormUnit('1 Piece');
+      }
+    }
+  };
 
   // Open Add / Edit Modal
   const openModal = (prod?: Product) => {
@@ -84,7 +152,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       setFormCategory(prod.categoryId);
       setFormRegularPrice(prod.regularPrice);
       setFormSalePrice(prod.salePrice);
-      setFormUnit(prod.unit);
+      setFormUnit(prod.unit || prod.weightSize || '1 Piece');
       setFormStock(prod.stockQuantity);
       setFormLowStockThreshold(prod.lowStockThreshold || 5);
       setFormDescription(prod.shortDescription || prod.fullDescription || '');
@@ -100,30 +168,34 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       setFormIsFlashSale(Boolean(prod.isFlashSale || (prod.tags && prod.tags.includes('flash_sale'))));
       setFormIsDarazMall(Boolean(prod.isDarazMall !== false));
       setFormIsFreeDelivery(Boolean(prod.isFreeDelivery));
-      setFormVariants(prod.variants || []);
+      setFormVariants(prod.variants && prod.variants.length > 0 ? prod.variants : ['Standard']);
     } else {
+      const defaultCat = categories[0]?.id || 'cat-fashion';
+      const defaultCatObj = categories[0];
+      const type = getCategoryType(defaultCat, defaultCatObj?.name, defaultCatObj?.slug);
+
       setEditingProduct(null);
       setFormName('');
       setFormBanglaName('');
-      setFormBrand('KHAN GADGET Selected');
+      setFormBrand(type === 'fashion' ? 'KHAN Collection' : 'KHAN Selected');
       setFormCustomBrand('');
-      setFormCategory(categories[0]?.id || 'cat-food-items');
-      setFormRegularPrice(200);
-      setFormSalePrice(175);
-      setFormUnit('1 kg');
-      setFormStock(30);
+      setFormCategory(defaultCat);
+      setFormRegularPrice(1200);
+      setFormSalePrice(950);
+      setFormUnit(type === 'fashion' ? '1 Piece' : type === 'food' ? '1 kg' : '1 Piece');
+      setFormStock(25);
       setFormLowStockThreshold(5);
-      setFormDescription('উন্নত মানের তাজা ও প্রিমিয়াম গ্রেডের পণ্য, সরাসরি সোর্সিং করা।');
-      setFormImages([
-        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80',
-        '',
-        '',
-        ''
-      ]);
+      setFormDescription(
+        type === 'fashion'
+          ? 'উন্নত মানের প্রিমিয়াম ফেব্রিক ও স্টাইলিশ আরামদায়ক কালেকশন।'
+          : 'উন্নত মানের তাজা ও প্রিমিয়াম গ্রেডের পণ্য, সরাসরি সোর্সিং করা।'
+      );
+      // Clean slots ready for image file upload or image URL link
+      setFormImages(['', '', '', '']);
       setFormIsFlashSale(false);
       setFormIsDarazMall(true);
       setFormIsFreeDelivery(false);
-      setFormVariants(['Standard']);
+      setFormVariants(type === 'fashion' ? ['Free Size'] : ['Standard']);
     }
     setIsModalOpen(true);
   };
@@ -143,6 +215,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       }
     };
     reader.readAsDataURL(file);
+    // Reset file input value so same file can be re-selected if needed
+    e.target.value = '';
   };
 
   const handleImageUrlChange = (slotIndex: number, url: string) => {
@@ -171,17 +245,20 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       return;
     }
 
-    const brandName = formBrand === 'Other' ? (formCustomBrand.trim() || 'KHAN GADGET Selected') : formBrand;
+    // Filter valid images from any of the 4 slots (upload file or web link)
+    const validImages = formImages.filter((img) => img && typeof img === 'string' && img.trim().length > 0 && img !== 'Local file uploaded');
+    if (validImages.length === 0) {
+      alert('অনুগ্রহ করে অন্তত ১টি ছবি আপলোড করুন অথবা ছবির লিংক দিন!');
+      return;
+    }
+
+    const brandName = formBrand === 'Other' ? (formCustomBrand.trim() || 'KHAN Selected') : formBrand;
     const catObj = categories.find((c) => c.id === formCategory) || categories[0];
     const discountPct = Number(formRegularPrice) > Number(formSalePrice)
       ? Math.round(((Number(formRegularPrice) - Number(formSalePrice)) / Number(formRegularPrice)) * 100)
       : 0;
 
-    // Filter valid images (at least 1 image required)
-    const validImages = formImages.filter((img) => img && img.trim().length > 0);
-    if (validImages.length === 0) {
-      validImages.push('https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&auto=format&fit=crop&q=80');
-    }
+    const finalUnit = formUnit.trim() || (activeCategoryType === 'fashion' ? '1 Piece' : activeCategoryType === 'food' ? '1 kg' : '1 Piece');
 
     const productPayload: Product = {
       id: editingProduct?.id || `prod-${Date.now()}`,
@@ -189,8 +266,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       banglaName: formBanglaName.trim(),
       slug: editingProduct?.slug || formName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       sku: editingProduct?.sku || `FC-${Math.floor(1000 + Math.random() * 9000)}`,
-      category: catObj?.name || 'General',
-      categoryId: catObj?.id || 'cat-food-items',
+      category: catObj?.name || 'Fashion',
+      categoryId: catObj?.id || formCategory || 'cat-fashion',
       brand: brandName,
       shortDescription: formDescription.slice(0, 100),
       fullDescription: formDescription,
@@ -198,8 +275,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       regularPrice: Number(formRegularPrice),
       salePrice: Number(formSalePrice),
       discountPercentage: discountPct,
-      unit: formUnit,
-      weightSize: formUnit,
+      unit: finalUnit,
+      weightSize: finalUnit,
       stockQuantity: Number(formStock),
       lowStockThreshold: Number(formLowStockThreshold),
       availability: Number(formStock) === 0 ? 'out_of_stock' : Number(formStock) <= Number(formLowStockThreshold) ? 'low_stock' : 'in_stock',
@@ -209,7 +286,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
       isFlashSale: formIsFlashSale,
       isDarazMall: formIsDarazMall,
       isFreeDelivery: formIsFreeDelivery,
-      variants: formVariants.length > 0 ? formVariants : ['Standard'],
+      variants: formVariants.length > 0 ? formVariants : (activeCategoryType === 'fashion' ? ['Free Size'] : ['Standard']),
       tags: formIsFlashSale ? ['flash_sale', 'top_deal'] : ['verified'],
       rating: editingProduct?.rating || 4.8,
       reviewCount: editingProduct?.reviewCount || 12,
@@ -531,7 +608,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleFormSubmit} className="p-6 overflow-y-auto space-y-6">
+            <form onSubmit={handleFormSubmit} noValidate className="p-6 overflow-y-auto space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -543,8 +620,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                     required
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    placeholder="e.g. Miniket Premium Rice"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                    placeholder="e.g. Silk Sharee or Cotton Panjabi"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                   />
                 </div>
 
@@ -557,13 +634,13 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                     required
                     value={formBanglaName}
                     onChange={(e) => setFormBanglaName(e.target.value)}
-                    placeholder="যেমন: মিনিকেট চাল প্রিমিয়াম"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                    placeholder="যেমন: প্রিমিয়াম জামদানি শাড়ি বা সুতি পাঞ্জাবি"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                   />
                 </div>
               </div>
 
-              {/* Category & Brand */}
+              {/* Category & Brand & Unit */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -571,8 +648,8 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                   </label>
                   <select
                     value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -580,6 +657,9 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                       </option>
                     ))}
                   </select>
+                  <span className="text-[10px] text-emerald-700 font-bold mt-1 block">
+                    টাইপ: {activeCategoryType === 'fashion' ? 'পোশাক / ফ্যাশন' : activeCategoryType === 'food' ? 'খাবার / মুদি' : activeCategoryType === 'electronics' ? 'গ্যাজেট / ইলেকট্রনিক্স' : activeCategoryType === 'beauty' ? 'বিউটি / কসমেটিক্স' : 'সাধারণ'}
+                  </span>
                 </div>
 
                 <div>
@@ -589,7 +669,7 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                   <select
                     value={formBrand}
                     onChange={(e) => setFormBrand(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                   >
                     {popularBrands.map((b) => (
                       <option key={b} value={b}>{b}</option>
@@ -607,22 +687,58 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
                       value={formCustomBrand}
                       onChange={(e) => setFormCustomBrand(e.target.value)}
                       placeholder="ব্র্যান্ডের নাম লিখুন..."
-                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                     />
                   </div>
                 )}
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    ইউনিট (Unit)
+                    {activeCategoryType === 'fashion' 
+                      ? 'সাইজ / ইউনিট (Size / Unit)' 
+                      : activeCategoryType === 'food' 
+                      ? 'ওজন / পরিমাপ (Weight / Unit)' 
+                      : 'ইউনিট (Unit)'}
                   </label>
                   <input
                     type="text"
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
-                    placeholder="1 kg, 500g, 1 piece..."
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden"
+                    placeholder={
+                      activeCategoryType === 'fashion'
+                        ? 'যেমন: 1 Piece, 1 Set, XL, 3 Piece...'
+                        : activeCategoryType === 'food'
+                        ? 'যেমন: 1 kg, 500g, 1 Litre, 250g...'
+                        : 'যেমন: 1 Piece, 1 Box...'
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:border-emerald-600 focus:outline-hidden bg-white"
                   />
+                  {/* Category Quick Unit Pills */}
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {(activeCategoryType === 'fashion'
+                      ? ['1 Piece', '1 Set', '3 Piece', 'Free Size', 'S', 'M', 'L', 'XL', 'XXL']
+                      : activeCategoryType === 'food'
+                      ? ['1 kg', '500 gm', '250 gm', '1 Litre', '5 kg', '12 pcs']
+                      : activeCategoryType === 'electronics'
+                      ? ['1 Piece', '1 Unit', '1 Box', '1 Pair']
+                      : activeCategoryType === 'beauty'
+                      ? ['1 Piece', '50 ml', '100 ml', '1 Tube']
+                      : ['1 Piece', '1 Set', '1 Box', '1 kg', '500g']
+                    ).map((unitPreset) => (
+                      <button
+                        key={unitPreset}
+                        type="button"
+                        onClick={() => setFormUnit(unitPreset)}
+                        className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-colors ${
+                          formUnit === unitPreset 
+                            ? 'bg-emerald-600 text-white border-emerald-600' 
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200'
+                        }`}
+                      >
+                        {unitPreset}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -685,95 +801,240 @@ export const ProductsTab: React.FC<ProductsTabProps> = ({
 
               {/* 4 Images Upload Slots */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
                     ৪টি ছবির স্লট (4-Image Gallery Upload)
                   </label>
                   <span className="text-[11px] text-slate-500">
-                    কম্পিউটার/মোবাইল থেকে সরাসরি আপলোড অথবা ইমেজ লিংক পেস্ট করুন
+                    কম্পিউটার/মোবাইল থেকে সরাসরি ছবি আপলোড করুন অথবা ইমেজ লিংক পেস্ট করুন (উভয়ই সমর্থিত)
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[0, 1, 2, 3].map((slotIdx) => (
-                    <div 
-                      key={slotIdx} 
-                      className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 flex flex-col justify-between"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-black text-slate-700">
-                          {slotIdx === 0 ? '১. কভার ছবি (Cover)' : `ছবি #${slotIdx + 1}`}
-                        </span>
-                        {formImages[slotIdx] && (
-                          <button
-                            type="button"
-                            onClick={() => handleImageUrlChange(slotIdx, '')}
-                            className="text-slate-400 hover:text-rose-600"
-                            title="ছবি মুছুন"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
+                  {[0, 1, 2, 3].map((slotIdx) => {
+                    const hasImage = Boolean(formImages[slotIdx] && formImages[slotIdx].trim().length > 0);
+                    const isLocalUpload = Boolean(formImages[slotIdx]?.startsWith('data:'));
 
-                      {/* Image Preview Box */}
+                    return (
                       <div 
-                        onClick={() => fileInputRefs[slotIdx].current?.click()}
-                        className="w-full h-28 bg-white border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group transition-colors"
+                        key={slotIdx} 
+                        className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 flex flex-col justify-between"
                       >
-                        {formImages[slotIdx] ? (
-                          <>
-                            <img
-                              src={formImages[slotIdx]}
-                              alt={`Slot ${slotIdx + 1}`}
-                              className="w-full h-full object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                            <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity">
-                              ছবি পরিবর্তন করুন
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1">
+                            {slotIdx === 0 ? '১. কভার ছবি (Cover)' : `ছবি #${slotIdx + 1}`}
+                            {slotIdx === 0 && <span className="text-[9px] bg-orange-100 text-orange-700 px-1 py-0.2 rounded font-bold">মেইন</span>}
+                          </span>
+                          {hasImage && (
+                            <button
+                              type="button"
+                              onClick={() => handleImageUrlChange(slotIdx, '')}
+                              className="text-slate-400 hover:text-rose-600"
+                              title="ছবি মুছুন"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Image Preview Box */}
+                        <div 
+                          onClick={() => fileInputRefs[slotIdx].current?.click()}
+                          className="w-full h-28 bg-white border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl flex flex-col items-center justify-center cursor-pointer overflow-hidden relative group transition-colors"
+                        >
+                          {hasImage ? (
+                            <>
+                              <img
+                                src={formImages[slotIdx]}
+                                alt={`Slot ${slotIdx + 1}`}
+                                className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity">
+                                ছবি পরিবর্তন করুন
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-center p-2 text-slate-400">
+                              <Upload className="w-5 h-5 mx-auto mb-1 text-slate-400 group-hover:text-emerald-600" />
+                              <span className="text-[10px] font-semibold block">ছবি আপলোড</span>
+                              <span className="text-[8px] text-slate-400 block">ক্লিক করুন</span>
                             </div>
-                          </>
-                        ) : (
-                          <div className="text-center p-2 text-slate-400">
-                            <Upload className="w-5 h-5 mx-auto mb-1 text-slate-400 group-hover:text-emerald-600" />
-                            <span className="text-[10px] font-semibold block">ছবি আপলোড</span>
+                          )}
+                        </div>
+
+                        {/* Hidden File Input */}
+                        <input
+                          type="file"
+                          ref={fileInputRefs[slotIdx]}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageFileChange(slotIdx, e)}
+                        />
+
+                        {/* Direct URL Input or Upload Status */}
+                        {isLocalUpload ? (
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200">
+                              <span className="flex items-center gap-1 truncate">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                                ফাইল আপলোডকৃত
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleImageUrlChange(slotIdx, '')}
+                                className="text-slate-400 hover:text-rose-600 shrink-0 text-[9px]"
+                              >
+                                মুছুন
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="বা অন্য লিংক পেস্ট..."
+                              value=""
+                              onChange={(e) => handleImageUrlChange(slotIdx, e.target.value)}
+                              className="w-full px-2 py-1 text-[10px] border border-slate-300 rounded-lg text-slate-600 bg-white focus:outline-hidden focus:border-emerald-600"
+                            />
                           </div>
+                        ) : (
+                          <input
+                            type="text"
+                            placeholder="বা ইমেজ লিংক (URL) পেস্ট..."
+                            value={formImages[slotIdx] || ''}
+                            onChange={(e) => handleImageUrlChange(slotIdx, e.target.value)}
+                            className="w-full px-2 py-1 text-[10px] border border-slate-300 rounded-lg text-slate-600 bg-white focus:outline-hidden focus:border-emerald-600"
+                          />
                         )}
                       </div>
-
-                      {/* Hidden File Input */}
-                      <input
-                        type="file"
-                        ref={fileInputRefs[slotIdx]}
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageFileChange(slotIdx, e)}
-                      />
-
-                      {/* Direct URL Input */}
-                      <input
-                        type="url"
-                        placeholder="বা ইমেজ লিংক (URL)..."
-                        value={formImages[slotIdx]?.startsWith('data:') ? 'Local file uploaded' : formImages[slotIdx]}
-                        onChange={(e) => handleImageUrlChange(slotIdx, e.target.value)}
-                        className="w-full px-2 py-1 text-[10px] border border-slate-300 rounded-lg text-slate-600 bg-white"
-                      />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Variants (Multi-Tag manager) */}
+              {/* Variants (Multi-Tag manager with Category-specific presets) */}
               <div className="space-y-2 p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  ভ্যারিয়েন্ট ও সাইজ / কালার (Product Variants)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    {activeCategoryType === 'fashion' 
+                      ? 'সাইজ ও কালার ভ্যারিয়েন্ট (Sizes & Colors)' 
+                      : activeCategoryType === 'food'
+                      ? 'ওজন ও প্যাক ভ্যারিয়েন্ট (Weight & Pack Variants)'
+                      : 'ভ্যারিয়েন্ট ও সাইজ / কালার (Product Variants)'}
+                  </label>
+                  <span className="text-[10px] text-slate-500">
+                    ক্লিক করে দ্রুত ভ্যারিয়েন্ট যোগ করুন অথবা নিচে লিখে এন্টার দিন
+                  </span>
+                </div>
+
+                {/* Quick Add Variant Pills based on category */}
+                <div className="space-y-1.5 pb-1">
+                  {activeCategoryType === 'fashion' ? (
+                    <>
+                      {/* Fashion Sizes */}
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="text-[10px] font-bold text-slate-500 mr-1">সাইজ:</span>
+                        {['Free Size', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'Semi-Stitched', 'Unstitched'].map((size) => (
+                          <button
+                            key={size}
+                            type="button"
+                            onClick={() => {
+                              if (!formVariants.includes(size)) {
+                                setFormVariants([...formVariants, size]);
+                              }
+                            }}
+                            className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-all ${
+                              formVariants.includes(size)
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                            }`}
+                          >
+                            + {size}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Fashion Colors */}
+                      <div className="flex flex-wrap items-center gap-1 pt-1">
+                        <span className="text-[10px] font-bold text-slate-500 mr-1">কালার:</span>
+                        {['লাল (Red)', 'কালো (Black)', 'সাদা (White)', 'নীল (Blue)', 'হলুদ (Yellow)', 'সবুজ (Green)', 'গোলাপী (Pink)', 'মেরুন (Maroon)', 'মাল্টিকালার (Multicolor)'].map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => {
+                              if (!formVariants.includes(color)) {
+                                setFormVariants([...formVariants, color]);
+                              }
+                            }}
+                            className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-all ${
+                              formVariants.includes(color)
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                            }`}
+                          >
+                            + {color}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : activeCategoryType === 'food' ? (
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 mr-1">ওজন:</span>
+                      {['250g', '500g', '1 kg', '2 kg', '5 kg', 'Standard'].map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            if (!formVariants.includes(opt)) {
+                              setFormVariants([...formVariants, opt]);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-all ${
+                            formVariants.includes(opt)
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                          }`}
+                        >
+                          + {opt}
+                        </button>
+                      ))}
+                    </div>
+                  ) : activeCategoryType === 'electronics' ? (
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 mr-1">মডেল/কালার:</span>
+                      {['Black', 'White', 'Silver', '64GB', '128GB', '256GB', 'Standard'].map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            if (!formVariants.includes(opt)) {
+                              setFormVariants([...formVariants, opt]);
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-all ${
+                            formVariants.includes(opt)
+                              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                          }`}
+                        >
+                          + {opt}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={formVariantInput}
                     onChange={(e) => setFormVariantInput(e.target.value)}
-                    placeholder="যেমন: Space Gray, 128GB, XL, 500g..."
+                    placeholder={
+                      activeCategoryType === 'fashion'
+                        ? 'যেমন: XL, লাল, ৩ পিস, Semi-Stitched (লিখে Enter চাপুন)...'
+                        : activeCategoryType === 'food'
+                        ? 'যেমন: 500g, 1kg, প্রিমিয়াম প্যাক (লিখে Enter চাপুন)...'
+                        : 'যেমন: Space Gray, 128GB, XL, 500g...'
+                    }
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
