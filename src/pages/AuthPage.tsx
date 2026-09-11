@@ -13,21 +13,18 @@ import {
   Sparkles,
   CheckCircle2,
   HelpCircle,
-  KeyRound,
-  Store,
   Zap,
   LogIn
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { StoreService } from '../services/store';
 
 interface AuthPageProps {
   onNavigate: (view: string, param?: string) => void;
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
-  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'admin'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   
   // Customer Login fields
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -41,10 +38,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
-
-  // Admin Quick Login field
-  const [adminPassword, setAdminPassword] = useState('');
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
 
   // State
   const [isLoading, setIsLoading] = useState(false);
@@ -114,21 +107,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
       onNavigate('customer-dashboard');
     } else {
       setErrorMessage(res.message || 'অ্যাকাউন্ট তৈরিতে সমস্যা হয়েছে। ইমেইল বা ফোন নম্বরটি ইতোমধ্যে ব্যবহৃত হতে পারে।');
-    }
-  };
-
-  // Direct Admin Portal Login
-  const handleAdminSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-
-    const actual = StoreService.getAdminPassword();
-    if (adminPassword.trim() === actual.trim()) {
-      StoreService.setAdminSession(true);
-      showToast('অ্যাডমিন প্যানেলে স্বাগতম!', 'success');
-      onNavigate('admin');
-    } else {
-      setErrorMessage('অ্যাডমিন পাসওয়ার্ড সঠিক নয়! সঠিক পাসওয়ার্ড প্রদান করুন।');
     }
   };
 
@@ -227,13 +205,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
               <p className="text-xs text-slate-500 font-medium">নিরাপদ খাদ্য সেবায় স্বাগতম</p>
             </div>
 
-            {/* Three Tab Controls: Customer Login / Register / Admin Portal */}
-            <div className="grid grid-cols-3 p-1.5 bg-slate-100/90 rounded-2xl gap-1">
+            {/* Two Tab Controls: Customer Login / Register */}
+            <div className="grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl gap-1">
               <button
                 id="tab-login-btn"
                 type="button"
                 onClick={() => { setActiveTab('login'); setErrorMessage(''); }}
-                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                   activeTab === 'login' 
                     ? 'bg-white text-slate-900 shadow-md shadow-slate-200' 
                     : 'text-slate-500 hover:text-slate-900'
@@ -247,28 +225,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                 id="tab-register-btn"
                 type="button"
                 onClick={() => { setActiveTab('register'); setErrorMessage(''); }}
-                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                   activeTab === 'register' 
                     ? 'bg-white text-slate-900 shadow-md shadow-slate-200' 
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 <User className="w-3.5 h-3.5 text-emerald-600" />
-                <span>নতুন একাউন্ট</span>
-              </button>
-
-              <button
-                id="tab-admin-btn"
-                type="button"
-                onClick={() => { setActiveTab('admin'); setErrorMessage(''); }}
-                className={`py-2.5 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeTab === 'admin' 
-                    ? 'bg-slate-900 text-amber-400 shadow-md shadow-slate-900/30' 
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                <span>অ্যাডমিন</span>
+                <span>নতুন একাউন্ট (Register)</span>
               </button>
             </div>
 
@@ -455,57 +419,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onNavigate }) => {
                 >
                   <span>{isLoading ? 'অ্যাকাউন্ট তৈরি হচ্ছে...' : 'নতুন একাউন্ট খুলুন (Create Account)'}</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-            )}
-
-            {/* 3. DIRECT ADMIN PORTAL LOGIN */}
-            {activeTab === 'admin' && (
-              <form onSubmit={handleAdminSubmit} className="space-y-4">
-                <div className="p-4 bg-slate-900 text-white rounded-2xl space-y-1.5">
-                  <div className="flex items-center gap-2 text-amber-400 font-black text-sm">
-                    <Store className="w-4 h-4" />
-                    <span>KHAN store Admin Panel Gateway</span>
-                  </div>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    স্টোর ম্যানেজমেন্ট, কুরিয়ার পার্সেল বুকিং এবং প্রোডাক্ট স্টক কন্ট্রোল করতে অ্যাডমিন পাসওয়ার্ড প্রদান করুন।
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-black text-slate-700 block">
-                    অ্যাডমিন পাসওয়ার্ড (Admin Password) *
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="admin-direct-password-input"
-                      type={showAdminPassword ? 'text' : 'password'}
-                      required
-                      placeholder="অ্যাডমিন পাসওয়ার্ড লিখুন..."
-                      value={adminPassword}
-                      onChange={(e) => setAdminPassword(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 rounded-2xl pl-10 pr-11 py-3 text-xs sm:text-sm text-slate-900 font-mono transition-all outline-hidden"
-                      autoFocus
-                    />
-                    <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <button
-                      type="button"
-                      onClick={() => setShowAdminPassword(!showAdminPassword)}
-                      className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
-                    >
-                      {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  id="admin-login-submit-btn"
-                  type="submit"
-                  disabled={!adminPassword.trim()}
-                  className="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-amber-300 font-black rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all cursor-pointer disabled:cursor-not-allowed"
-                >
-                  <KeyRound className="w-4 h-4" />
-                  <span>অ্যাডমিন প্যানেলে প্রবেশ করুন</span>
                 </button>
               </form>
             )}
