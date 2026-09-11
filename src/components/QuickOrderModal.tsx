@@ -14,9 +14,10 @@ import {
   CreditCard,
   Lock
 } from 'lucide-react';
-import { Product } from '../types';
+import { Product, Order } from '../types';
 import { StoreService } from '../services/store';
 import { useToast } from '../contexts/ToastContext';
+import { OrderSuccessBusModal } from './OrderSuccessBusModal';
 
 interface QuickOrderModalProps {
   product: Product | null;
@@ -39,6 +40,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
   const [deliveryNote, setDeliveryNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'bkash'>('cod');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successOrder, setSuccessOrder] = useState<Order | null>(null);
   const { showToast } = useToast();
 
   const settings = StoreService.getSettings();
@@ -50,6 +52,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
     if (isOpen) {
       setQuantity(1);
       setIsSubmitting(false);
+      setSuccessOrder(null);
       // Pre-fill user data if logged in
       const currentUser = StoreService.getCurrentUser();
       if (currentUser) {
@@ -137,11 +140,10 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
         estimatedDelivery: deliveryArea === 'dhaka' ? '১-২ কার্যদিবস' : '২-৩ কার্যদিবস'
       });
 
+      setSuccessOrder(order);
+      setIsSubmitting(false);
       showToast(`অর্ডার সফল হয়েছে! আপনার অর্ডার নং: ${order.orderNumber}`, 'success');
       showToast(`নম্বর ${cleanPhone}-এ অর্ডার কনফার্মেশন SMS পাঠানো হয়েছে।`, 'info');
-      
-      onClose();
-      onSuccess(order.orderNumber);
     } catch (err) {
       console.error('Failed to create quick order:', err);
       showToast('অর্ডার সম্পন্ন করতে সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন।', 'error');
@@ -486,6 +488,29 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Bus Animation Modal upon Successful Order */}
+      {successOrder && (
+        <OrderSuccessBusModal
+          order={successOrder}
+          isOpen={true}
+          onClose={() => {
+            const ordNum = successOrder.orderNumber;
+            setSuccessOrder(null);
+            onClose();
+            onSuccess(ordNum);
+          }}
+          onTrackOrder={(ordNum) => {
+            setSuccessOrder(null);
+            onClose();
+            onSuccess(ordNum);
+          }}
+          onContinueShopping={() => {
+            setSuccessOrder(null);
+            onClose();
+          }}
+        />
+      )}
     </div>
   );
 };

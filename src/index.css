@@ -37,3 +37,13 @@
   animation-play-state: paused;
 }
 
+@keyframes roadDash {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50px);
+  }
+}
+
+

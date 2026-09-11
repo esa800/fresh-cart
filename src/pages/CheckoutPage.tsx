@@ -20,7 +20,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { PaymentService } from '../services/paymentService';
 import { StoreService } from '../services/store';
-import { PaymentMethod, OrderItem } from '../types';
+import { PaymentMethod, OrderItem, Order } from '../types';
+import { OrderSuccessBusModal } from '../components/OrderSuccessBusModal';
+import { InvoiceModal } from '../components/InvoiceModal';
 
 interface CheckoutPageProps {
   onNavigate: (view: string, param?: string) => void;
@@ -64,6 +66,43 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate, onOrderP
   const [trxId, setTrxId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successOrder, setSuccessOrder] = useState<Order | null>(null);
+  const [showInvoiceOrder, setShowInvoiceOrder] = useState<Order | null>(null);
+
+  if (successOrder) {
+    return (
+      <div className="py-8 px-4 max-w-lg mx-auto">
+        <OrderSuccessBusModal
+          order={successOrder}
+          isOpen={true}
+          onClose={() => {
+            const ordNum = successOrder.orderNumber;
+            setSuccessOrder(null);
+            onOrderPlaced(ordNum);
+          }}
+          onTrackOrder={(ordNum) => {
+            setSuccessOrder(null);
+            onNavigate('track-order', ordNum);
+          }}
+          onViewInvoice={(ord) => {
+            setShowInvoiceOrder(ord);
+          }}
+          onContinueShopping={() => {
+            setSuccessOrder(null);
+            onNavigate('shop');
+          }}
+        />
+
+        {showInvoiceOrder && (
+          <InvoiceModal
+            order={showInvoiceOrder}
+            isOpen={true}
+            onClose={() => setShowInvoiceOrder(null)}
+          />
+        )}
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -171,7 +210,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate, onOrderP
       // 4. Clear cart & toast
       clearCart();
       showToast(`Order #${createdOrder.orderNumber} confirmed successfully!`, 'success');
-      onOrderPlaced(createdOrder.orderNumber);
+      setSuccessOrder(createdOrder);
     } catch (err: any) {
       setErrorMessage(err.message || 'An unexpected error occurred while placing your order.');
       showToast('Order creation failed. Please try again.', 'error');

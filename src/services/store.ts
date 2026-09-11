@@ -585,6 +585,29 @@ export const StoreService = {
       }
     }
   },
+  updateOrderFull(orderId: string, updates: Partial<Order>): Order | null {
+    const orders = this.getOrders();
+    const target = orders.find((o) => o.id === orderId || o.orderNumber === orderId);
+    if (!target) return null;
+
+    Object.assign(target, updates);
+
+    // If status marked delivered and COD, update payment
+    if (updates.orderStatus === 'Delivered' && target.paymentMethod === 'cod') {
+      target.paymentStatus = 'paid';
+    }
+
+    setItem(STORAGE_KEYS.ORDERS, orders);
+    internalNotify(true);
+
+    try {
+      FirebaseSyncService.saveOrder(target);
+    } catch (e) {
+      console.warn('Firebase sync updateOrderFull error:', e);
+    }
+
+    return target;
+  },
   deleteOrder(orderId: string): void {
     // 1. Permanently register in deleted IDs list to prevent resurrection across devices
     const deletedIds = getItem<string[]>(STORAGE_KEYS.DELETED_ORDER_IDS, ['ord-1001', 'ord-1002']);

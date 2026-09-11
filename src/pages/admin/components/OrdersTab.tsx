@@ -6,6 +6,7 @@ import {
   Trash2, RefreshCcw
 } from 'lucide-react';
 import { Order, OrderStatus, PaymentStatus } from '../../../types';
+import { AdminOrderDetailsModal } from './AdminOrderDetailsModal';
 
 interface OrdersTabProps {
   orders: Order[];
@@ -320,14 +321,26 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                         </select>
                       </td>
 
-                      {/* Action Buttons: Invoice, WhatsApp, Call */}
+                      {/* Action Buttons: Details, Invoice, WhatsApp, Call */}
                       <td className="py-3 px-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
+                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                          {/* Details Button */}
+                          <button
+                            type="button"
+                            onClick={() => setDetailsOrder(order)}
+                            title="অর্ডার বিস্তারিত ও কুরিয়ার কন্ট্রোল দেখুন"
+                            className="px-2.5 py-1.5 bg-[#0b1329] hover:bg-[#f85606] text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Details</span>
+                          </button>
+
                           {/* Print Invoice */}
                           <button
+                            type="button"
                             onClick={() => onPrintInvoice(order)}
                             title="ইনভয়েস প্রিন্ট করুন"
-                            className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+                            className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors cursor-pointer"
                           >
                             <Printer className="w-3.5 h-3.5" />
                           </button>
@@ -355,6 +368,7 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                           {/* Delete Order */}
                           {onDeleteOrder && (
                             <button
+                              type="button"
                               onClick={() => handleDelete(order)}
                               title="অর্ডার ডিলিট করুন"
                               className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors cursor-pointer"
@@ -454,91 +468,19 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
         </div>
       )}
 
-      {/* Order Quick Details Modal */}
+      {/* Order High-Craft Details & Dispatch Modal */}
       {detailsOrder && (
-        <div className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden my-6">
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div>
-                <h3 className="font-black text-slate-900 text-sm sm:text-base">
-                  অর্ডার বিস্তারিত: {detailsOrder.orderNumber}
-                </h3>
-                <span className="text-xs text-slate-500">
-                  {new Date(detailsOrder.orderDate).toLocaleString('en-GB')}
-                </span>
-              </div>
-              <button
-                onClick={() => setDetailsOrder(null)}
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
-                <p className="font-bold text-slate-900">{detailsOrder.customerName}</p>
-                <p className="text-slate-600">ফোন: {detailsOrder.phone}</p>
-                <p className="text-slate-600">ঠিকানা: {detailsOrder.address.fullAddress}, {detailsOrder.address.area}, {detailsOrder.address.district}</p>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-slate-800 mb-2 uppercase tracking-wider text-[11px]">
-                  অর্ডারকৃত পণ্য তালিকা:
-                </h4>
-                <div className="space-y-2 divide-y divide-slate-100">
-                  {detailsOrder.items.map((it, idx) => (
-                    <div key={idx} className="pt-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <img src={it.image} alt={it.name} className="w-9 h-9 object-cover rounded-lg border border-slate-200" referrerPolicy="no-referrer" />
-                        <div>
-                          <p className="font-bold text-slate-800">{it.name}</p>
-                          <span className="text-slate-400 text-[10px]">{it.quantity} x ৳{it.price}</span>
-                        </div>
-                      </div>
-                      <span className="font-black text-slate-900">৳{it.total}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-slate-200 space-y-1 text-right">
-                <div className="flex justify-between text-slate-500">
-                  <span>সাবটোটাল:</span>
-                  <span>৳{detailsOrder.subtotal}</span>
-                </div>
-                {detailsOrder.couponDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-700">
-                    <span>কুপন ছাড় ({detailsOrder.couponCode}):</span>
-                    <span>-৳{detailsOrder.couponDiscount}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-slate-500">
-                  <span>ডেলিভারি ফি:</span>
-                  <span>৳{detailsOrder.deliveryCharge}</span>
-                </div>
-                <div className="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-100">
-                  <span>সর্বমোট টাকা:</span>
-                  <span className="text-emerald-700">৳{detailsOrder.total}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-                <button
-                  onClick={() => {
-                    const ord = detailsOrder;
-                    setDetailsOrder(null);
-                    onPrintInvoice(ord);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-xs"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>ক্যাশ মেমো প্রিন্ট করুন</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <AdminOrderDetailsModal
+          order={detailsOrder}
+          onClose={() => setDetailsOrder(null)}
+          onPrintInvoice={(ord) => onPrintInvoice(ord)}
+          onOrderUpdated={(updated) => {
+            setDetailsOrder(updated);
+            if (onRefreshOrders) {
+              onRefreshOrders();
+            }
+          }}
+        />
       )}
     </div>
   );
