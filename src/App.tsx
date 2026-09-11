@@ -12,6 +12,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { DeliveryAreaModal } from './components/DeliveryAreaModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { FloatingCartButton } from './components/FloatingCartButton';
+import { FloatingWhatsAppButton } from './components/FloatingWhatsAppButton';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -187,7 +188,10 @@ function MainApp() {
 
       {/* Floating Right Cart Badge Widget (matching reference screenshot) */}
       {!isAdminView && (
-        <FloatingCartButton />
+        <>
+          <FloatingCartButton />
+          <FloatingWhatsAppButton />
+        </>
       )}
 
       {/* Slide-over Cart Drawer */}

@@ -13,7 +13,8 @@ import {
   Share2, 
   ArrowLeft,
   Zap,
-  Info
+  Info,
+  Phone
 } from 'lucide-react';
 import { Product } from '../types';
 import { StoreService } from '../services/store';
@@ -32,6 +33,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug, onNa
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'desc' | 'nutrition' | 'storage' | 'reviews'>('desc');
+  const [settings, setSettings] = useState(() => StoreService.getSettings());
+
+  useEffect(() => {
+    const unsub = StoreService.subscribeToStore ? StoreService.subscribeToStore(() => {
+      setSettings(StoreService.getSettings());
+    }) : undefined;
+    return unsub;
+  }, []);
 
   const { addToCart, setIsCartOpen } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -83,6 +92,20 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug, onNa
     } else {
       showToast(res.message, 'error');
     }
+  };
+
+  const handleWhatsAppOrder = () => {
+    const rawNumber = (settings.whatsappNumber || settings.phone || '01854774406').replace(/[^0-9]/g, '');
+    const cleanNumber = rawNumber.startsWith('88') 
+      ? rawNumber 
+      : `88${rawNumber.startsWith('0') ? rawNumber : '0' + rawNumber}`;
+    const productPrice = product.salePrice * quantity;
+    const msg = `আসসালামু আলাইকুম! আমি "${product.name}" অর্ডার করতে চাই।
+পরিমাণ: ${quantity} টি
+মূল্য: ৳${productPrice.toLocaleString()}
+লিংক: ${window.location.href}`;
+    const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 
   const handleToggleWishlist = () => {
@@ -243,50 +266,79 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ slug, onNa
             </p>
           </div>
 
-          {/* Action Area: Quantity & Add to Cart & Buy Now */}
+          {/* Action Area: Quantity & 4 Action Buttons matching user screenshot */}
           <div className="space-y-4 pt-4 border-t border-slate-200">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Quantity Counter */}
-              <div className="flex items-center justify-between border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 w-full sm:w-36">
+            {/* Quantity: [-]  1  [+] */}
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-semibold text-slate-700">Quantity:</span>
+              <div className="inline-flex items-center border border-slate-300 rounded-xl px-2.5 py-1.5 bg-white shadow-2xs">
                 <button
+                  type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="p-1 text-slate-600 hover:text-slate-900"
+                  className="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-40"
                   disabled={isOutOfStock || quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="font-bold text-sm text-slate-900">{quantity}</span>
+                <span className="w-12 text-center font-bold text-sm text-slate-900">{quantity}</span>
                 <button
+                  type="button"
                   onClick={() => setQuantity((q) => Math.min(product.stockQuantity, q + 1))}
-                  className="p-1 text-slate-600 hover:text-slate-900"
+                  className="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-40"
                   disabled={isOutOfStock || quantity >= product.stockQuantity}
+                  aria-label="Increase quantity"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                 </button>
               </div>
+            </div>
 
-              {/* Add To Cart */}
+            {/* 4 Action Buttons in 2x2 Grid exactly like screenshot */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* 1. ADD TO CART (Vibrant Orange) */}
               <button
                 id="pdp-add-to-cart-btn"
+                type="button"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="flex-1 py-3 px-5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-98 transition-all"
+                className="w-full py-3.5 px-4 bg-[#f85606] hover:bg-[#e04a00] active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-orange-500/20 transition-all uppercase tracking-wide cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>{isOutOfStock ? 'Currently Out of Stock' : 'Add to Cart'}</span>
+                <span>ADD TO CART</span>
               </button>
 
-              {/* Instant Buy Now */}
-              {!isOutOfStock && (
-                <button
-                  id="pdp-buy-now-btn"
-                  onClick={handleBuyNow}
-                  className="py-3 px-5 bg-slate-950 hover:bg-slate-800 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all active:scale-98"
-                >
-                  <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Buy Now</span>
-                </button>
-              )}
+              {/* 2. BUY NOW (Dark / Black) */}
+              <button
+                id="pdp-buy-now-btn"
+                type="button"
+                onClick={handleBuyNow}
+                disabled={isOutOfStock}
+                className="w-full py-3.5 px-4 bg-[#0a192f] hover:bg-[#112240] active:scale-[0.98] disabled:bg-slate-200 disabled:text-slate-400 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-slate-900/20 transition-all uppercase tracking-wide cursor-pointer"
+              >
+                <span>BUY NOW</span>
+              </button>
+
+              {/* 3. Order On WhatsApp (Vibrant Green) */}
+              <button
+                type="button"
+                onClick={handleWhatsAppOrder}
+                className="w-full py-3.5 px-4 bg-[#10b981] hover:bg-[#059669] active:scale-[0.98] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.23.9 2.43 1.02 2.6.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.59.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/>
+                </svg>
+                <span>Order On WhatsApp</span>
+              </button>
+
+              {/* 4. Call For Order (Dark Blue) */}
+              <a
+                href={`tel:${settings.phone || settings.hotline || '01854774406'}`}
+                className="w-full py-3.5 px-4 bg-[#1e3a8a] hover:bg-[#172554] active:scale-[0.98] text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-900/20 transition-all cursor-pointer"
+              >
+                <Phone className="w-4 h-4" />
+                <span>Call For Order</span>
+              </a>
             </div>
 
             {/* Assurance badges */}
