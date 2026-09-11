@@ -1237,18 +1237,25 @@ export const INITIAL_REVIEWS: Review[] = [
 ];
 
 export const INITIAL_STORE_SETTINGS: StoreSettings = {
-  storeName: 'KHAN GADGET BD',
-  brandTagline: 'স্মার্ট গ্যাজেট ও লাইফস্টাইল এক্সেসরিজ',
+  storeName: 'KHAN store',
+  brandTagline: '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
+  tagline: '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
   hotline: '01854774406',
+  phone: '01854774406',
   whatsappNumber: '01854774406',
-  supportEmail: 'contact@khangadgetbd.com',
+  supportEmail: 'contact@khanstore.com',
+  email: 'contact@khanstore.com',
   officeAddress: 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
+  address: 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
   bkashMerchantNumber: '01854774406 (Personal / Send Money)',
   nagadMerchantNumber: '01854774406 (Personal / Send Money)',
   taxPercentage: 0,
-  announcementText: '🔥 KHAN GADGET BD: প্রিমিয়াম স্মার্ট গ্যাজেটে আকর্ষণীয় অফার | সারাদেশে ক্যাশ অন ডেলিভারি',
+  announcementText: '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড় | সারাদেশে ক্যাশ অন ডেলিভারি',
   isAnnouncementActive: true,
   currency: 'BDT',
   currencySymbol: '৳',
-  freeDeliveryThreshold: 2000
+  deliveryChargeDhaka: 60,
+  deliveryChargeOutside: 120,
+  freeDeliveryThreshold: 2000,
+  aboutUsText: 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান।'
 };

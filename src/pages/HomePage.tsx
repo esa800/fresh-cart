@@ -14,6 +14,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
+import { AutoScrollProductSlider } from '../components/AutoScrollProductSlider';
 import { StoreService, subscribeToStore } from '../services/store';
 import { Product, Category } from '../types';
 
@@ -329,33 +330,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 5. Dynamic Category Sections from Admin Panel (First 2 categories) */}
+      {/* 5. Dynamic Category Sections from Admin Panel (First 2 categories with auto right-to-left glide on cursor hover) */}
       {activeCategorySections.slice(0, 2).map(({ category: cat, products: catProds }) => (
-        <section key={cat.id} className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <span>{cat.name}</span>
-              {cat.banglaName && (
-                <span className="text-slate-400 font-semibold text-xs sm:text-sm">
-                  ({cat.banglaName})
-                </span>
-              )}
-            </h2>
-            <button
-              onClick={() => onNavigate('category-products', cat.slug)}
-              className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-            >
-              <span>VIEW ALL ITEMS</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {catProds.slice(0, 5).map((prod) => (
-              <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-            ))}
-          </div>
-        </section>
+        <AutoScrollProductSlider
+          key={cat.id}
+          category={cat}
+          products={catProds}
+          onNavigate={onNavigate}
+        />
       ))}
 
       {/* 6. Mid-Page Landscape Banner: Shosti Brand (স্বস্তি - খাবারে স্বাদ এবং প্রশান্তি) */}
@@ -406,33 +388,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </section>
 
-      {/* 7. Remaining Dynamic Category Sections from Admin Panel */}
+      {/* 7. Remaining Dynamic Category Sections from Admin Panel with smooth right-to-left glide on hover */}
       {activeCategorySections.slice(2).map(({ category: cat, products: catProds }) => (
-        <section key={cat.id} className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <span>{cat.name}</span>
-              {cat.banglaName && (
-                <span className="text-slate-400 font-semibold text-xs sm:text-sm">
-                  ({cat.banglaName})
-                </span>
-              )}
-            </h2>
-            <button
-              onClick={() => onNavigate('category-products', cat.slug)}
-              className="text-xs font-bold text-[#f85606] hover:text-[#e04a00] flex items-center gap-1 group"
-            >
-              <span>VIEW ALL ITEMS</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {catProds.slice(0, 5).map((prod) => (
-              <ProductCard key={prod.id} product={prod} onNavigate={onNavigate} />
-            ))}
-          </div>
-        </section>
+        <AutoScrollProductSlider
+          key={cat.id}
+          category={cat}
+          products={catProds}
+          onNavigate={onNavigate}
+        />
       ))}
 
       {/* 8. Just For You Section (All products from the store) */}

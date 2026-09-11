@@ -53,12 +53,21 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
   const [settings, setSettings] = useState(() => StoreService.getSettings());
 
   useEffect(() => {
-    const unsub = StoreService.subscribeToStore ? StoreService.subscribeToStore(() => {
+    const refresh = () => {
       setCategories(StoreService.getCategories());
       setAllProducts(StoreService.getProducts());
       setSettings(StoreService.getSettings());
-    }) : undefined;
-    return unsub;
+    };
+
+    const unsub = StoreService.subscribeToStore(refresh);
+    window.addEventListener('khan_store_updated', refresh);
+    window.addEventListener('storage', refresh);
+
+    return () => {
+      if (unsub) unsub();
+      window.removeEventListener('khan_store_updated', refresh);
+      window.removeEventListener('storage', refresh);
+    };
   }, []);
 
   // Search auto-suggestions
@@ -153,7 +162,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
                 <Leaf className="w-2.5 h-2.5" /> NOTICE
               </span>
               <span className="text-emerald-100 font-medium hidden sm:inline">
-                {settings.announcementText || '🔥 স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে আকর্ষণীয় ছাড়! সারাদেশে ক্যাশ অন ডেলিভারি'}
+                {settings.announcementText || `🌿 ${settings.storeName || 'KHAN store'} স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড়! সারাদেশে ক্যাশ অন ডেলিভারি`}
               </span>
             </div>
 
@@ -182,15 +191,15 @@ export const Header: React.FC<HeaderProps> = ({ currentView, viewParam = '', onN
             </div>
             <div>
               <h1 className="font-black text-xl sm:text-2xl tracking-tight text-slate-900 uppercase flex items-center gap-1 leading-none">
-                <span>{(settings.storeName || 'KHAN GADGET BD').split(' ')[0]}</span>
-                {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).length > 0 && (
+                <span>{(settings.storeName || 'KHAN store').split(' ')[0]}</span>
+                {(settings.storeName || 'KHAN store').split(' ').slice(1).length > 0 && (
                   <span className="text-[#f85606]">
-                    {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).join(' ')}
+                    {(settings.storeName || 'KHAN store').split(' ').slice(1).join(' ')}
                   </span>
                 )}
               </h1>
               <p className="text-[10px] text-slate-500 font-semibold tracking-wider mt-0.5 max-w-[180px] sm:max-w-xs truncate">
-                {settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজ'}
+                {settings.brandTagline || settings.tagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড'}
               </p>
             </div>
           </div>

@@ -41,7 +41,7 @@ function MainApp() {
   const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
 
   // Real-time Global Store Version (Auto-triggers instantaneous re-render across the entire website on any Admin update)
-  const [, setStoreVersion] = useState(0);
+  const [storeVersion, setStoreVersion] = useState(0);
 
   useEffect(() => {
     const unsub = StoreService.subscribeToStore(() => {
@@ -49,6 +49,33 @@ function MainApp() {
     });
     return unsub;
   }, []);
+
+  // Dynamic Browser Tab Title & Store Name Synchronization
+  useEffect(() => {
+    const s = StoreService.getSettings();
+    const storeName = s.storeName || 'KHAN store';
+
+    if (currentView === 'home') {
+      document.title = `${storeName} | ${s.brandTagline || '100% Organic, Fresh & Pure Food in Bangladesh'}`;
+    } else if (currentView === 'product-detail' && viewParam) {
+      const prod = StoreService.getProductBySlug(viewParam);
+      document.title = prod ? `${prod.name} | ${storeName}` : `Product Details | ${storeName}`;
+    } else if (currentView === 'admin') {
+      document.title = `Admin Dashboard | ${storeName}`;
+    } else if (currentView === 'cart') {
+      document.title = `Shopping Cart | ${storeName}`;
+    } else if (currentView === 'checkout') {
+      document.title = `Checkout | ${storeName}`;
+    } else if (currentView === 'track-order') {
+      document.title = `Track Order | ${storeName}`;
+    } else if (currentView === 'category-products') {
+      const cat = StoreService.getCategoryBySlug(viewParam || '');
+      document.title = cat ? `${cat.name} | ${storeName}` : `Category | ${storeName}`;
+    } else {
+      const formatted = currentView.charAt(0).toUpperCase() + currentView.slice(1).replace(/-/g, ' ');
+      document.title = `${formatted} | ${storeName}`;
+    }
+  }, [currentView, viewParam, storeVersion]);
 
   // Scroll to top on view change
   useEffect(() => {

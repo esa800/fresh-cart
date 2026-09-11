@@ -874,51 +874,61 @@ export const StoreService = {
   // Store Settings
   getSettings(): StoreSettings {
     const s = getItem<StoreSettings>(STORAGE_KEYS.SETTINGS, INITIAL_STORE_SETTINGS);
-    // Ensure aliases and fallbacks are populated
+    // Ensure aliases and fallbacks are populated, migrating old template defaults
+    const storeName = (s.storeName && s.storeName !== 'KHAN GADGET BD') ? s.storeName : 'KHAN store';
     return {
       ...s,
-      storeName: s.storeName || 'KHAN GADGET BD',
-      brandTagline: s.brandTagline || s.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
-      tagline: s.tagline || s.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      storeName,
+      brandTagline: s.brandTagline || s.tagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
+      tagline: s.tagline || s.brandTagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
       hotline: s.hotline || s.phone || '01854774406',
       phone: s.phone || s.hotline || '01854774406',
       whatsappNumber: s.whatsappNumber || '01854774406',
-      supportEmail: s.supportEmail || s.email || 'info@khangadgetbd.com',
-      email: s.email || s.supportEmail || 'info@khangadgetbd.com',
+      supportEmail: s.supportEmail || s.email || 'contact@khanstore.com',
+      email: s.email || s.supportEmail || 'contact@khanstore.com',
       officeAddress: s.officeAddress || s.address || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       address: s.address || s.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       bkashMerchantNumber: s.bkashMerchantNumber || '01854774406 (Personal / Send Money)',
       nagadMerchantNumber: s.nagadMerchantNumber || '01854774406 (Personal / Send Money)',
       isAnnouncementActive: s.isAnnouncementActive !== false,
+      announcementText: s.announcementText || '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড় | সারাদেশে ক্যাশ অন ডেলিভারি',
       deliveryChargeDhaka: Number(s.deliveryChargeDhaka ?? 60),
       deliveryChargeOutside: Number(s.deliveryChargeOutside ?? 120),
       freeDeliveryThreshold: Number(s.freeDeliveryThreshold ?? 2000),
-      aboutUsText: s.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল এক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
+      aboutUsText: s.aboutUsText || 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান।'
     };
   },
   async updateSettings(settings: StoreSettings, syncToCloud: boolean = true): Promise<boolean> {
+    const rawName = settings.storeName?.trim();
+    const storeName = (rawName && rawName !== 'KHAN GADGET BD') ? rawName : 'KHAN store';
+
     const normalized: StoreSettings = {
       ...settings,
-      storeName: settings.storeName?.trim() || 'KHAN GADGET BD',
-      brandTagline: settings.brandTagline?.trim() || settings.tagline?.trim() || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
-      tagline: settings.tagline?.trim() || settings.brandTagline?.trim() || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান',
+      storeName,
+      brandTagline: settings.brandTagline?.trim() || settings.tagline?.trim() || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
+      tagline: settings.tagline?.trim() || settings.brandTagline?.trim() || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড',
       hotline: settings.hotline?.trim() || settings.phone?.trim() || '01854774406',
       phone: settings.phone?.trim() || settings.hotline?.trim() || '01854774406',
       whatsappNumber: settings.whatsappNumber?.trim() || '01854774406',
-      supportEmail: settings.supportEmail?.trim() || settings.email?.trim() || 'info@khangadgetbd.com',
-      email: settings.email?.trim() || settings.supportEmail?.trim() || 'info@khangadgetbd.com',
+      supportEmail: settings.supportEmail?.trim() || settings.email?.trim() || 'contact@khanstore.com',
+      email: settings.email?.trim() || settings.supportEmail?.trim() || 'contact@khanstore.com',
       officeAddress: settings.officeAddress?.trim() || settings.address?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       address: settings.address?.trim() || settings.officeAddress?.trim() || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh',
       bkashMerchantNumber: settings.bkashMerchantNumber?.trim() || '01854774406 (Personal / Send Money)',
       nagadMerchantNumber: settings.nagadMerchantNumber?.trim() || '01854774406 (Personal / Send Money)',
       isAnnouncementActive: settings.isAnnouncementActive !== false,
-      announcementText: settings.announcementText ?? '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি',
+      announcementText: settings.announcementText ?? '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড় | সারাদেশে ক্যাশ অন ডেলিভারি',
       deliveryChargeDhaka: Number(settings.deliveryChargeDhaka ?? 60),
       deliveryChargeOutside: Number(settings.deliveryChargeOutside ?? 120),
       freeDeliveryThreshold: Number(settings.freeDeliveryThreshold ?? 2000),
-      aboutUsText: settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
+      aboutUsText: settings.aboutUsText || 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান।'
     };
     setItem(STORAGE_KEYS.SETTINGS, normalized);
+
+    // Instant browser tab title update
+    if (typeof document !== 'undefined') {
+      document.title = `${normalized.storeName} | ${normalized.brandTagline || '100% Organic, Fresh & Pure Food in Bangladesh'}`;
+    }
 
     // Synchronize delivery rates into delivery zones
     try {

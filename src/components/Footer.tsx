@@ -98,20 +98,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </div>
               <div>
                 <span className="font-black text-2xl text-white tracking-tight uppercase flex items-center gap-1">
-                  <span>{(settings.storeName || 'KHAN GADGET BD').split(' ')[0]}</span>
-                  {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).length > 0 && (
+                  <span>{(settings.storeName || 'KHAN store').split(' ')[0]}</span>
+                  {(settings.storeName || 'KHAN store').split(' ').slice(1).length > 0 && (
                     <span className="text-[#f85606]">
-                      {(settings.storeName || 'KHAN GADGET BD').split(' ').slice(1).join(' ')}
+                      {(settings.storeName || 'KHAN store').split(' ').slice(1).join(' ')}
                     </span>
                   )}
                 </span>
                 <p className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">
-                  {settings.brandTagline || settings.tagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজ'}
+                  {settings.brandTagline || settings.tagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড'}
                 </p>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              {settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।'}
+              {settings.aboutUsText || 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান। সারাদেশে ক্যাশ অন ডেলিভারি সুবিধা।'}
             </p>
 
             <div className="space-y-2.5 pt-2 text-xs">

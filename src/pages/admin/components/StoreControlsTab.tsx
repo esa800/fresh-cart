@@ -19,17 +19,17 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
   onRefreshData
 }) => {
   // Local Form state for Settings
-  const [storeName, setStoreName] = useState(settings.storeName || 'KHAN GADGET BD');
-  const [tagline, setTagline] = useState(settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
+  const [storeName, setStoreName] = useState(settings.storeName || 'KHAN store');
+  const [tagline, setTagline] = useState(settings.tagline || settings.brandTagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড');
   const [phone, setPhone] = useState(settings.phone || settings.hotline || '01854774406');
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber || '01854774406');
-  const [email, setEmail] = useState(settings.email || settings.supportEmail || 'info@khangadgetbd.com');
+  const [email, setEmail] = useState(settings.email || settings.supportEmail || 'contact@khanstore.com');
   const [address, setAddress] = useState(settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
   
   // Announcement
   const [isAnnouncementActive, setIsAnnouncementActive] = useState(settings.isAnnouncementActive !== false);
   const [announcementText, setAnnouncementText] = useState(
-    settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি'
+    settings.announcementText || '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড় | সারাদেশে ক্যাশ অন ডেলিভারি'
   );
 
   // Delivery Charges
@@ -39,23 +39,23 @@ export const StoreControlsTab: React.FC<StoreControlsTabProps> = ({
 
   // About Us
   const [aboutUsText, setAboutUsText] = useState(
-    settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।'
+    settings.aboutUsText || 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান।'
   );
 
   // Re-sync local states whenever settings prop changes (e.g. from storage or other tabs)
   useEffect(() => {
-    setStoreName(settings.storeName || 'KHAN GADGET BD');
-    setTagline(settings.tagline || settings.brandTagline || 'স্মার্ট গ্যাজেট ও মোবাইল এক্সেসরিজের বিশ্বস্ত প্রতিষ্ঠান');
+    setStoreName(settings.storeName || 'KHAN store');
+    setTagline(settings.tagline || settings.brandTagline || '১০০% খাঁটি ও নিরাপদ অর্গানিক ফুড');
     setPhone(settings.phone || settings.hotline || '01854774406');
     setWhatsappNumber(settings.whatsappNumber || '01854774406');
-    setEmail(settings.email || settings.supportEmail || 'info@khangadgetbd.com');
+    setEmail(settings.email || settings.supportEmail || 'contact@khanstore.com');
     setAddress(settings.address || settings.officeAddress || 'House 14, Road 4, Sector 7, Uttara, Dhaka 1230, Bangladesh');
     setIsAnnouncementActive(settings.isAnnouncementActive !== false);
-    setAnnouncementText(settings.announcementText || '🔥 আজকের স্পেশাল অফার: যেকোনো গ্যাজেট অর্ডারে ১০% ইনস্ট্যান্ট ছাড়! প্রোমোকোড: KHAN10 | সারাদেশে ক্যাশ অন ডেলিভারি');
+    setAnnouncementText(settings.announcementText || '🌿 KHAN store স্পেশাল অফার: খাঁটি মধু ও ঘি অর্ডারে আকর্ষণীয় ছাড় | সারাদেশে ক্যাশ অন ডেলিভারি');
     setDeliveryChargeDhaka(settings.deliveryChargeDhaka ?? 60);
     setDeliveryChargeOutside(settings.deliveryChargeOutside ?? 120);
     setFreeDeliveryThreshold(settings.freeDeliveryThreshold ?? 2000);
-    setAboutUsText(settings.aboutUsText || 'KHAN GADGET BD বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক মোবাইল গ্যাজেট ও লাইফস্টাইল অ্যাক্সেসরিজ ই-কমার্স প্ল্যাটফর্ম।');
+    setAboutUsText(settings.aboutUsText || 'KHAN store বাংলাদেশের অন্যতম নির্ভরযোগ্য অথেন্টিক অর্গানিক ফুড ও স্বাস্থ্যকর খাদ্যপণ্য সরবরাহকারী প্রতিষ্ঠান।');
   }, [settings]);
 
   // Feedback Banner
