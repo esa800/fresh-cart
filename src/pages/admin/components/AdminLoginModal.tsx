@@ -41,11 +41,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onSuccess, onN
             AP
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-            KHAN GADGET <span className="text-amber-400">BD</span> Admin Portal
+            KHAN <span className="text-amber-400">store</span> Admin Portal
           </h2>
           <p className="text-xs text-slate-300 mt-1.5 flex items-center justify-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            দারাজ-স্টাইল ই-কমার্স অ্যাডমিন কন্ট্রোল প্যানেল
+            100% Pure & Organic Food এডমিন কন্ট্রোল সেন্টার
           </p>
         </div>
 

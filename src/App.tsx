@@ -31,10 +31,48 @@ import { PoliciesPage } from './pages/PoliciesPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { StoreService } from './services/store';
 
+function getInitialNavState(): { view: string; param?: string } {
+  if (typeof window === 'undefined') return { view: 'home' };
+  try {
+    const hash = window.location.hash.replace(/^#\/?/, '').trim();
+    if (hash) {
+      const parts = hash.split('/');
+      const view = parts[0];
+      const param = parts.slice(1).join('/') ? decodeURIComponent(parts.slice(1).join('/')) : undefined;
+      if (view) return { view, param };
+    }
+    const saved = sessionStorage.getItem('khan_store_view');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.view) return parsed;
+    }
+  } catch (e) {
+    // fallback
+  }
+  return { view: 'home' };
+}
+
 function MainApp() {
+  const initialNav = getInitialNavState();
   // Navigation State
-  const [currentView, setCurrentView] = useState<string>('home');
-  const [viewParam, setViewParam] = useState<string | undefined>(undefined);
+  const [currentView, setCurrentView] = useState<string>(initialNav.view);
+  const [viewParam, setViewParam] = useState<string | undefined>(initialNav.param);
+
+  // Sync hash changes (e.g. browser back/forward or direct URL edits)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const nav = getInitialNavState();
+      // If user navigates away from admin via back button
+      if (currentView === 'admin' && nav.view !== 'admin') {
+        StoreService.setAdminSession(false);
+      }
+      setCurrentView(nav.view);
+      setViewParam(nav.param);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [currentView]);
 
   // Global Modals State
   const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
@@ -88,8 +126,24 @@ function MainApp() {
   }, []);
 
   const handleNavigate = (view: string, param?: string) => {
+    // When leaving the admin panel to visit the live store or another page:
+    // Lock admin session so returning requires password again ("admin panal theke ber hoile pore abar admin panal e dhukte pass lagbi")
+    if (currentView === 'admin' && view !== 'admin') {
+      StoreService.setAdminSession(false);
+    }
+
     setCurrentView(view);
     setViewParam(param);
+
+    try {
+      sessionStorage.setItem('khan_store_view', JSON.stringify({ view, param }));
+      const newHash = param ? `#${view}/${encodeURIComponent(param)}` : `#${view}`;
+      if (window.location.hash !== newHash) {
+        window.history.pushState(null, '', newHash);
+      }
+    } catch (e) {
+      // ignore
+    }
   };
 
   const handleOrderPlaced = (orderNumber: string) => {

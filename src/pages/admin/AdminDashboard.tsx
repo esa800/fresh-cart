@@ -204,6 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   const handleLogout = () => {
     StoreService.setAdminSession(false);
     setIsAuthenticated(false);
+    onNavigate('home');
   };
 
   // If not authenticated, render the secure login gate
@@ -211,7 +212,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     return (
       <div className="bg-slate-100 min-h-screen">
         <AdminLoginModal
-          onSuccess={() => setIsAuthenticated(true)}
+          onSuccess={() => {
+            StoreService.setAdminSession(true);
+            setIsAuthenticated(true);
+          }}
           onNavigateHome={() => onNavigate('home')}
         />
       </div>
